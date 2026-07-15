@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Financial Analyzer</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <!-- Live Stock Market Ticker 1 (Nifty 50) -->
+  <div class="ticker-wrap" id="tickerBarNifty">
+    <div class="ticker-title theme-nifty">
+      <span class="ticker-pulse"></span> NIFTY 50
+    </div>
+    <div class="ticker-track-container">
+      <div class="ticker-track" id="tickerTrackNifty">
+        <span class="ticker-loading">Loading Nifty rates...</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Live Stock Market Ticker 2 (OMX Stockholm) -->
+  <div class="ticker-wrap" id="tickerBarOmx">
+    <div class="ticker-title theme-omx">
+      <span class="ticker-pulse"></span> OMX STOCKHOLM
+    </div>
+    <div class="ticker-track-container">
+      <div class="ticker-track" id="tickerTrackOmx">
+        <span class="ticker-loading">Loading Stockholm rates...</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <!-- Header -->
+    <header>
+      <div class="brand-section">
+        <div class="logo-icon">N</div>
+        <div>
+          <h1>Nifty Analysis Dashboard</h1>
+          <p>YouTube aggregates from the last 24 hours</p>
+        </div>
+      </div>
+      
+      <div class="controls-group">
+        <button id="settingsBtn" class="btn" title="Configure YouTube API Key">
+          <i data-lucide="key"></i> API Key
+        </button>
+        <button id="refreshBtn" class="btn btn-primary">
+          <i data-lucide="refresh-cw"></i> Refresh
+        </button>
+      </div>
+    </header>
+
+    <!-- Stats Grid -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-header">
+          <span>Videos Analysed</span>
+          <i data-lucide="video" style="color: var(--accent-blue);"></i>
+        </div>
+        <div id="statTotalVideos" class="stat-value">0</div>
+        <div class="stat-footer">Aggregate count</div>
+      </div>
+
+      <div class="stat-card bullish">
+        <div class="stat-header">
+          <span>Bullish Outlook</span>
+          <i data-lucide="trending-up" style="color: var(--bullish-color);"></i>
+        </div>
+        <div id="statBullishCount" class="stat-value">0</div>
+        <div id="statBullishPct" class="stat-footer positive">0% of total</div>
+      </div>
+
+      <div class="stat-card bearish">
+        <div class="stat-header">
+          <span>Bearish Outlook</span>
+          <i data-lucide="trending-down" style="color: var(--bearish-color);"></i>
+        </div>
+        <div id="statBearishCount" class="stat-value">0</div>
+        <div id="statBearishPct" class="stat-footer negative">0% of total</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-header">
+          <span>Total Views</span>
+          <i data-lucide="eye" style="color: var(--accent-purple);"></i>
+        </div>
+        <div id="statTotalViews" class="stat-value">0</div>
+        <div class="stat-footer">Estimated reach</div>
+      </div>
+    </div>
+
+
+    <!-- Visual Analysis Panels -->
+    <div class="viz-panel">
+      <!-- Activity Timeline Chart -->
+      <div class="chart-card">
+        <h2>
+          <span>Upload Activity & Views</span>
+          <i data-lucide="bar-chart-2" style="color: var(--accent-blue); width: 18px;"></i>
+        </h2>
+        <div class="chart-wrapper">
+          <canvas id="timelineChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Sentiment Meter Gauge -->
+      <div class="chart-card">
+        <h2>
+          <span>Nifty Sentiment Gauge</span>
+          <i data-lucide="gauge" style="color: var(--accent-purple); width: 18px;"></i>
+        </h2>
+        <div class="sentiment-meter-container">
+          <div class="sentiment-gauge">
+            <div class="gauge-body"></div>
+            <div class="gauge-needle" id="gaugeNeedle"></div>
+            <div class="gauge-cover" id="gaugeValue">50%</div>
+          </div>
+          <p id="sentimentStatus" style="font-weight: 700; font-size: 1.1rem; margin-top: 0.5rem; text-transform: uppercase;">Neutral</p>
+          <div class="sentiment-labels">
+            <div class="sentiment-label-item">
+              <span class="sentiment-bullet" style="background: var(--bearish-color);"></span> Bearish
+            </div>
+            <div class="sentiment-label-item">
+              <span class="sentiment-bullet" style="background: var(--neutral-color);"></span> Neutral
+            </div>
+            <div class="sentiment-label-item">
+              <span class="sentiment-bullet" style="background: var(--bullish-color);"></span> Bullish
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Market Mood Index Gauge -->
+      <div class="chart-card">
+        <h2>
+          <span>Market Mood Index (MMI)</span>
+          <a href="https://www.tickertape.in/market-mood-index" target="_blank" title="View on Tickertape" style="color: var(--text-secondary); display: inline-flex; align-items: center; text-decoration: none;">
+            <i data-lucide="external-link" style="width: 14px; height: 14px;"></i>
+          </a>
+        </h2>
+        <div class="sentiment-meter-container">
+          <div class="sentiment-gauge">
+            <div class="mmi-gauge-body"></div>
+            <div class="gauge-needle" id="mmiNeedle"></div>
+            <div class="gauge-cover" id="mmiValue">--</div>
+          </div>
+          <p id="mmiStatus" style="font-weight: 700; font-size: 1.1rem; margin-top: 0.5rem; text-transform: uppercase;">LOADING...</p>
+          <div class="mmi-labels">
+            <div class="mmi-label-item" title="Extreme Fear: &lt; 30">
+              <span class="mmi-bullet" style="background: #ef4444;"></span> Ext Fear
+            </div>
+            <div class="mmi-label-item" title="Fear: 30 - 50">
+              <span class="mmi-bullet" style="background: #f97316;"></span> Fear
+            </div>
+            <div class="mmi-label-item" title="Greed: 50 - 70">
+              <span class="mmi-bullet" style="background: #eab308;"></span> Greed
+            </div>
+            <div class="mmi-label-item" title="Extreme Greed: &gt; 70">
+              <span class="mmi-bullet" style="background: #10b981;"></span> Ext Greed
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Trade Setup Calculator Panel -->
+    <div class="section-header collapsible-header" id="tradeSetupHeader" style="margin-top: 1.5rem;">
+      <h2>
+        <span>Trade Setup Calculator</span>
+        <i data-lucide="chevron-down" id="tradeSetupCollapseIcon" class="chevron-rotated"></i>
+      </h2>
+    </div>
+
+    <div id="tradeSetupContainer" class="video-grid-container collapsed">
+      <div class="trade-setup-card">
+        <!-- Tab selector -->
+        <div class="trade-tabs">
+          <button class="trade-tab-btn active" id="tabDigital">Digital Asset</button>
+          <button class="trade-tab-btn" id="tabEquity">Equity</button>
+        </div>
+
+        <!-- Trade Rules Status Bar -->
+        <div class="trade-rules-panel" id="tradeRulesPanel">
+          <h3 class="rules-title">Trade Planning Rules & Compliance</h3>
+          <div class="rules-list">
+            <div class="rule-item" id="ruleAllocation">
+              <span class="rule-icon" id="iconAllocation"></span>
+              <span class="rule-text" id="textAllocation">Position Size Limit</span>
+            </div>
+            <div class="rule-item" id="ruleRR">
+              <span class="rule-icon" id="iconRR"></span>
+              <span class="rule-text" id="textRR">Risk-to-Reward Ratio</span>
+            </div>
+            <div class="rule-item" id="ruleRiskLimit">
+              <span class="rule-icon" id="iconRiskLimit"></span>
+              <span class="rule-text" id="textRiskLimit">Risk / Leverage Cap</span>
+            </div>
+            <div class="rule-item" id="ruleCapitalPreservation">
+              <span class="rule-icon" id="iconCapitalPreservation"></span>
+              <span class="rule-text" id="textCapitalPreservation">Capital Preservation</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="trade-calculator-layout">
+          <!-- Left side: Inputs -->
+          <div class="trade-inputs">
+            <div class="trade-input-group">
+              <label for="tradeCurrency">Currency</label>
+              <select id="tradeCurrency" class="trade-input">
+                <option value="USD" selected>USD ($)</option>
+                <option value="INR">INR (₹)</option>
+                <option value="SEK">SEK (kr)</option>
+              </select>
+            </div>
+
+            <div class="trade-input-group">
+              <label for="initialCapital" id="capitalLabel">Initial Capital ($)</label>
+              <input type="number" id="initialCapital" class="trade-input" value="10000" min="100">
+            </div>
+
+            <div class="trade-input-group">
+              <label for="winRate">Expected Win Rate (%)</label>
+              <input type="number" id="winRate" class="trade-input" value="45" min="1" max="99">
+            </div>
+
+            <div class="trade-input-group">
+              <label for="tradesPerMonth">Expected Trades / Month</label>
+              <input type="number" id="tradesPerMonth" class="trade-input" value="8" min="1">
+              <small id="tradesHelperNote" style="color: var(--text-secondary); display: block; font-size: 0.72rem; margin-top: 0.2rem; font-weight: 500;">8 trades/month (96 trades/year)</small>
+            </div>
+
+            <div class="trade-input-group">
+              <label for="projectionYears">Projection Period (Years)</label>
+              <input type="number" id="projectionYears" class="trade-input" value="5" min="1" max="30">
+            </div>
+
+            <!-- Leverage (Visible only for Digital Assets) -->
+            <div class="trade-input-group" id="leverageInputWrapper">
+              <label for="leverageSelect">Leverage</label>
+              <select id="leverageSelect" class="trade-input">
+                <option value="1" selected>1x (No Leverage)</option>
+                <option value="10">10x</option>
+                <option value="15">15x</option>
+                <option value="20">20x</option>
+                <option value="25">25x</option>
+                <option value="custom">Custom Leverage...</option>
+              </select>
+            </div>
+
+            <div class="trade-input-group" id="customLeverageWrapper" style="display: none;">
+              <label for="customLeverage">Custom Leverage (Max 25x)</label>
+              <input type="number" id="customLeverage" class="trade-input" value="10" min="1" max="25" step="1">
+            </div>
+
+            <div class="trade-input-group" id="riskInputWrapper">
+              <label for="riskPct" id="riskLabel">Risk on Allocation (%)</label>
+              <input type="number" id="riskPct" class="trade-input" value="5" min="0.1" step="0.1">
+              <small id="riskLimitNote" style="color: #ef4444; display: none; font-size: 0.72rem; margin-top: 0.2rem; font-weight: 500;">Capped at max 3.0%</small>
+            </div>
+
+            <div class="trade-input-group">
+              <label for="rewardPct" id="rewardLabel">Reward on Allocation (%)</label>
+              <input type="number" id="rewardPct" class="trade-input" value="15" min="0.1" step="0.1">
+            </div>
+          </div>
+
+          <!-- Middle: Calculated Metrics -->
+          <div class="trade-metrics">
+            <div class="trade-metric-card">
+              <span class="metric-title">Allocated per Trade</span>
+              <span class="metric-val" id="metricAllocation">$2,500.00</span>
+              <span class="metric-desc" id="metricAllocationDesc">25% of overall capital</span>
+            </div>
+
+            <!-- Leveraged position metric (Digital Asset only) -->
+            <div class="trade-metric-card" id="metricLeverageCard">
+              <span class="metric-title">Leveraged Position Size</span>
+              <span class="metric-val" id="metricLeveragedPosition">$25,000.00</span>
+              <span class="metric-desc" id="metricLiquidationLimit">Liquidation boundary: 10.0% price move against you</span>
+            </div>
+
+            <div class="trade-metric-card loss-danger">
+              <span class="metric-title">Max Loss per Trade</span>
+              <span class="metric-val" id="metricMaxLoss">$125.00</span>
+              <span class="metric-desc" id="metricLossImpact">1.25% of overall capital</span>
+            </div>
+
+            <div class="trade-metric-card win-success">
+              <span class="metric-title">Max Profit per Trade</span>
+              <span class="metric-val" id="metricMaxProfit">$375.00</span>
+              <span class="metric-desc" id="metricProfitImpact">3.75% of overall capital</span>
+              <!-- Indian Crypto VDA Tax Breakdown -->
+              <div id="cryptoTaxBreakdown" style="display: none; font-size: 0.72rem; margin-top: 0.3rem; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 0.3rem; font-weight: 500; text-align: left;">
+                <span style="color: #f87171;" id="taxValue">Tax (30%): $112.50</span> | <span style="color: #34d399;" id="netProfitValue">Net: $262.50</span>
+              </div>
+            </div>
+
+            <div class="trade-metric-card">
+              <span class="metric-title">Risk-to-Reward Ratio</span>
+              <span class="metric-val" id="metricRatio">1 : 3.00</span>
+              <span class="metric-desc" id="metricRatioAlert" style="color: var(--bullish-color);">Target: Min 1:3 ratio met</span>
+            </div>
+
+            <div class="trade-metric-card blowup-alert">
+              <span class="metric-title">Consecutive Losses to Blow Up</span>
+              <span class="metric-val" id="metricBlowup">80 Trades</span>
+              <span class="metric-desc">Required to reduce capital to $0</span>
+            </div>
+          </div>
+
+          <!-- Right side: Chart -->
+          <div class="trade-chart">
+            <h3 style="font-size: 0.95rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--text-primary);">Compounding Capital Growth Projections</h3>
+            <div class="growth-chart-wrapper" style="position: relative; height: 260px;">
+              <canvas id="growthChart"></canvas>
+            </div>
+            <div class="projection-summary" id="projectionSummary" style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.5rem; text-align: center;">
+              Projected Capital after 5 years: $19,307 (Growth: +93%)
+            </div>
+
+            <!-- Leverage warning card (Visible only for Digital Assets) -->
+            <div class="warning-box leverage-warning" id="leverageWarning" style="margin-top: 0.75rem;">
+              <div class="warning-header">
+                <i data-lucide="alert-triangle" style="width: 16px; height: 16px; color: #f87171;"></i>
+                <span>Avoid 50x Leverage!</span>
+              </div>
+              <p style="text-align: left;">
+                At <strong>50x leverage</strong>, a small market fluctuation of just <strong>2%</strong> against your direction will trigger <strong>100% liquidation</strong> (complete loss of trade margin). Crypto volatility can cause 2% price swings in seconds, making high leverage highly dangerous.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filters and Query customization -->
+    <div class="filter-panel">
+      <div class="filter-group" style="flex: 2;">
+        <label for="searchQuery">Search Query</label>
+        <input type="text" id="searchQuery" class="filter-input" value="nifty analysis" placeholder="e.g. nifty analysis tomorrow">
+      </div>
+      
+      <div class="filter-group">
+        <label for="channelFilter">Filter by Channel</label>
+        <input type="text" id="channelFilter" class="filter-input" placeholder="e.g. EuroTraveller">
+      </div>
+
+      <div class="filter-group">
+        <label for="timeLimit">Time Horizon</label>
+        <select id="timeLimit" class="filter-input">
+          <option value="4">Last 4 Hours</option>
+          <option value="12">Last 12 Hours</option>
+          <option value="24" selected>Last 24 Hours</option>
+          <option value="48">Last 48 Hours</option>
+          <option value="168">Last 7 Days</option>
+          <option value="720">Last 30 Days</option>
+          <option value="8760">Last 1 Year</option>
+          <option value="43800">Last 5 Years</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label for="sortBy">Sort By</label>
+        <select id="sortBy" class="filter-input">
+          <option value="date" selected>Upload Date (Newest)</option>
+          <option value="views">View Count (Popular)</option>
+          <option value="sentiment">Sentiment</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label for="videoType">Video Type</label>
+        <select id="videoType" class="filter-input">
+          <option value="all" selected>All Formats</option>
+          <option value="long">Long-form (>1m)</option>
+          <option value="shorts">Shorts (≤1m)</option>
+        </select>
+      </div>
+
+      <button id="applyFiltersBtn" class="btn btn-primary" style="height: 42px;">
+        <i data-lucide="sliders"></i> Apply
+      </button>
+    </div>
+
+    <!-- Videos Content Area -->
+    <div class="section-header collapsible-header" id="videoHeader">
+      <h2>
+        <span>Aggregated YouTube Videos</span>
+        <i data-lucide="chevron-down" id="videoCollapseIcon" class="chevron-rotated"></i>
+      </h2>
+      <div class="controls-group">
+        <button id="exportCsvBtn" class="btn">
+          <i data-lucide="download"></i> CSV
+        </button>
+        <button id="exportJsonBtn" class="btn">
+          <i data-lucide="file-json"></i> JSON
+        </button>
+      </div>
+    </div>
+
+    <!-- Collapsible Container (closed by default) -->
+    <div id="videoGridContainer" class="video-grid-container collapsed">
+      <!-- Videos Grid -->
+      <div id="videoGrid" class="video-grid">
+        <!-- Dynamic cards injected via JavaScript -->
+      </div>
+    </div>
+
+    <!-- AI Financial Voice Assistant (Free Native) -->
+    <div class="section-header collapsible-header" id="nativeVoiceHeader" style="margin-top: 1.5rem;">
+      <h2>
+        <span>AI Financial Voice Assistant (Free)</span>
+        <i data-lucide="chevron-down" id="nativeVoiceCollapseIcon" class="chevron-rotated"></i>
+      </h2>
+    </div>
+
+    <div id="nativeVoiceContainer" class="video-grid-container collapsed">
+      <div class="trade-setup-card">
+        <div style="display: flex; gap: 1.5rem; flex-wrap: wrap;">
+          <!-- Left Panel: Controls -->
+          <div style="flex: 1; min-width: 280px; display: flex; flex-direction: column; gap: 1.25rem;">
+            <div>
+              <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 0.5rem;">Select Market Focus</span>
+              <div style="display: flex; gap: 0.5rem;">
+                <button class="voice-market-btn active" id="voiceMarketIN" style="flex: 1; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); color: #34d399; font-size: 0.85rem; padding: 0.6rem; border-radius: 8px; cursor: pointer; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 0.4rem;">🇮🇳 India (NSE)</button>
+                <button class="voice-market-btn" id="voiceMarketSE" style="flex: 1; background: transparent; border: 1px solid var(--border-color); color: var(--text-secondary); font-size: 0.85rem; padding: 0.6rem; border-radius: 8px; cursor: pointer; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 0.4rem;">🇸🇪 Sweden (STO)</button>
+              </div>
+            </div>
+
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 0.75rem; background: rgba(255,255,255,0.01); border: 1px solid var(--border-color); padding: 1.5rem; border-radius: 12px; text-align: center;">
+              <div style="position: relative; width: 80px; height: 80px;">
+                <button class="voice-mic-pulse-btn" id="voiceMicPulseBtn" style="width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #10b981, #059669); border: none; color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; z-index: 10; box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4); transition: all 0.3s ease;">
+                  <i data-lucide="mic" id="voiceMicIcon" style="width: 32px; height: 32px;"></i>
+                </button>
+                <div class="voice-pulse-ring" id="voiceMicPulseRing" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 50%; border: 3px solid #34d399; opacity: 0; pointer-events: none; box-sizing: border-box;"></div>
+              </div>
+              <span id="voiceMicStatus" style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">Ready. Click to speak</span>
+            </div>
+
+            <div style="display: flex; gap: 0.5rem; width: 100%;">
+              <input type="text" id="voiceTextInput" placeholder="Type stock name or query..." style="flex: 1; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-color); color: var(--text-primary); padding: 0.6rem 0.8rem; border-radius: 8px; outline: none; font-size: 0.8rem; font-family: 'Outfit', sans-serif;" autocomplete="off">
+              <button id="voiceSendBtn" style="background: var(--accent-blue); border: none; color: white; padding: 0.6rem 0.9rem; border-radius: 8px; font-size: 0.8rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s;"><i data-lucide="send" style="width: 15px; height: 15px;"></i></button>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 0.5rem; justify-content: center;">
+              <input type="checkbox" id="voiceMuteCheckbox" style="accent-color: #10b981; width: 16px; height: 16px; cursor: pointer;">
+              <label for="voiceMuteCheckbox" style="font-size: 0.8rem; color: var(--text-secondary); cursor: pointer; user-select: none;">Mute assistant speech output</label>
+            </div>
+          </div>
+
+          <!-- Right Panel: Conversation Log -->
+          <div style="flex: 2; min-width: 320px; display: flex; flex-direction: column; height: 320px; border: 1px solid var(--border-color); border-radius: 12px; background: rgba(15, 23, 42, 0.4); overflow: hidden;">
+            <div style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); background: rgba(30, 41, 59, 0.3); font-size: 0.8rem; font-weight: 600; color: var(--text-primary);">
+              Insights & Responses
+            </div>
+            <div class="voice-chat-log" id="voiceChatLog" style="flex: 1; padding: 1rem; overflow-y: auto; display: flex; flex-direction: column; gap: 0.75rem;">
+              <div class="voice-bubble assistant" style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); padding: 0.75rem; border-radius: 12px 12px 12px 0px; font-size: 0.8rem; line-height: 1.4; color: var(--text-secondary); max-width: 90%; align-self: flex-start; text-align: left;">
+                Hello! I am your <strong>Free 2-Way Voice Assistant</strong>. Choose India or Sweden market focus on the left, click the mic, and ask your financial queries.
+                <div style="margin-top: 0.4rem; font-size: 0.72rem; color: var(--text-secondary); opacity: 0.8; font-style: italic;">
+                  Try: "Tell me about Volvo" or "Competitors of Reliance"
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Video Player Modal -->
+  <div id="videoModal" class="modal">
+    <div class="modal-content">
+      <button class="modal-close" id="modalCloseBtn">
+        <i data-lucide="x"></i>
+      </button>
+      <div class="video-container">
+        <iframe id="videoIframe" src="" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings Modal (API Key Configuration) -->
+  <div id="settingsModal" class="modal">
+    <div class="modal-content" style="max-width: 450px;">
+      <button class="modal-close" id="settingsCloseBtn">
+        <i data-lucide="x"></i>
+      </button>
+      <div class="settings-panel">
+        <h3>YouTube API Integration</h3>
+        <p>Supply your own YouTube Data API v3 Key to bypass scraping rate limits and ensure exact filtering.</p>
+        
+        <div style="margin-bottom: 1.5rem;">
+          <label for="apiKeyInput" style="display: block; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.5rem; font-weight: 500;">YouTube API Key</label>
+          <input type="password" id="apiKeyInput" class="filter-input" placeholder="AIzaSy...">
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+          <button id="clearApiKeyBtn" class="btn" style="color: var(--bearish-color); border-color: rgba(239, 68, 68, 0.2);">Clear</button>
+          <button id="saveApiKeyBtn" class="btn btn-primary">Save Key</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating Chatbot Widget -->
+  <div id="chatWidget" class="chat-widget">
+    <!-- Chat Toggle Button -->
+    <button id="chatToggleBtn" class="chat-toggle-btn" title="Open Nifty Chatbot">
+      <i data-lucide="message-square"></i>
+      <span id="chatBadge" class="chat-notification-dot"></span>
+    </button>
+    
+    <!-- Chat Window Container -->
+    <div id="chatWindow" class="chat-window">
+      <!-- Chat Header -->
+      <div class="chat-header">
+        <div class="chat-bot-info">
+          <div class="chat-bot-avatar">AI</div>
+          <div>
+            <h4>Nifty Analyst Bot</h4>
+            <span class="chat-bot-status"><span class="status-dot"></span> Active</span>
+          </div>
+        </div>
+        <button id="chatCloseBtn" class="chat-close-btn" title="Minimize Chat">
+          <i data-lucide="minus"></i>
+        </button>
+      </div>
+      
+      <!-- Chat Messages Area -->
+      <div id="chatMessages" class="chat-messages">
+        <div class="chat-msg bot-msg">
+          <p>Hi! I'm your Nifty Analysis assistant. You can ask me about dashboard statistics, sentiment analysis, or ask for explanations of market concepts like RSI or PCR!</p>
+          <span class="chat-msg-time">Just now</span>
+        </div>
+      </div>
+      
+      <!-- Suggestion Chips -->
+      <div class="chat-suggestions" id="chatSuggestions">
+        <button class="chip" data-query="overall sentiment">📊 Sentiment</button>
+        <button class="chip" data-query="top videos">🔥 Top Videos</button>
+        <button class="chip" data-query="most active analyst">📈 Active Channel</button>
+        <button class="chip" data-query="explain RSI">💡 Explain RSI</button>
+      </div>
+      
+      <!-- Chat Input Area -->
+      <form id="chatForm" class="chat-form">
+        <input type="text" id="chatInput" placeholder="Ask a question..." required autocomplete="off">
+        <button type="button" id="chatMicBtn" class="chat-mic-btn" title="Speak your query">
+          <i data-lucide="mic"></i>
+        </button>
+        <button type="submit" class="chat-send-btn">
+          <i data-lucide="send"></i>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Floating Voice Assistant Widget -->
+  <div id="voiceWidget" class="voice-widget">
+    <!-- Voice Toggle Button -->
+    <button id="voiceToggleBtn" class="voice-toggle-btn" title="Open Nifty Voice Analyst">
+      <i data-lucide="mic"></i>
+      <span class="voice-pulse-ring"></span>
+    </button>
+    
+    <!-- Voice Window Container -->
+    <div id="voiceWindow" class="voice-window">
+      <!-- Voice Header -->
+      <div class="voice-header">
+        <div class="voice-bot-info">
+          <div class="voice-bot-avatar"><i data-lucide="mic"></i></div>
+          <div>
+            <h4>Voice Analyst</h4>
+            <span class="voice-bot-status"><span class="status-dot-green"></span> Ready</span>
+          </div>
+        </div>
+        <button id="voiceCloseBtn" class="voice-close-btn" title="Minimize Voice Analyst">
+          <i data-lucide="minus"></i>
+        </button>
+      </div>
+      
+      <!-- Voice Frame Area -->
+      <div class="voice-frame-container">
+        <iframe src="https://app.millis.ai/agents/embedded?id=-OxQWS7itWrs3dFFAZE9&k=16RkibRDzFmLMXJpA4tuBhpdkWlkyUeF" width="100%" height="100%" allow="microphone"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast">
+    <i id="toastIcon"></i>
+    <span id="toastMsg">Notification message</span>
+  </div>
+
+  <footer>
+    <p>YouTube Nifty Analysis App &bull; Built with HTML, CSS, and vanilla JS</p>
+  </footer>
+
+  <script src="app.js"></script>
+  <script>
+    // Initialize Lucide Icons
+    lucide.createIcons();
+  </script>
+</body>
+</html>
