@@ -474,6 +474,31 @@ function showToast(message, type = 'success') {
     });
   }
 
+  // Text input fallback triggers for the native voice assistant panel
+  const voiceTextInput = document.getElementById('voiceTextInput');
+  const voiceSendBtn = document.getElementById('voiceSendBtn');
+
+  function handleVoiceTextSubmit() {
+    if (!voiceTextInput) return;
+    const text = voiceTextInput.value.trim();
+    if (!text) return;
+    voiceTextInput.value = '';
+    appendVoiceMessage(text, 'user');
+    handleVoiceQuerySubmit(text);
+  }
+
+  if (voiceSendBtn) {
+    voiceSendBtn.addEventListener('click', handleVoiceTextSubmit);
+  }
+
+  if (voiceTextInput) {
+    voiceTextInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        handleVoiceTextSubmit();
+      }
+    });
+  }
+
   lucide.createIcons();
   
   setTimeout(() => {

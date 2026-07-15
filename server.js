@@ -122,6 +122,11 @@ function getRelativeTimeString(publishedAt) {
  *   - hours: time window (defaults to 24)
  *   - key: optional API key (passed from frontend for ease of custom key use)
  */
+/**
+ * Simple in-memory cache for YouTube searches to prevent rate-limiting and stabilize gauge updates
+ */
+const videoCache = {};
+
 app.get('/api/videos', async (req, res) => {
   try {
     const query = req.query.q || 'nifty analysis';
@@ -134,6 +139,16 @@ app.get('/api/videos', async (req, res) => {
     }
     if (!apiKey) {
       apiKey = process.env.YOUTUBE_API_KEY || '';
+    }
+
+    // Construct cache key based on query, hours, and mode
+    const cacheKey = `${query}_${hours}_${apiKey ? 'api' : 'scraper'}`;
+    const cachedEntry = videoCache[cacheKey];
+    
+    // 5 minutes (300,000 ms) TTL
+    if (cachedEntry && (Date.now() - cachedEntry.timestamp < 300000)) {
+      console.log(`[Cache] Returning cached video list for key: "${cacheKey}"`);
+      return res.json(cachedEntry.data);
     }
 
     if (apiKey) {
@@ -156,7 +171,9 @@ app.get('/api/videos', async (req, res) => {
 
       const searchItems = searchResponse.data.items || [];
       if (searchItems.length === 0) {
-        return res.json({ mode: 'api', videos: [] });
+        const responseData = { mode: 'api', videos: [] };
+        videoCache[cacheKey] = { timestamp: Date.now(), data: responseData };
+        return res.json(responseData);
       }
 
       const videoIds = searchItems.map(item => item.id.videoId).filter(Boolean);
@@ -207,7 +224,9 @@ app.get('/api/videos', async (req, res) => {
           };
         });
 
-      return res.json({ mode: 'api', videos: videos });
+      const responseData = { mode: 'api', videos: videos };
+      videoCache[cacheKey] = { timestamp: Date.now(), data: responseData };
+      return res.json(responseData);
       
     } else {
       console.log(`Fetching videos using yt-search scraper for query: "${query}" (hours limit: ${hours})...`);
@@ -239,7 +258,12 @@ app.get('/api/videos', async (req, res) => {
       // Sort by relative time (approximate hours ago ascending -> newest first)
       filteredVideos.sort((a, b) => getApproximateHoursAgo(a.ago) - getApproximateHoursAgo(b.ago));
 
-      return res.json({ mode: 'scraper', videos: filteredVideos });
+      const responseData = { mode: 'scraper', videos: filteredVideos };
+      // Only cache if we got actual results (to prevent caching temporary scraping errors/limits)
+      if (filteredVideos.length > 0) {
+        videoCache[cacheKey] = { timestamp: Date.now(), data: responseData };
+      }
+      return res.json(responseData);
     }
   } catch (error) {
     console.error('Error fetching videos:', error.message);
@@ -357,55 +381,21 @@ function extractCompanyName(query) {
   q = q.replace(/\bdetials?\b/g, 'detail');
   q = q.replace(/\binshight\b/g, 'insight');
 
-  // Prefix fillers to remove (ordered longest-first to prevent partial matches)
-  const fillers = [
-    "give me the details about the",
-    "give me the detail about the",
-    "give me details about the",
-    "give me detail about the",
-    "give me the details of the",
-    "give me the detail of the",
-    "give me details of the",
-    "give me detail of the",
-    "can you tell me about the",
-    "can you show me details of",
-    "do you have details on",
-    "tell me about the",
-    "give me the details about",
-    "give me the detail about",
-    "give me details about",
-    "give me detail about",
-    "give me the details of",
-    "give me the detail of",
-    "give me details of",
-    "give me detail of",
-    "tell me about",
-    "what is the price of",
-    "what is the status of",
-    "how is",
-    "what about",
-    "show me",
-    "look up",
-    "search for",
-    "search",
-    "details about",
-    "detail about",
-    "details of",
-    "detail of",
-    "information on",
-    "information about",
-    "info on",
-    "info about",
-    "share price of",
-    "stock price of",
-    "price of"
+  // Prefix fillers to remove using preposition split pattern matching
+  const introPatterns = [
+    /.*?\b(?:about|on|for|of|status of|detail of|details of|details about|detail about|insights on|insight on|insights for|insight for|analysis of|share price of|stock price of|price of)\s+/i
   ];
 
-  for (const phrase of fillers) {
-    if (q.startsWith(phrase)) {
-      q = q.slice(phrase.length).trim();
+  for (const pattern of introPatterns) {
+    const match = q.match(pattern);
+    if (match) {
+      q = q.slice(match[0].length).trim();
+      break;
     }
   }
+
+  // Also strip common direct search prefix verbs at start if no preposition was matched
+  q = q.replace(/^(?:give me|show me|tell me|get me|find me|look up|search for|search|find|get|analyze|analyse|check|status|price)\s+/i, '');
 
   // Remove leading articles
   q = q.replace(/^(?:the|a|an)\s+/i, '');
