@@ -266,10 +266,13 @@ app.get('/api/videos', async (req, res) => {
       return res.json(responseData);
     }
   } catch (error) {
-    console.error('Error fetching videos:', error.message);
+    const errMsg = error 
+      ? (error.message || (error.response?.data?.error?.message) || (typeof error === 'string' ? error : String(error))) 
+      : 'Unknown error';
+    console.error('Error fetching videos:', errMsg);
     res.status(500).json({ 
       error: 'Failed to fetch videos from YouTube', 
-      message: error.response?.data?.error?.message || error.message 
+      message: errMsg
     });
   }
 });
