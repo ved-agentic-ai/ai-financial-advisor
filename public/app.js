@@ -605,12 +605,33 @@ async function fetchVideos() {
   } catch (error) {
     console.error('Failed to load videos:', error);
     showToast(`Error: ${error.message}`, 'error');
+    
+    let errorTitle = 'Failed to retrieve data';
+    let errorDesc = error.message || 'An unknown network error occurred.';
+    let actionTip = 'Please check your connection and retry.';
+
+    if (errorDesc.includes('302') || errorDesc.includes('limit') || errorDesc.includes('quota') || errorDesc.includes('403') || errorDesc.toLowerCase().includes('failed')) {
+      errorTitle = 'YouTube Rate Limit / API Quota Restrict';
+      errorDesc = 'YouTube has temporarily restricted requests from this server IP (HTTP 302 captcha redirection block) or your daily official API key quota has been exhausted.';
+      actionTip = `
+        <div style="text-align: left; max-width: 500px; margin: 1rem auto; padding: 1rem; background: rgba(251, 191, 36, 0.05); border: 1px solid rgba(251, 191, 36, 0.2); border-radius: 8px; font-size: 0.8rem; line-height: 1.5; color: var(--text-secondary);">
+          <strong style="color: #fbbf24; display: block; margin-bottom: 0.5rem; font-size: 0.85rem;"><i data-lucide="alert-triangle" style="width: 14px; height: 14px; display: inline-block; vertical-align: middle; margin-right: 4px;"></i> Recommended Actions:</strong>
+          <ol style="margin: 0; padding-left: 1.2rem; display: flex; flex-direction: column; gap: 0.4rem;">
+            <li><strong>Use your own API Key:</strong> Click the settings gear icon in the top-right of the dashboard and paste a personal YouTube API Key for a stable, dedicated quota.</li>
+            <li><strong>Wait for automatic reset:</strong> YouTube's official API quota resets daily at midnight PT (approx. 1:30 PM IST / 9:00 AM CET). Temporary IP blocks reset within 15-60 minutes.</li>
+            <li><strong>Avoid excessive refreshing:</strong> Keep page reloads spaced apart to prevent triggering YouTube's automated scraper bot detection.</li>
+          </ol>
+        </div>
+      `;
+    }
+
     videoGrid.innerHTML = `
-      <div class="state-message" style="border-color: var(--bearish-color);">
-        <i data-lucide="alert-octagon" style="width: 48px; height: 48px; color: var(--bearish-color); margin-bottom: 1rem;"></i>
-        <h3>Failed to retrieve data</h3>
-        <p>${error.message}</p>
-        <button onclick="fetchVideos()" class="btn" style="margin-top: 1rem;"><i data-lucide="refresh-cw"></i> Retry</button>
+      <div class="state-message" style="border-color: #f87171; padding: 2rem; background: rgba(248, 113, 113, 0.02); max-width: 600px; margin: 0 auto; border-radius: 12px; text-align: center;">
+        <i data-lucide="alert-octagon" style="width: 48px; height: 48px; color: #f87171; margin-bottom: 1rem;"></i>
+        <h3 style="color: var(--text-primary); font-size: 1.1rem; margin-bottom: 0.5rem;">${errorTitle}</h3>
+        <p style="font-size: 0.82rem; color: var(--text-secondary); line-height: 1.4; margin: 0;">${errorDesc}</p>
+        ${actionTip}
+        <button onclick="fetchVideos()" class="btn" style="margin-top: 1rem; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-primary); padding: 0.5rem 1.25rem; border-radius: 6px; font-size: 0.8rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 0.4rem; transition: all 0.2s;"><i data-lucide="refresh-cw" style="width: 14px; height: 14px;"></i> Retry Connection</button>
       </div>
     `;
     lucide.createIcons();
