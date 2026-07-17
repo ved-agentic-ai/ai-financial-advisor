@@ -179,502 +179,723 @@
       </div>
     </div>
 
-    <!-- Trade Setup Calculator Panel -->
-    <div class="section-header collapsible-header" id="tradeSetupHeader" style="margin-top: 1.5rem;">
-      <h2>
-        <span>Trade Setup Calculator</span>
-        <i data-lucide="chevron-down" id="tradeSetupCollapseIcon" class="chevron-rotated"></i>
-      </h2>
-    </div>
-
-    <div id="tradeSetupContainer" class="video-grid-container collapsed">
-      <div class="trade-setup-card">
-        <!-- Tab selector -->
-        <div class="trade-tabs">
-          <button class="trade-tab-btn active" id="tabDigital">Digital Asset</button>
-          <button class="trade-tab-btn" id="tabEquity">Equity</button>
-        </div>
-
-        <!-- Trade Rules Status Bar -->
-        <div class="trade-rules-panel" id="tradeRulesPanel">
-          <h3 class="rules-title">Trade Planning Rules & Compliance</h3>
-          <div class="rules-list">
-            <div class="rule-item" id="ruleAllocation">
-              <span class="rule-icon" id="iconAllocation"></span>
-              <span class="rule-text" id="textAllocation">Position Size Limit</span>
-            </div>
-            <div class="rule-item" id="ruleRR">
-              <span class="rule-icon" id="iconRR"></span>
-              <span class="rule-text" id="textRR">Risk-to-Reward Ratio</span>
-            </div>
-            <div class="rule-item" id="ruleRiskLimit">
-              <span class="rule-icon" id="iconRiskLimit"></span>
-              <span class="rule-text" id="textRiskLimit">Risk / Leverage Cap</span>
-            </div>
-            <div class="rule-item" id="ruleCapitalPreservation">
-              <span class="rule-icon" id="iconCapitalPreservation"></span>
-              <span class="rule-text" id="textCapitalPreservation">Capital Preservation</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="trade-calculator-layout">
-          <!-- Left side: Inputs -->
-          <div class="trade-inputs">
-            <div class="trade-input-group">
-              <label for="tradeCurrency">Currency</label>
-              <select id="tradeCurrency" class="trade-input">
-                <option value="USD" selected>USD ($)</option>
-                <option value="INR">INR (₹)</option>
-                <option value="SEK">SEK (kr)</option>
-              </select>
-            </div>
-
-            <div class="trade-input-group">
-              <label for="initialCapital" id="capitalLabel">Initial Capital ($)</label>
-              <input type="number" id="initialCapital" class="trade-input" value="10000" min="100">
-            </div>
-
-            <div class="trade-input-group">
-              <label for="winRate">Expected Win Rate (%)</label>
-              <input type="number" id="winRate" class="trade-input" value="45" min="1" max="99">
-            </div>
-
-            <div class="trade-input-group">
-              <label for="tradesPerMonth">Expected Trades / Month</label>
-              <input type="number" id="tradesPerMonth" class="trade-input" value="8" min="1">
-              <small id="tradesHelperNote" style="color: var(--text-secondary); display: block; font-size: 0.72rem; margin-top: 0.2rem; font-weight: 500;">8 trades/month (96 trades/year)</small>
-            </div>
-
-            <div class="trade-input-group">
-              <label for="projectionYears">Projection Period (Years)</label>
-              <input type="number" id="projectionYears" class="trade-input" value="5" min="1" max="30">
-            </div>
-
-            <!-- Leverage (Visible only for Digital Assets) -->
-            <div class="trade-input-group" id="leverageInputWrapper">
-              <label for="leverageSelect">Leverage</label>
-              <select id="leverageSelect" class="trade-input">
-                <option value="1" selected>1x (No Leverage)</option>
-                <option value="10">10x</option>
-                <option value="15">15x</option>
-                <option value="20">20x</option>
-                <option value="25">25x</option>
-                <option value="custom">Custom Leverage...</option>
-              </select>
-            </div>
-
-            <div class="trade-input-group" id="customLeverageWrapper" style="display: none;">
-              <label for="customLeverage">Custom Leverage (Max 25x)</label>
-              <input type="number" id="customLeverage" class="trade-input" value="10" min="1" max="25" step="1">
-            </div>
-
-            <div class="trade-input-group" id="riskInputWrapper">
-              <label for="riskPct" id="riskLabel">Risk on Allocation (%)</label>
-              <input type="number" id="riskPct" class="trade-input" value="5" min="0.1" step="0.1">
-              <small id="riskLimitNote" style="color: #ef4444; display: none; font-size: 0.72rem; margin-top: 0.2rem; font-weight: 500;">Capped at max 3.0%</small>
-            </div>
-
-            <div class="trade-input-group">
-              <label for="rewardPct" id="rewardLabel">Reward on Allocation (%)</label>
-              <input type="number" id="rewardPct" class="trade-input" value="15" min="0.1" step="0.1">
-            </div>
-          </div>
-
-          <!-- Middle: Calculated Metrics -->
-          <div class="trade-metrics">
-            <div class="trade-metric-card">
-              <span class="metric-title">Allocated per Trade</span>
-              <span class="metric-val" id="metricAllocation">$2,500.00</span>
-              <span class="metric-desc" id="metricAllocationDesc">25% of overall capital</span>
-            </div>
-
-            <!-- Leveraged position metric (Digital Asset only) -->
-            <div class="trade-metric-card" id="metricLeverageCard">
-              <span class="metric-title">Leveraged Position Size</span>
-              <span class="metric-val" id="metricLeveragedPosition">$25,000.00</span>
-              <span class="metric-desc" id="metricLiquidationLimit">Liquidation boundary: 10.0% price move against you</span>
-            </div>
-
-            <div class="trade-metric-card loss-danger">
-              <span class="metric-title">Max Loss per Trade</span>
-              <span class="metric-val" id="metricMaxLoss">$125.00</span>
-              <span class="metric-desc" id="metricLossImpact">1.25% of overall capital</span>
-            </div>
-
-            <div class="trade-metric-card win-success">
-              <span class="metric-title">Max Profit per Trade</span>
-              <span class="metric-val" id="metricMaxProfit">$375.00</span>
-              <span class="metric-desc" id="metricProfitImpact">3.75% of overall capital</span>
-              <!-- Indian Crypto VDA Tax Breakdown -->
-              <div id="cryptoTaxBreakdown" style="display: none; font-size: 0.72rem; margin-top: 0.3rem; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 0.3rem; font-weight: 500; text-align: left;">
-                <span style="color: #f87171;" id="taxValue">Tax (30%): $112.50</span> | <span style="color: #34d399;" id="netProfitValue">Net: $262.50</span>
-              </div>
-            </div>
-
-            <div class="trade-metric-card">
-              <span class="metric-title">Risk-to-Reward Ratio</span>
-              <span class="metric-val" id="metricRatio">1 : 3.00</span>
-              <span class="metric-desc" id="metricRatioAlert" style="color: var(--bullish-color);">Target: Min 1:3 ratio met</span>
-            </div>
-
-            <div class="trade-metric-card blowup-alert">
-              <span class="metric-title">Consecutive Losses to Blow Up</span>
-              <span class="metric-val" id="metricBlowup">80 Trades</span>
-              <span class="metric-desc">Required to reduce capital to $0</span>
-            </div>
-          </div>
-
-          <!-- Right side: Chart -->
-          <div class="trade-chart">
-            <h3 style="font-size: 0.95rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--text-primary);">Compounding Capital Growth Projections</h3>
-            <div class="growth-chart-wrapper" style="position: relative; height: 260px;">
-              <canvas id="growthChart"></canvas>
-            </div>
-            <div class="projection-summary" id="projectionSummary" style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.5rem; text-align: center;">
-              Projected Capital after 5 years: $19,307 (Growth: +93%)
-            </div>
-
-            <!-- Leverage warning card (Visible only for Digital Assets) -->
-            <div class="warning-box leverage-warning" id="leverageWarning" style="margin-top: 0.75rem;">
-              <div class="warning-header">
-                <i data-lucide="alert-triangle" style="width: 16px; height: 16px; color: #f87171;"></i>
-                <span>Avoid 50x Leverage!</span>
-              </div>
-              <p style="text-align: left;">
-                At <strong>50x leverage</strong>, a small market fluctuation of just <strong>2%</strong> against your direction will trigger <strong>100% liquidation</strong> (complete loss of trade margin). Crypto volatility can cause 2% price swings in seconds, making high leverage highly dangerous.
-              </p>
-            </div>
-          </div>
-        </div>
+    <!-- Master Application Dashboard Tabs Panel -->
+    <div style="margin-top: 1.5rem; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; box-shadow: var(--shadow-lg); overflow: hidden;">
+      <!-- Master Tab Selector -->
+      <div class="trade-tabs" style="border-bottom: 1px solid var(--border-color); padding: 0.85rem 1.5rem 0 1.5rem; background: rgba(15, 23, 42, 0.25); display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 0;">
+        <button class="trade-tab-btn" id="masterTabTrader" style="padding: 0.75rem 1.25rem; font-size: 0.9rem; display: flex; align-items: center; gap: 0.5rem;">
+          <i data-lucide="trending-up" style="width: 16px; height: 16px;"></i> Active Trader
+        </button>
+        <button class="trade-tab-btn" id="masterTabAI" style="padding: 0.75rem 1.25rem; font-size: 0.9rem; display: flex; align-items: center; gap: 0.5rem;">
+          <i data-lucide="cpu" style="width: 16px; height: 16px;"></i> AI Toolkit Suite
+        </button>
+        <button class="trade-tab-btn" id="masterTabYoutube" style="padding: 0.75rem 1.25rem; font-size: 0.9rem; display: flex; align-items: center; gap: 0.5rem;">
+          <i data-lucide="youtube" style="width: 16px; height: 16px;"></i> YouTube Aggregator
+        </button>
       </div>
-    </div>
 
-    <!-- Shark Leverage Trade Simulator Panel -->
-    <div class="section-header collapsible-header" id="sharkSimulatorHeader" style="margin-top: 1.5rem;">
-      <h2>
-        <span>Shark Leverage Trade Simulator (Multimodal)</span>
-        <i data-lucide="chevron-down" id="sharkSimulatorCollapseIcon" class="chevron-rotated"></i>
-      </h2>
-    </div>
+      <!-- Master Content Containers -->
+      <div style="padding: 1.5rem;">
+        
+        <!-- Tab 1: Active Trader -->
+        <div id="masterPanelTrader" class="master-panel-content" style="display: none;">
+          <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+            
+            <!-- Section A: Trade Planner Collapsible -->
+            <div class="section-header collapsible-header" id="innerPlannerHeader" style="margin-top: 0; padding: 0.5rem 0.75rem;">
+              <h3 style="font-size: 1.05rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 0.5rem; margin: 0;">
+                <i data-lucide="calculator" style="width: 18px; height: 18px; color: var(--accent-blue);"></i> Trade Planner & Risk Calculator
+              </h3>
+              <i data-lucide="chevron-down" id="innerPlannerCollapseIcon" class="chevron-rotated"></i>
+            </div>
 
-    <div id="sharkSimulatorContainer" class="video-grid-container collapsed">
-      <div class="trade-setup-card">
-        <div class="shark-simulator-layout">
-          <!-- Left Column: Order Form -->
-          <div class="shark-form-side">
-            <!-- Mode & Leverage Row -->
-            <div class="shark-header-controls">
-              <div class="shark-toggle-group" style="width: 170px;">
-                <button class="shark-toggle-btn active" id="sharkMarginIsolated">Isolated</button>
-                <button class="shark-toggle-btn" id="sharkMarginCross">Cross</button>
+            <div id="innerPlannerContainer" class="video-grid-container collapsed" style="margin-bottom: 1.5rem;">
+              
+              <!-- Tab selector -->
+              <div class="trade-tabs" style="margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                <button class="trade-tab-btn active" id="tabDigital">Digital Asset</button>
+                <button class="trade-tab-btn" id="tabEquity">Equity</button>
               </div>
+
+              <!-- Trade Rules Status Bar -->
+              <div class="trade-rules-panel" id="tradeRulesPanel" style="margin-bottom: 1.25rem;">
+                <h3 class="rules-title">Trade Planning Rules & Compliance</h3>
+                <div class="rules-list">
+                  <div class="rule-item" id="ruleAllocation">
+                    <span class="rule-icon" id="iconAllocation"></span>
+                    <span class="rule-text" id="textAllocation">Position Size Limit</span>
+                  </div>
+                  <div class="rule-item" id="ruleRR">
+                    <span class="rule-icon" id="iconRR"></span>
+                    <span class="rule-text" id="textRR">Risk-to-Reward Ratio</span>
+                  </div>
+                  <div class="rule-item" id="ruleRiskLimit">
+                    <span class="rule-icon" id="iconRiskLimit"></span>
+                    <span class="rule-text" id="textRiskLimit">Risk / Leverage Cap</span>
+                  </div>
+                  <div class="rule-item" id="ruleCapitalPreservation">
+                    <span class="rule-icon" id="iconCapitalPreservation"></span>
+                    <span class="rule-text" id="textCapitalPreservation">Capital Preservation</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="trade-calculator-layout">
+                <!-- Left side: Inputs -->
+                <div class="trade-inputs">
+                  <div class="trade-input-group">
+                    <label for="tradeCurrency">Currency</label>
+                    <select id="tradeCurrency" class="trade-input">
+                      <option value="USD" selected>USD ($)</option>
+                      <option value="INR">INR (₹)</option>
+                      <option value="SEK">SEK (kr)</option>
+                    </select>
+                  </div>
+
+                  <div class="trade-input-group">
+                    <label for="initialCapital" id="capitalLabel">Initial Capital ($)</label>
+                    <input type="number" id="initialCapital" class="trade-input" value="10000" min="100">
+                  </div>
+
+                  <div class="trade-input-group">
+                    <label for="winRate">Expected Win Rate (%)</label>
+                    <input type="number" id="winRate" class="trade-input" value="45" min="1" max="99">
+                  </div>
+
+                  <div class="trade-input-group">
+                    <label for="tradesPerMonth">Expected Trades / Month</label>
+                    <input type="number" id="tradesPerMonth" class="trade-input" value="8" min="1">
+                    <small id="tradesHelperNote" style="color: var(--text-secondary); display: block; font-size: 0.72rem; margin-top: 0.2rem; font-weight: 500;">8 trades/month (96 trades/year)</small>
+                  </div>
+
+                  <div class="trade-input-group">
+                    <label for="projectionYears">Projection Period (Years)</label>
+                    <input type="number" id="projectionYears" class="trade-input" value="5" min="1" max="30">
+                  </div>
+
+                  <!-- Leverage (Visible only for Digital Assets) -->
+                  <div class="trade-input-group" id="leverageInputWrapper">
+                    <label for="leverageSelect">Leverage</label>
+                    <select id="leverageSelect" class="trade-input">
+                      <option value="1" selected>1x (No Leverage)</option>
+                      <option value="10">10x</option>
+                      <option value="15">15x</option>
+                      <option value="20">20x</option>
+                      <option value="25">25x</option>
+                      <option value="custom">Custom Leverage...</option>
+                    </select>
+                  </div>
+
+                  <div class="trade-input-group" id="customLeverageWrapper" style="display: none;">
+                    <label for="customLeverage">Custom Leverage (Max 25x)</label>
+                    <input type="number" id="customLeverage" class="trade-input" value="10" min="1" max="25" step="1">
+                  </div>
+
+                  <div class="trade-input-group" id="riskInputWrapper">
+                    <label for="riskPct" id="riskLabel">Risk on Allocation (%)</label>
+                    <input type="number" id="riskPct" class="trade-input" value="5" min="0.1" step="0.1">
+                    <small id="riskLimitNote" style="color: #ef4444; display: none; font-size: 0.72rem; margin-top: 0.2rem; font-weight: 500;">Capped at max 3.0%</small>
+                  </div>
+
+                  <div class="trade-input-group">
+                    <label for="rewardPct" id="rewardLabel">Reward on Allocation (%)</label>
+                    <input type="number" id="rewardPct" class="trade-input" value="15" min="0.1" step="0.1">
+                  </div>
+                </div>
+
+                <!-- Middle: Calculated Metrics -->
+                <div class="trade-metrics">
+                  <div class="trade-metric-card">
+                    <span class="metric-title">Allocated per Trade</span>
+                    <span class="metric-val" id="metricAllocation">$2,500.00</span>
+                    <span class="metric-desc" id="metricAllocationDesc">25% of overall capital</span>
+                  </div>
+
+                  <!-- Leveraged position metric (Digital Asset only) -->
+                  <div class="trade-metric-card" id="metricLeverageCard">
+                    <span class="metric-title">Leveraged Position Size</span>
+                    <span class="metric-val" id="metricLeveragedPosition">$25,000.00</span>
+                    <span class="metric-desc" id="metricLiquidationLimit">Liquidation boundary: 10.0% price move against you</span>
+                  </div>
+
+                  <div class="trade-metric-card loss-danger">
+                    <span class="metric-title">Max Loss per Trade</span>
+                    <span class="metric-val" id="metricMaxLoss">$125.00</span>
+                    <span class="metric-desc" id="metricLossImpact">1.25% of overall capital</span>
+                  </div>
+
+                  <div class="trade-metric-card win-success">
+                    <span class="metric-title">Max Profit per Trade</span>
+                    <span class="metric-val" id="metricMaxProfit">$375.00</span>
+                    <span class="metric-desc" id="metricProfitImpact">3.75% of overall capital</span>
+                    <!-- Indian Crypto VDA Tax Breakdown -->
+                    <div id="cryptoTaxBreakdown" style="display: none; font-size: 0.72rem; margin-top: 0.3rem; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 0.3rem; font-weight: 500; text-align: left;">
+                      <span style="color: #f87171;" id="taxValue">Tax (30%): $112.50</span> | <span style="color: #34d399;" id="netProfitValue">Net: $262.50</span>
+                    </div>
+                  </div>
+
+                  <div class="trade-metric-card">
+                    <span class="metric-title">Risk-to-Reward Ratio</span>
+                    <span class="metric-val" id="metricRatio">1 : 3.00</span>
+                    <span class="metric-desc" id="metricRatioAlert" style="color: var(--bullish-color);">Target: Min 1:3 ratio met</span>
+                  </div>
+
+                  <div class="trade-metric-card">
+                    <span class="metric-title">Consecutive Losses to Blow Up</span>
+                    <span class="metric-val" id="metricBlowup">80 Trades</span>
+                    <span class="metric-desc">Required to reduce capital to $0</span>
+                  </div>
+                </div>
+
+                <!-- Right side: Chart -->
+                <div class="trade-chart">
+                  <h3 style="font-size: 0.95rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--text-primary);">Compounding Capital Growth Projections</h3>
+                  <div class="growth-chart-wrapper" style="position: relative; height: 260px;">
+                    <canvas id="growthChart"></canvas>
+                  </div>
+                  <div class="projection-summary" id="projectionSummary" style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.5rem; text-align: center;">
+                    Projected Capital after 5 years: $19,307 (Growth: +93%)
+                  </div>
+
+                  <!-- Leverage warning card -->
+                  <div class="warning-box leverage-warning" id="leverageWarning" style="margin-top: 0.75rem;">
+                    <div class="warning-header">
+                      <i data-lucide="alert-triangle" style="width: 16px; height: 16px; color: #f87171;"></i>
+                      <span>Avoid 50x Leverage!</span>
+                    </div>
+                    <p style="text-align: left;">
+                      At <strong>50x leverage</strong>, a small market fluctuation of just <strong>2%</strong> against your direction will trigger <strong>100% liquidation</strong> (complete loss of trade margin). Crypto volatility can cause 2% price swings in seconds, making high leverage highly dangerous.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Section B: Shark Margin Simulator Collapsible -->
+            <div class="section-header collapsible-header" id="innerSimulatorHeader" style="margin-top: 0; padding: 0.5rem 0.75rem;">
+              <h3 style="font-size: 1.05rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 0.5rem; margin: 0;">
+                <i data-lucide="shield" style="width: 18px; height: 18px; color: var(--accent-blue);"></i> Shark Leverage Trade Simulator
+              </h3>
+              <i data-lucide="chevron-down" id="innerSimulatorCollapseIcon" class="chevron-rotated"></i>
+            </div>
+
+            <div id="innerSimulatorContainer" class="video-grid-container collapsed">
+              <div class="shark-simulator-layout">
+                <!-- Left Column: Order Form -->
+                <div class="shark-form-side">
+                  <!-- Mode, Leverage & Currency Row -->
+                  <div class="shark-header-controls" style="display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: space-between; align-items: center;">
+                    <div style="display: flex; gap: 0.5rem; align-items: center;">
+                      <div class="shark-toggle-group" style="width: 155px; height: 30px;">
+                        <button class="shark-toggle-btn active" id="sharkMarginIsolated" style="font-size: 0.74rem; padding: 0.2rem 0.4rem;">Isolated</button>
+                        <button class="shark-toggle-btn" id="sharkMarginCross" style="font-size: 0.74rem; padding: 0.2rem 0.4rem;">Cross</button>
+                      </div>
+                      <button class="shark-leverage-trigger" id="sharkLeverageTriggerBtn" style="height: 30px; padding: 0.25rem 0.4rem; font-size: 0.74rem;">
+                        <span id="sharkLeverageLabel">25x</span>
+                        <i data-lucide="edit-3" style="width: 11px; height: 11px;"></i>
+                      </button>
+                    </div>
+                    
+                    <div>
+                      <select id="survivalCurrencySelect" class="filter-input" style="height: 30px; font-size: 0.74rem; padding: 0 0.4rem; width: 90px; border-radius: 6px; border-color: var(--border-color); background: rgba(30, 41, 59, 0.6); color: var(--text-primary); cursor: pointer;">
+                        <option value="INR" selected>INR (₹)</option>
+                        <option value="USD">USD ($)</option>
+                        <option value="SEK">SEK (kr)</option>
+                      </select>
+                    </div>
+                  </div>
+                  
+                  <!-- Leverage Slider Modal/Popup wrapper -->
+                  <div id="sharkLeveragePopup" style="display: none; background: rgba(30, 41, 59, 0.95); border: 1px solid var(--border-color); padding: 1rem; border-radius: 8px; flex-direction: column; gap: 0.5rem; position: absolute; z-index: 100;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                      <span style="font-size: 0.78rem; font-weight: 600; color: var(--text-secondary);">Select Leverage</span>
+                      <span id="sharkLeverageSliderVal" style="font-size: 0.85rem; font-weight: 700; color: var(--text-primary);">25x</span>
+                    </div>
+                    <input type="range" id="sharkLeverageSlider" min="1" max="100" value="25" style="width: 100%; accent-color: var(--accent-blue);">
+                    <div style="display: flex; gap: 0.25rem;">
+                      <button class="shark-pct-btn" onclick="setSharkLeverage(1)">1x</button>
+                      <button class="shark-pct-btn" onclick="setSharkLeverage(5)">5x</button>
+                      <button class="shark-pct-btn" onclick="setSharkLeverage(10)">10x</button>
+                      <button class="shark-pct-btn" onclick="setSharkLeverage(25)">25x</button>
+                      <button class="shark-pct-btn" onclick="setSharkLeverage(50)">50x</button>
+                      <button class="shark-pct-btn" onclick="setSharkLeverage(100)">100x</button>
+                    </div>
+                  </div>
+
+                  <!-- Asset Selector & Available Balance -->
+                  <div style="display: flex; gap: 1rem;">
+                    <div class="shark-input-group" style="flex: 1;">
+                      <label style="font-size: 0.78rem; font-weight: 600; color: var(--text-secondary);">Select Trading Asset</label>
+                      <select id="sharkAssetSelect" class="filter-input" style="height: 38px; width: 100%; border-radius: 8px; border-color: var(--border-color);">
+                        <option value="crypto_eth" selected>ETH-INR (Ethereum)</option>
+                        <option value="crypto_btc">BTC-INR (Bitcoin)</option>
+                        <option value="commodity_gold">XAU-INR (Gold / Commodity)</option>
+                      </select>
+                    </div>
+                    <div class="shark-input-group" style="flex: 1;">
+                      <label style="font-size: 0.78rem; font-weight: 600; color: var(--text-secondary);">Available Balance</label>
+                      <div class="shark-input-wrapper">
+                        <input type="number" id="sharkAvailableBalance" class="shark-input-field" value="100000" style="padding-right: 2.2rem;">
+                        <span class="shark-input-suffix shark-currency-suffix">₹</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Tab Order Options -->
+                  <div class="trade-tabs" style="margin-bottom: 0.25rem;">
+                    <button class="trade-tab-btn active" style="padding: 0.4rem 0.6rem; font-size: 0.75rem;">Limit</button>
+                    <button class="trade-tab-btn" style="padding: 0.4rem 0.6rem; font-size: 0.75rem; opacity: 0.5; pointer-events: none;">Market</button>
+                    <button class="trade-tab-btn" style="padding: 0.4rem 0.6rem; font-size: 0.75rem; opacity: 0.5; pointer-events: none;">Stop Limit</button>
+                  </div>
+
+                  <!-- Entry Price -->
+                  <div class="shark-input-group">
+                    <label style="font-size: 0.78rem; font-weight: 600; color: var(--text-secondary);">Entry Price</label>
+                    <div class="shark-input-wrapper">
+                      <input type="number" id="sharkEntryPrice" class="shark-input-field" value="170000" style="padding-right: 2.2rem;">
+                      <span class="shark-input-suffix shark-currency-suffix">₹</span>
+                    </div>
+                  </div>
+
+                  <!-- Quantity & Quick percentage triggers -->
+                  <div class="shark-input-group">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                      <label style="font-size: 0.78rem; font-weight: 600; color: var(--text-secondary);">Position Margin Size</label>
+                      <span style="font-size: 0.72rem; color: var(--text-secondary);" id="sharkQtyCalculated">Position: 0 ETH</span>
+                    </div>
+                    <div class="shark-input-wrapper">
+                      <input type="number" id="sharkMarginAmount" class="shark-input-field" value="25000" style="padding-right: 2.2rem;">
+                      <span class="shark-input-suffix shark-currency-suffix">₹</span>
+                    </div>
+                    <div class="shark-quick-pcts">
+                      <button class="shark-pct-btn" id="sharkPct25">25%</button>
+                      <button class="shark-pct-btn" id="sharkPct50">50%</button>
+                      <button class="shark-pct-btn" id="sharkPct75">75%</button>
+                      <button class="shark-pct-btn" id="sharkPctMax">Max</button>
+                    </div>
+                  </div>
+
+                  <!-- Checkbox for TP/SL -->
+                  <div style="display: flex; justify-content: space-between; align-items: center; gap: 0.5rem;">
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                      <input type="checkbox" id="sharkSetTPSL" style="accent-color: var(--accent-blue); cursor: pointer;" checked>
+                      <label for="sharkSetTPSL" style="font-size: 0.8rem; color: var(--text-secondary); cursor: pointer; user-select: none;">Set Take Profit / Stop Loss</label>
+                    </div>
+                    <div id="sharkTPSLModeContainer" style="display: flex; background: rgba(30, 41, 59, 0.6); border: 1px solid var(--border-color); border-radius: 6px; padding: 0.15rem; gap: 0.15rem;">
+                      <button class="shark-pct-btn active" id="sharkTPSLModePrice" style="padding: 0.2rem 0.4rem; font-size: 0.68rem; margin: 0; border: none; border-radius: 4px;">Price</button>
+                      <button class="shark-pct-btn" id="sharkTPSLModePct" style="padding: 0.2rem 0.4rem; font-size: 0.68rem; margin: 0; border: none; border-radius: 4px;">% Move</button>
+                    </div>
+                  </div>
+
+                  <!-- TP/SL inputs -->
+                  <div id="sharkTPSLInputs" style="display: flex; gap: 1rem;">
+                    <div class="shark-input-group" style="flex: 1;">
+                      <label style="font-size: 0.78rem; font-weight: 600; color: var(--text-secondary); display: flex; justify-content: space-between;">
+                        <span id="sharkTPInputLabel">Take Profit Price</span>
+                        <span id="sharkTPAstPct" style="color: #34d399; font-size: 0.7rem;">+8.8%</span>
+                      </label>
+                      <div class="shark-input-wrapper">
+                        <input type="number" id="sharkTargetProfitPrice" class="shark-input-field" value="185000" style="padding-right: 2.2rem;">
+                        <span class="shark-input-suffix shark-currency-suffix" id="sharkTPInputSuffix">₹</span>
+                      </div>
+                    </div>
+                    <div class="shark-input-group" style="flex: 1;">
+                      <label style="font-size: 0.78rem; font-weight: 600; color: var(--text-secondary); display: flex; justify-content: space-between;">
+                        <span id="sharkSLInputLabel">Stop Loss Price</span>
+                        <span id="sharkSLAstPct" style="color: #f87171; font-size: 0.7rem;">-2.9%</span>
+                      </label>
+                      <div class="shark-input-wrapper">
+                        <input type="number" id="sharkStopLossPrice" class="shark-input-field" value="165000" style="padding-right: 2.2rem;">
+                        <span class="shark-input-suffix shark-currency-suffix" id="sharkSLInputSuffix">₹</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Action buttons -->
+                  <div class="shark-action-row">
+                    <button class="shark-action-btn long" id="sharkBtnLong">Buy / Long</button>
+                    <button class="shark-action-btn short inactive" id="sharkBtnShort">Sell / Short</button>
+                  </div>
+                </div>
+
+                <!-- Right Column: Real-time Analysis & Table -->
+                <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+                  <!-- Metrics Breakdown -->
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                    <div class="shark-metric-card">
+                      <span class="shark-metric-label">Margin Required</span>
+                      <span id="sharkResMarginRequired" class="shark-metric-val">₹25,000.00</span>
+                    </div>
+                    <div class="shark-metric-card">
+                      <span class="shark-metric-label">Position Value</span>
+                      <span id="sharkResPositionValue" class="shark-metric-val">₹6,25,000.00</span>
+                    </div>
+                    <div class="shark-metric-card">
+                      <span class="shark-metric-label">Liquidation Price</span>
+                      <span id="sharkResLiquidationPrice" class="shark-metric-val red">₹1,64,900.00</span>
+                    </div>
+                    <div class="shark-metric-card">
+                      <span class="shark-metric-label">Risk-to-Reward (R:R)</span>
+                      <span id="sharkResRiskReward" class="shark-metric-val green">1 : 3.0</span>
+                    </div>
+                    <div class="shark-metric-card" style="grid-column: span 2; background: rgba(15, 23, 42, 0.6); padding: 1rem; border-color: rgba(255,255,255,0.06); display: flex; flex-direction: column; gap: 0.6rem;">
+                      <span style="font-size: 0.82rem; font-weight: 700; color: var(--text-primary); border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 0.4rem; display: flex; align-items: center; gap: 0.35rem;">
+                        <i data-lucide="calculator" style="width: 14px; height: 14px; color: var(--accent-blue);"></i> Estimated Trade Payout Breakdown
+                      </span>
+                      <div style="display: flex; flex-direction: column; gap: 0.4rem; font-size: 0.76rem; color: var(--text-secondary);">
+                        <div style="display: flex; justify-content: space-between;">
+                          <span>Gross Profit / Loss:</span>
+                          <span id="sharkResGrossPnl" style="font-family: monospace; font-weight: 600; color: var(--text-primary);">₹0.00</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                          <span>Less: Entry & Exit Fees (0.05% each):</span>
+                          <span id="sharkResFees" style="font-family: monospace; color: #f87171;">-₹0.00</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                          <span id="sharkTaxLabel">Less: VDA Tax (30% on Net Profit):</span>
+                          <span id="sharkResTax" style="font-family: monospace; color: #f87171;">-₹0.00</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; border-top: 1px dashed rgba(255,255,255,0.08); padding-top: 0.5rem; margin-top: 0.2rem; font-size: 0.85rem; font-weight: 700;">
+                          <span style="color: var(--text-primary);">In-Hand Net Profit / Payout:</span>
+                          <span id="sharkResNetIncome" style="font-family: monospace; color: #34d399;">+₹0.00</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-size: 0.76rem; color: var(--text-secondary); margin-top: 0.2rem;">
+                          <span>Projected End Capital:</span>
+                          <span id="sharkResEndCapital" style="font-family: monospace; font-weight: 600; color: var(--text-primary);">₹0.00</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Price Movement scenario table -->
+                  <div style="background: rgba(15, 23, 42, 0.4); border: 1px solid var(--border-color); border-radius: 12px; padding: 1rem; flex: 1;">
+                    <span style="font-size: 0.8rem; font-weight: 700; color: var(--text-primary); display: block; margin-bottom: 0.50rem;">Price Movement Scenario Analysis</span>
+                    <div style="overflow-x: auto; max-height: 195px;">
+                      <table class="shark-table">
+                        <thead>
+                          <tr>
+                            <th>Price Shift</th>
+                            <th>Target Price</th>
+                            <th>PnL (Gross)</th>
+                            <th>ROI %</th>
+                            <th>Outcome</th>
+                          </tr>
+                        </thead>
+                        <tbody id="sharkScenarioBody">
+                          <!-- Injected dynamically via JS -->
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Capital Survival & Growth Projection (Spanning 2 columns) -->
+                <div style="grid-column: span 2; background: rgba(15, 23, 42, 0.4); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.5rem; display: flex; flex-direction: column; gap: 1.25rem; margin-top: 1rem;">
+                  <h4 style="font-size: 1.05rem; font-weight: 700; color: var(--accent-blue); margin: 0; display: flex; align-items: center; gap: 0.5rem; justify-content: space-between;">
+                    <span style="display: flex; align-items: center; gap: 0.5rem;">
+                      <i data-lucide="shield-alert" style="width: 18px; height: 18px; color: var(--accent-blue);"></i> Capital Survival & Yearly Growth Projection
+                    </span>
+                  </h4>
+
+                  <div style="display: flex; gap: 1.5rem; flex-wrap: wrap;">
+                    
+                    <!-- Left Details: Blow Risk & Survival Stats -->
+                    <div style="flex: 1; min-width: 280px; display: flex; flex-direction: column; gap: 0.85rem;">
+                      <!-- Warning block if leverage is high or SL is deep -->
+                      <div id="survivalWarningCard" class="warning-box leverage-warning" style="margin: 0; display: none;">
+                        <div class="warning-header" style="display: flex; align-items: center; gap: 0.35rem;">
+                          <i data-lucide="alert-octagon" style="width: 16px; height: 16px; color: #f87171;"></i>
+                          <span style="font-weight: 700;">Extremely High Ruin Risk!</span>
+                        </div>
+                        <p id="survivalWarningText" style="font-size: 0.76rem; line-height: 1.35; margin-top: 0.25rem; text-align: left; margin-bottom: 0;">
+                          Your position is too large or leverage is too high. A small price move will liquidate you.
+                        </p>
+                      </div>
+
+                      <!-- Capital Blow Risk Specs -->
+                      <div style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.8rem; background: rgba(255,255,255,0.02); padding: 0.85rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
+                        <div style="display: flex; justify-content: space-between;">
+                          <span style="color: var(--text-secondary);">Liquidation blow-out move:</span>
+                          <span id="survivalLiquidationBlowMove" style="font-weight: 700; color: #f87171;">-4.00%</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                          <span style="color: var(--text-secondary);">Consecutive losses to blow capital:</span>
+                          <span id="survivalConsecutiveLosses" style="font-weight: 700; color: #f87171;">4 trades</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                          <span style="color: var(--text-secondary);">Risked per trade (SL loss + fees):</span>
+                          <span id="survivalRiskPerTrade" style="font-weight: 600; color: var(--text-primary);">₹25,000.00</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                          <span style="color: var(--text-secondary);">Position size vs Capital:</span>
+                          <span id="survivalCapitalExposure" style="font-weight: 600; color: var(--text-primary);">25.00%</span>
+                        </div>
+                      </div>
+
+                      <!-- Win Rate Input Mode & Controls -->
+                      <div style="background: rgba(255,255,255,0.01); border: 1px solid var(--border-color); padding: 0.85rem; border-radius: 8px; display: flex; flex-direction: column; gap: 0.5rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 0.4rem;">
+                          <span style="font-size: 0.78rem; font-weight: 600; color: var(--text-secondary);">Win Rate Mode</span>
+                          <div style="display: flex; background: rgba(30, 41, 59, 0.6); border: 1px solid var(--border-color); border-radius: 6px; padding: 0.15rem; gap: 0.15rem;">
+                            <button class="shark-pct-btn active" id="survivalWinModeSlider" style="padding: 0.2rem 0.4rem; font-size: 0.68rem; margin: 0; border: none; border-radius: 4px; cursor: pointer;">Slider</button>
+                            <button class="shark-pct-btn" id="survivalWinModeRatio" style="padding: 0.2rem 0.4rem; font-size: 0.68rem; margin: 0; border: none; border-radius: 4px; cursor: pointer;">Ratio</button>
+                          </div>
+                        </div>
+
+                        <!-- Slider Mode Panel -->
+                        <div id="survivalWinSliderContainer" style="display: flex; flex-direction: column; gap: 0.4rem;">
+                          <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-size: 0.76rem; color: var(--text-secondary);">Projected Win Rate</span>
+                            <span id="survivalWinRateLabel" style="font-size: 0.82rem; font-weight: 700; color: var(--accent-blue);">50%</span>
+                          </div>
+                          <input type="range" id="survivalWinRateSlider" min="10" max="90" value="50" style="width: 100%; accent-color: var(--accent-blue);">
+                          <span id="survivalWinRateSliderEquiv" style="font-size: 0.72rem; color: var(--text-secondary); text-align: left; margin-top: 0.15rem; display: block;">This corresponds to <strong>15 profitable trades</strong> out of <strong>30 trades/month</strong>.</span>
+                        </div>
+
+                        <!-- Ratio Mode Panel -->
+                        <div id="survivalWinRatioContainer" style="display: none; flex-direction: column; gap: 0.4rem;">
+                          <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-size: 0.76rem; color: var(--text-secondary);">Calculated Win Rate</span>
+                            <span id="survivalWinRateRatioLabel" style="font-size: 0.82rem; font-weight: 700; color: var(--accent-blue);">33.3%</span>
+                          </div>
+                          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                            <div style="display: flex; flex-direction: column; gap: 0.2rem;">
+                              <label style="font-size: 0.68rem; color: var(--text-secondary);">Profitable Trades</label>
+                              <input type="number" id="survivalRatioWinTrades" class="shark-input-field" value="10" min="0" style="height: 28px; font-size: 0.74rem; width: 100%; box-sizing: border-box; padding: 0 0.4rem;">
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 0.2rem;">
+                              <label style="font-size: 0.68rem; color: var(--text-secondary);">Total Trades/Month</label>
+                              <input type="number" id="survivalRatioTotalTrades" class="shark-input-field" value="30" min="1" style="height: 28px; font-size: 0.74rem; width: 100%; box-sizing: border-box; padding: 0 0.4rem;">
+                            </div>
+                          </div>
+                        </div>
+
+                        <div style="font-size: 0.7rem; color: var(--text-secondary); line-height: 1.3; text-align: left;">
+                          Expected win rate is used to project capital growth and calculate consecutive losses warning limits.
+                        </div>
+                      </div>
+
+                      <!-- Break-Even & Compounding Education Card -->
+                      <div style="background: rgba(16, 185, 129, 0.03); border: 1px solid rgba(16, 185, 129, 0.15); padding: 0.85rem; border-radius: 8px; font-size: 0.72rem; line-height: 1.4; color: var(--text-secondary); text-align: left; margin-top: 0.5rem; display: flex; flex-direction: column; gap: 0.35rem;">
+                        <div style="font-weight: 700; color: #10b981; display: flex; align-items: center; gap: 0.35rem;">
+                          <i data-lucide="help-circle" style="width: 14px; height: 14px; color: #10b981;"></i> Why does 1 Win change everything?
+                        </div>
+                        <p style="margin: 0; color: var(--text-secondary);">
+                          With a Risk-to-Reward ratio of <strong>1 : 3.0</strong>, your mathematical break-even win rate is <strong>25%</strong>. However, due to <strong>0.10% total transaction fees</strong> and <strong>VDA/STCG taxes</strong>, your real-world break-even win rate is around <strong>31.5%</strong>:
+                        </p>
+                        <ul style="margin: 0; padding-left: 1.1rem; color: var(--text-secondary); display: flex; flex-direction: column; gap: 0.2rem;">
+                          <li>🔴 <strong>9 Wins / 30 Trades (30.0% Win Rate)</strong>: Below break-even. Compounding causes losses to compound exponentially to <strong>₹0 (Bankruptcy)</strong>.</li>
+                          <li>🟢 <strong>10 Wins / 30 Trades (33.3% Win Rate)</strong>: Above break-even. Compounding reinvests your profits, triggering <strong>exponential growth</strong> to astronomical levels.</li>
+                        </ul>
+                      </div>
+
+                      <!-- Compounding Checkbox Toggler -->
+                      <div style="display: flex; align-items: center; gap: 0.5rem; background: rgba(255,255,255,0.01); border: 1px solid var(--border-color); padding: 0.85rem; border-radius: 8px; margin-top: 0.5rem;">
+                        <input type="checkbox" id="survivalCompoundProfits" style="accent-color: var(--accent-blue); cursor: pointer;" checked>
+                        <label for="survivalCompoundProfits" style="font-size: 0.78rem; color: var(--text-secondary); cursor: pointer; user-select: none; font-weight: 600;">Compound trade sizes (Reinvest profits)</label>
+                      </div>
+
+                      <!-- Trading Frequency & Horizon Inputs -->
+                      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; background: rgba(255,255,255,0.01); border: 1px solid var(--border-color); padding: 0.85rem; border-radius: 8px; margin-top: 0.5rem;">
+                        <div class="shark-input-group" style="margin: 0; display: flex; flex-direction: column; align-items: flex-start;">
+                          <label style="font-size: 0.72rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 0.25rem;">Trades per Day</label>
+                          <input type="number" id="survivalTradesPerDay" class="shark-input-field" value="2" min="1" max="20" style="height: 32px; font-size: 0.78rem; width: 100%; box-sizing: border-box;">
+                        </div>
+                        <div class="shark-input-group" style="margin: 0; display: flex; flex-direction: column; align-items: flex-start;">
+                          <label style="font-size: 0.72rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 0.25rem;">Trading Days/Month</label>
+                          <input type="number" id="survivalDaysPerMonth" class="shark-input-field" value="22" min="1" max="31" style="height: 32px; font-size: 0.78rem; width: 100%; box-sizing: border-box;">
+                        </div>
+                        <div class="shark-input-group" style="grid-column: span 2; margin: 0; display: flex; flex-direction: column; gap: 0.25rem; align-items: stretch;">
+                          <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <label style="font-size: 0.72rem; font-weight: 600; color: var(--text-secondary);">Projection Horizon</label>
+                            <span id="survivalYearsLabel" style="font-size: 0.78rem; font-weight: 700; color: var(--accent-blue);">1 Year</span>
+                          </div>
+                          <input type="range" id="survivalYearsSlider" min="1" max="50" value="1" style="width: 100%; accent-color: var(--accent-blue);">
+                        </div>
+                      </div>
+
+                      <!-- Yearly Breakdown Stats -->
+                      <div id="survivalYearlyBreakdownContainer" style="display: flex; flex-direction: column; gap: 0.4rem; font-size: 0.76rem; background: rgba(255,255,255,0.02); padding: 0.85rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); margin-top: 0.5rem;">
+                        <span style="font-weight: 700; color: var(--text-primary); border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 0.25rem; text-align: left;">Projected Yearly Growth Summary</span>
+                        <div id="survivalYearlyTableBody" style="display: flex; flex-direction: column; gap: 0.35rem; max-height: 185px; overflow-y: auto; padding-right: 0.25rem;">
+                          <!-- Populated via Javascript -->
+                        </div>
+                      </div>
+
+                      <!-- Compounding Education Tip Card -->
+                      <div style="background: rgba(59, 130, 246, 0.05); border: 1px solid rgba(59, 130, 246, 0.15); padding: 0.85rem; border-radius: 8px; font-size: 0.72rem; line-height: 1.4; color: var(--text-secondary); text-align: left; margin-top: 0.5rem; display: flex; flex-direction: column; gap: 0.35rem;">
+                        <div style="font-weight: 700; color: var(--accent-blue); display: flex; align-items: center; gap: 0.35rem;">
+                          <i data-lucide="info" style="width: 14px; height: 14px; color: var(--accent-blue);"></i> Linear vs. Exponential Compounding Info
+                        </div>
+                        <p style="margin: 0; color: var(--text-secondary); text-align: left;">
+                          Notice that your yearly growth percentage decreases over time. This is correct because you are trading with a <strong>fixed position size</strong> (Simple Growth). Your profit in rupees remains identical every year, which represents a smaller percentage of your expanding capital base.
+                        </p>
+                        <p style="margin: 0; color: var(--text-secondary); text-align: left;">
+                          💡 <strong>How to Compound:</strong> To achieve exponential compounding growth, you must reinvest profits by increasing your trade size proportionally (e.g., risking a constant percentage of your active capital per trade).
+                        </p>
+                      </div>
+
+                    </div>
+
+                    <!-- Right Details: Growth Chart canvas -->
+                    <div style="flex: 1.2; min-width: 300px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-color); border-radius: 12px; padding: 1rem; display: flex; flex-direction: column; gap: 0.5rem; position: relative;">
+                      <span style="font-size: 0.8rem; font-weight: 700; color: var(--text-primary); display: block; text-align: left;">Multi-Year Capital Growth Simulation</span>
+                      <div style="position: relative; height: 180px; width: 100%;">
+                        <canvas id="sharkGrowthChart"></canvas>
+                      </div>
+                      <div id="survivalProjectionSummary" style="font-size: 0.8rem; color: var(--text-primary); font-weight: 600; text-align: left; margin-top: 0.25rem;">
+                        Expected Capital after 1 Year: ₹100,000 (Growth: +0.0%)
+                      </div>
+                      <div style="font-size: 0.72rem; color: var(--text-secondary); line-height: 1.4; margin-top: 0.5rem; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 0.5rem; text-align: left; display: flex; flex-direction: column; gap: 0.25rem;">
+                        <div>🔵 <strong>Expected Growth (Average)</strong>: The smooth mathematical average outcome based on your Win Rate and Risk-to-Reward ratio.</div>
+                        <div>🟢 <strong>Simulated Path</strong>: A realistic pseudo-random walk showing how variance, streaks, and drawdowns look in a real trading sequence.</div>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Tab 2: AI Toolkit Suite -->
+        <div id="masterPanelAI" class="master-panel-content" style="display: none;">
+          <h3 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 1.5rem; color: var(--accent-blue); display: flex; align-items: center; gap: 0.5rem;">
+            <i data-lucide="mic" style="width: 20px; height: 20px; color: var(--accent-blue);"></i> Multimodal AI Financial Voice Assistant
+          </h3>
+          <div style="display: flex; gap: 1.5rem; flex-wrap: wrap;">
+            <!-- Left Panel: Controls -->
+            <div style="flex: 1; min-width: 280px; display: flex; flex-direction: column; gap: 1.25rem;">
               <div>
-                <button class="shark-leverage-trigger" id="sharkLeverageTriggerBtn">
-                  <span id="sharkLeverageLabel">25x</span>
-                  <i data-lucide="edit-3" style="width: 13px; height: 13px;"></i>
-                </button>
+                <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 0.5rem;">Select Market Focus</span>
+                <div style="display: flex; gap: 0.5rem;">
+                  <button class="voice-market-btn active" id="voiceMarketIN" style="flex: 1; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); color: #34d399; font-size: 0.85rem; padding: 0.6rem; border-radius: 8px; cursor: pointer; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 0.4rem;">🇮🇳 India (NSE)</button>
+                  <button class="voice-market-btn" id="voiceMarketSE" style="flex: 1; background: transparent; border: 1px solid var(--border-color); color: var(--text-secondary); font-size: 0.85rem; padding: 0.6rem; border-radius: 8px; cursor: pointer; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 0.4rem;">🇸🇪 Sweden (STO)</button>
+                </div>
               </div>
+
+              <div style="display: flex; flex-direction: column; align-items: center; gap: 0.75rem; background: rgba(255,255,255,0.01); border: 1px solid var(--border-color); padding: 1.5rem; border-radius: 12px; text-align: center;">
+                <div style="position: relative; width: 80px; height: 80px;">
+                  <button class="voice-mic-pulse-btn" id="voiceMicPulseBtn" style="width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #10b981, #059669); border: none; color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; z-index: 10; box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4); transition: all 0.3s ease;">
+                    <i data-lucide="mic" id="voiceMicIcon" style="width: 32px; height: 32px;"></i>
+                  </button>
+                  <div class="voice-pulse-ring" id="voiceMicPulseRing" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 50%; border: 3px solid #34d399; opacity: 0; pointer-events: none; box-sizing: border-box;"></div>
+                </div>
+                <span id="voiceMicStatus" style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">Ready. Click to speak</span>
+              </div>
+
+              <!-- Text Input Fallback Area -->
+              <div style="display: flex; flex-direction: column; gap: 0.5rem; background: rgba(255,255,255,0.01); border: 1px solid var(--border-color); padding: 1rem; border-radius: 12px;">
+                <label for="voiceTextInput" style="font-size: 0.78rem; font-weight: 600; color: var(--text-secondary);">Or type your query:</label>
+                <div style="display: flex; gap: 0.5rem;">
+                  <input type="text" id="voiceTextInput" class="filter-input" placeholder="Type stock name or query..." style="flex: 1; height: 36px; border-radius: 6px; border-color: var(--border-color);">
+                  <button id="voiceSendBtn" class="btn btn-primary" style="height: 36px; padding: 0 0.85rem; font-size: 0.8rem; display: flex; align-items: center; gap: 0.3rem;">
+                    <i data-lucide="send" style="width: 12px; height: 12px;"></i> Send
+                  </button>
+                </div>
+              </div>
+
+              <div style="display: flex; align-items: center; gap: 0.5rem; justify-content: center;">
+                <input type="checkbox" id="voiceMuteCheckbox" style="accent-color: #10b981; width: 16px; height: 16px; cursor: pointer;">
+                <label for="voiceMuteCheckbox" style="font-size: 0.8rem; color: var(--text-secondary); cursor: pointer; user-select: none;">Mute assistant speech output</label>
+              </div>
+            </div>
+
+            <!-- Right Panel: Conversation Log -->
+            <div style="flex: 2; min-width: 320px; display: flex; flex-direction: column; height: 350px; border: 1px solid var(--border-color); border-radius: 12px; background: rgba(15, 23, 42, 0.4); overflow: hidden;">
+              <div style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); background: rgba(30, 41, 59, 0.3); font-size: 0.8rem; font-weight: 600; color: var(--text-primary);">
+                Insights & Responses
+              </div>
+              <div class="voice-chat-log" id="voiceChatLog" style="flex: 1; padding: 1rem; overflow-y: auto; display: flex; flex-direction: column; gap: 0.75rem;">
+                <div class="voice-bubble assistant" style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); padding: 0.75rem; border-radius: 12px 12px 12px 0px; font-size: 0.8rem; line-height: 1.4; color: var(--text-secondary); max-width: 90%; align-self: flex-start; text-align: left;">
+                  Hello! I am your <strong>Multimodal AI Financial Voice Assistant</strong>. Choose India or Sweden market focus on the left, type or click the mic, and ask your financial queries.
+                  <div style="margin-top: 0.4rem; font-size: 0.72rem; color: var(--text-secondary); opacity: 0.8; font-style: italic;">
+                    Try: "Tell me about Volvo" or "Competitors of Reliance"
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 3: YouTube Aggregator -->
+        <div id="masterPanelYoutube" class="master-panel-content" style="display: none;">
+          <h3 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 1.5rem; color: var(--accent-blue); display: flex; align-items: center; gap: 0.5rem; justify-content: space-between;">
+            <span style="display: flex; align-items: center; gap: 0.5rem;">
+              <i data-lucide="youtube" style="width: 20px; height: 20px; color: var(--bearish-color);"></i> YouTube Financial Video Aggregator
+            </span>
+            <div class="controls-group" style="display: flex; gap: 0.5rem;">
+              <button id="exportCsvBtn" class="btn" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">
+                <i data-lucide="download"></i> CSV
+              </button>
+              <button id="exportJsonBtn" class="btn" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">
+                <i data-lucide="file-json"></i> JSON
+              </button>
+            </div>
+          </h3>
+
+          <!-- Filters and Query customization -->
+          <div class="filter-panel" style="margin-bottom: 1.5rem;">
+            <div class="filter-group" style="flex: 2;">
+              <label for="searchQuery">Search Query</label>
+              <input type="text" id="searchQuery" class="filter-input" value="nifty analysis" placeholder="e.g. nifty analysis tomorrow">
             </div>
             
-            <!-- Leverage Slider Modal/Popup wrapper (hidden by default) -->
-            <div id="sharkLeveragePopup" style="display: none; background: rgba(30, 41, 59, 0.95); border: 1px solid var(--border-color); padding: 1rem; border-radius: 8px; flex-direction: column; gap: 0.5rem;">
-              <div style="display: flex; justify-content: space-between; align-items: center;">
-                <span style="font-size: 0.78rem; font-weight: 600; color: var(--text-secondary);">Select Leverage</span>
-                <span id="sharkLeverageSliderVal" style="font-size: 0.85rem; font-weight: 700; color: var(--text-primary);">25x</span>
-              </div>
-              <input type="range" id="sharkLeverageSlider" min="1" max="100" value="25" style="width: 100%; accent-color: var(--accent-blue);">
-              <div style="display: flex; gap: 0.25rem;">
-                <button class="shark-pct-btn" onclick="setSharkLeverage(1)">1x</button>
-                <button class="shark-pct-btn" onclick="setSharkLeverage(5)">5x</button>
-                <button class="shark-pct-btn" onclick="setSharkLeverage(10)">10x</button>
-                <button class="shark-pct-btn" onclick="setSharkLeverage(25)">25x</button>
-                <button class="shark-pct-btn" onclick="setSharkLeverage(50)">50x</button>
-                <button class="shark-pct-btn" onclick="setSharkLeverage(100)">100x</button>
-              </div>
+            <div class="filter-group">
+              <label for="channelFilter">Filter by Channel</label>
+              <input type="text" id="channelFilter" class="filter-input" placeholder="e.g. EuroTraveller">
             </div>
 
-            <!-- Asset Selector & Available Balance -->
-            <div style="display: flex; gap: 1rem;">
-              <div class="shark-input-group" style="flex: 1;">
-                <label style="font-size: 0.78rem; font-weight: 600; color: var(--text-secondary);">Select Trading Asset</label>
-                <select id="sharkAssetSelect" class="filter-input" style="height: 38px; width: 100%; border-radius: 8px; border-color: var(--border-color);">
-                  <option value="crypto_eth" selected>ETH-INR (Ethereum)</option>
-                  <option value="crypto_btc">BTC-INR (Bitcoin)</option>
-                  <option value="commodity_gold">XAU-INR (Gold / Commodity)</option>
-                </select>
-              </div>
-              <div class="shark-input-group" style="flex: 1;">
-                <label style="font-size: 0.78rem; font-weight: 600; color: var(--text-secondary);">Available Balance</label>
-                <div class="shark-input-wrapper">
-                  <input type="number" id="sharkAvailableBalance" class="shark-input-field" value="100000" style="padding-right: 2.2rem;">
-                  <span class="shark-input-suffix">₹</span>
-                </div>
-              </div>
+            <div class="filter-group">
+              <label for="timeLimit">Time Horizon</label>
+              <select id="timeLimit" class="filter-input">
+                <option value="4">Last 4 Hours</option>
+                <option value="12">Last 12 Hours</option>
+                <option value="24" selected>Last 24 Hours</option>
+                <option value="48">Last 48 Hours</option>
+                <option value="168">Last 7 Days</option>
+                <option value="720">Last 30 Days</option>
+                <option value="8760">Last 1 Year</option>
+                <option value="43800">Last 5 Years</option>
+              </select>
             </div>
 
-            <!-- Tab Order Options -->
-            <div class="trade-tabs" style="margin-bottom: 0.25rem;">
-              <button class="trade-tab-btn active" style="padding: 0.4rem 0.6rem; font-size: 0.75rem;">Limit</button>
-              <button class="trade-tab-btn" style="padding: 0.4rem 0.6rem; font-size: 0.75rem; opacity: 0.5; pointer-events: none;">Market</button>
-              <button class="trade-tab-btn" style="padding: 0.4rem 0.6rem; font-size: 0.75rem; opacity: 0.5; pointer-events: none;">Stop Limit</button>
+            <div class="filter-group">
+              <label for="sortBy">Sort By</label>
+              <select id="sortBy" class="filter-input">
+                <option value="date" selected>Upload Date (Newest)</option>
+                <option value="views">View Count (Popular)</option>
+                <option value="sentiment">Sentiment</option>
+              </select>
             </div>
 
-            <!-- Entry Price -->
-            <div class="shark-input-group">
-              <label style="font-size: 0.78rem; font-weight: 600; color: var(--text-secondary);">Entry Price</label>
-              <div class="shark-input-wrapper">
-                <input type="number" id="sharkEntryPrice" class="shark-input-field" value="170000" style="padding-right: 2.2rem;">
-                <span class="shark-input-suffix">₹</span>
-              </div>
+            <div class="filter-group">
+              <label for="videoType">Video Type</label>
+              <select id="videoType" class="filter-input">
+                <option value="all" selected>All Formats</option>
+                <option value="long">Long-form (>1m)</option>
+                <option value="shorts">Shorts (≤1m)</option>
+              </select>
             </div>
 
-            <!-- Quantity & Quick percentage triggers -->
-            <div class="shark-input-group">
-              <div style="display: flex; justify-content: space-between; align-items: center;">
-                <label style="font-size: 0.78rem; font-weight: 600; color: var(--text-secondary);">Position Margin Size</label>
-                <span style="font-size: 0.72rem; color: var(--text-secondary);" id="sharkQtyCalculated">Position: 0 ETH</span>
-              </div>
-              <div class="shark-input-wrapper">
-                <input type="number" id="sharkMarginAmount" class="shark-input-field" value="25000" style="padding-right: 2.2rem;">
-                <span class="shark-input-suffix">₹</span>
-              </div>
-              <div class="shark-quick-pcts">
-                <button class="shark-pct-btn" id="sharkPct25">25%</button>
-                <button class="shark-pct-btn" id="sharkPct50">50%</button>
-                <button class="shark-pct-btn" id="sharkPct75">75%</button>
-                <button class="shark-pct-btn" id="sharkPctMax">Max</button>
-              </div>
-            </div>
-
-            <!-- Checkbox for TP/SL -->
-            <div style="display: flex; align-items: center; gap: 0.5rem;">
-              <input type="checkbox" id="sharkSetTPSL" style="accent-color: var(--accent-blue); cursor: pointer;" checked>
-              <label for="sharkSetTPSL" style="font-size: 0.8rem; color: var(--text-secondary); cursor: pointer; user-select: none;">Set Take Profit / Stop Loss</label>
-            </div>
-
-            <!-- TP/SL inputs (controlled by checkbox) -->
-            <div id="sharkTPSLInputs" style="display: flex; gap: 1rem;">
-              <div class="shark-input-group" style="flex: 1;">
-                <label style="font-size: 0.78rem; font-weight: 600; color: var(--text-secondary); display: flex; justify-content: space-between;">
-                  <span>Take Profit</span>
-                  <span id="sharkTPAstPct" style="color: #34d399; font-size: 0.7rem;">+8.8%</span>
-                </label>
-                <div class="shark-input-wrapper">
-                  <input type="number" id="sharkTargetProfitPrice" class="shark-input-field" value="185000" style="padding-right: 2.2rem;">
-                  <span class="shark-input-suffix">₹</span>
-                </div>
-              </div>
-              <div class="shark-input-group" style="flex: 1;">
-                <label style="font-size: 0.78rem; font-weight: 600; color: var(--text-secondary); display: flex; justify-content: space-between;">
-                  <span>Stop Loss</span>
-                  <span id="sharkSLAstPct" style="color: #f87171; font-size: 0.7rem;">-2.9%</span>
-                </label>
-                <div class="shark-input-wrapper">
-                  <input type="number" id="sharkStopLossPrice" class="shark-input-field" value="165000" style="padding-right: 2.2rem;">
-                  <span class="shark-input-suffix">₹</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Action buttons -->
-            <div class="shark-action-row">
-              <button class="shark-action-btn long" id="sharkBtnLong">Buy / Long</button>
-              <button class="shark-action-btn short inactive" id="sharkBtnShort">Sell / Short</button>
-            </div>
+            <button id="applyFiltersBtn" class="btn btn-primary" style="height: 42px;">
+              <i data-lucide="sliders"></i> Apply
+            </button>
           </div>
 
-          <!-- Right Column: Real-time Analysis & Table -->
-          <div style="display: flex; flex-direction: column; gap: 1.25rem;">
-            <!-- Metrics Cards Grid -->
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
-              <div class="shark-metric-card">
-                <span class="shark-metric-label">Margin Required</span>
-                <span id="sharkResMarginRequired" class="shark-metric-val">₹25,000.00</span>
-              </div>
-              <div class="shark-metric-card">
-                <span class="shark-metric-label">Position Value</span>
-                <span id="sharkResPositionValue" class="shark-metric-val">₹6,25,000.00</span>
-              </div>
-              <div class="shark-metric-card">
-                <span class="shark-metric-label">Liquidation Price</span>
-                <span id="sharkResLiquidationPrice" class="shark-metric-val red">₹1,64,900.00</span>
-              </div>
-              <div class="shark-metric-card">
-                <span class="shark-metric-label">Risk-to-Reward (R:R)</span>
-                <span id="sharkResRiskReward" class="shark-metric-val green">1 : 3.0</span>
-              </div>
-              <div class="shark-metric-card">
-                <span class="shark-metric-label">Total Entry/Exit Fees (0.05%)</span>
-                <span id="sharkResFees" class="shark-metric-val">₹625.00</span>
-              </div>
-              <div class="shark-metric-card">
-                <span class="shark-metric-label" id="sharkTaxLabel">Est. VDA Tax (30%)</span>
-                <span id="sharkResTax" class="shark-metric-val">₹16,312.50</span>
-              </div>
-              <div class="shark-metric-card" style="grid-column: span 2; background: rgba(59, 130, 246, 0.05); border-color: rgba(59, 130, 246, 0.25);">
-                <span class="shark-metric-label" style="color: var(--accent-blue);">In-Hand Profit / Payout (Post-Tax & Fee)</span>
-                <span id="sharkResNetIncome" class="shark-metric-val green" style="font-size: 1.2rem;">+₹38,062.50</span>
-              </div>
-            </div>
-
-            <!-- Price Movement scenario table -->
-            <div style="background: rgba(15, 23, 42, 0.4); border: 1px solid var(--border-color); border-radius: 12px; padding: 1rem; flex: 1;">
-              <span style="font-size: 0.8rem; font-weight: 700; color: var(--text-primary); display: block; margin-bottom: 0.50rem;">Price Movement Scenario Analysis</span>
-              <div style="overflow-x: auto; max-height: 195px;">
-                <table class="shark-table">
-                  <thead>
-                    <tr>
-                      <th>Price Shift</th>
-                      <th>Target Price</th>
-                      <th>PnL (Gross)</th>
-                      <th>ROI %</th>
-                      <th>Outcome</th>
-                    </tr>
-                  </thead>
-                  <tbody id="sharkScenarioBody">
-                    <!-- Injected dynamically via JS -->
-                  </tbody>
-                </table>
-              </div>
-            </div>
+          <!-- Videos Grid -->
+          <div id="videoGrid" class="video-grid">
+            <!-- Dynamic cards injected via JavaScript -->
           </div>
         </div>
+
       </div>
     </div>
 
-    <!-- Filters and Query customization -->
-    <div class="filter-panel">
-      <div class="filter-group" style="flex: 2;">
-        <label for="searchQuery">Search Query</label>
-        <input type="text" id="searchQuery" class="filter-input" value="nifty analysis" placeholder="e.g. nifty analysis tomorrow">
-      </div>
-      
-      <div class="filter-group">
-        <label for="channelFilter">Filter by Channel</label>
-        <input type="text" id="channelFilter" class="filter-input" placeholder="e.g. EuroTraveller">
-      </div>
 
-      <div class="filter-group">
-        <label for="timeLimit">Time Horizon</label>
-        <select id="timeLimit" class="filter-input">
-          <option value="4">Last 4 Hours</option>
-          <option value="12">Last 12 Hours</option>
-          <option value="24" selected>Last 24 Hours</option>
-          <option value="48">Last 48 Hours</option>
-          <option value="168">Last 7 Days</option>
-          <option value="720">Last 30 Days</option>
-          <option value="8760">Last 1 Year</option>
-          <option value="43800">Last 5 Years</option>
-        </select>
-      </div>
-
-      <div class="filter-group">
-        <label for="sortBy">Sort By</label>
-        <select id="sortBy" class="filter-input">
-          <option value="date" selected>Upload Date (Newest)</option>
-          <option value="views">View Count (Popular)</option>
-          <option value="sentiment">Sentiment</option>
-        </select>
-      </div>
-
-      <div class="filter-group">
-        <label for="videoType">Video Type</label>
-        <select id="videoType" class="filter-input">
-          <option value="all" selected>All Formats</option>
-          <option value="long">Long-form (>1m)</option>
-          <option value="shorts">Shorts (≤1m)</option>
-        </select>
-      </div>
-
-      <button id="applyFiltersBtn" class="btn btn-primary" style="height: 42px;">
-        <i data-lucide="sliders"></i> Apply
-      </button>
-    </div>
-
-    <!-- Videos Content Area -->
-    <div class="section-header collapsible-header" id="videoHeader">
-      <h2>
-        <span>Aggregated YouTube Videos</span>
-        <i data-lucide="chevron-down" id="videoCollapseIcon" class="chevron-rotated"></i>
-      </h2>
-      <div class="controls-group">
-        <button id="exportCsvBtn" class="btn">
-          <i data-lucide="download"></i> CSV
-        </button>
-        <button id="exportJsonBtn" class="btn">
-          <i data-lucide="file-json"></i> JSON
-        </button>
-      </div>
-    </div>
-
-    <!-- Collapsible Container (closed by default) -->
-    <div id="videoGridContainer" class="video-grid-container collapsed">
-      <!-- Videos Grid -->
-      <div id="videoGrid" class="video-grid">
-        <!-- Dynamic cards injected via JavaScript -->
-      </div>
-    </div>
-
-    <!-- AI Financial Voice Assistant (Multimodal) -->
-    <div class="section-header collapsible-header" id="nativeVoiceHeader" style="margin-top: 1.5rem;">
-      <h2>
-        <span>AI Financial Voice Assistant: Multimodal</span>
-        <i data-lucide="chevron-down" id="nativeVoiceCollapseIcon" class="chevron-rotated"></i>
-      </h2>
-    </div>
-
-    <div id="nativeVoiceContainer" class="video-grid-container collapsed">
-      <div class="trade-setup-card">
-        <div style="display: flex; gap: 1.5rem; flex-wrap: wrap;">
-          <!-- Left Panel: Controls -->
-          <div style="flex: 1; min-width: 280px; display: flex; flex-direction: column; gap: 1.25rem;">
-            <div>
-              <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 0.5rem;">Select Market Focus</span>
-              <div style="display: flex; gap: 0.5rem;">
-                <button class="voice-market-btn active" id="voiceMarketIN" style="flex: 1; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); color: #34d399; font-size: 0.85rem; padding: 0.6rem; border-radius: 8px; cursor: pointer; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 0.4rem;">🇮🇳 India (NSE)</button>
-                <button class="voice-market-btn" id="voiceMarketSE" style="flex: 1; background: transparent; border: 1px solid var(--border-color); color: var(--text-secondary); font-size: 0.85rem; padding: 0.6rem; border-radius: 8px; cursor: pointer; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 0.4rem;">🇸🇪 Sweden (STO)</button>
-              </div>
-            </div>
-
-            <div style="display: flex; flex-direction: column; align-items: center; gap: 0.75rem; background: rgba(255,255,255,0.01); border: 1px solid var(--border-color); padding: 1.5rem; border-radius: 12px; text-align: center;">
-              <div style="position: relative; width: 80px; height: 80px;">
-                <button class="voice-mic-pulse-btn" id="voiceMicPulseBtn" style="width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #10b981, #059669); border: none; color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; z-index: 10; box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4); transition: all 0.3s ease;">
-                  <i data-lucide="mic" id="voiceMicIcon" style="width: 32px; height: 32px;"></i>
-                </button>
-                <div class="voice-pulse-ring" id="voiceMicPulseRing" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 50%; border: 3px solid #34d399; opacity: 0; pointer-events: none; box-sizing: border-box;"></div>
-              </div>
-              <span id="voiceMicStatus" style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">Ready. Click to speak</span>
-            </div>
-
-            <div style="display: flex; gap: 0.5rem; width: 100%;">
-              <input type="text" id="voiceTextInput" placeholder="Type stock name or query..." style="flex: 1; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-color); color: var(--text-primary); padding: 0.6rem 0.8rem; border-radius: 8px; outline: none; font-size: 0.8rem; font-family: 'Outfit', sans-serif;" autocomplete="off">
-              <button id="voiceSendBtn" style="background: var(--accent-blue); border: none; color: white; padding: 0.6rem 0.9rem; border-radius: 8px; font-size: 0.8rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s;"><i data-lucide="send" style="width: 15px; height: 15px;"></i></button>
-            </div>
-
-            <div style="display: flex; align-items: center; gap: 0.5rem; justify-content: center;">
-              <input type="checkbox" id="voiceMuteCheckbox" style="accent-color: #10b981; width: 16px; height: 16px; cursor: pointer;">
-              <label for="voiceMuteCheckbox" style="font-size: 0.8rem; color: var(--text-secondary); cursor: pointer; user-select: none;">Mute assistant speech output</label>
-            </div>
-          </div>
-
-          <!-- Right Panel: Conversation Log -->
-          <div style="flex: 2; min-width: 320px; display: flex; flex-direction: column; height: 320px; border: 1px solid var(--border-color); border-radius: 12px; background: rgba(15, 23, 42, 0.4); overflow: hidden;">
-            <div style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); background: rgba(30, 41, 59, 0.3); font-size: 0.8rem; font-weight: 600; color: var(--text-primary);">
-              Insights & Responses
-            </div>
-            <div class="voice-chat-log" id="voiceChatLog" style="flex: 1; padding: 1rem; overflow-y: auto; display: flex; flex-direction: column; gap: 0.75rem;">
-              <div class="voice-bubble assistant" style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); padding: 0.75rem; border-radius: 12px 12px 12px 0px; font-size: 0.8rem; line-height: 1.4; color: var(--text-secondary); max-width: 90%; align-self: flex-start; text-align: left;">
-                Hello! I am your <strong>Multimodal AI Financial Voice Assistant</strong>. Choose India or Sweden market focus on the left, type or click the mic, and ask your financial queries.
-                <div style="margin-top: 0.4rem; font-size: 0.72rem; color: var(--text-secondary); opacity: 0.8; font-style: italic;">
-                  Try: "Tell me about Volvo" or "Competitors of Reliance"
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
 
   <!-- Video Player Modal -->
