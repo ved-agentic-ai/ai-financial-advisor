@@ -4,6 +4,12 @@ let timelineChartInstance = null;
 let currentTradeTab = 'digital';
 let growthChartInstance = null;
 
+// Shark Leverage Trade Simulator global state
+let currentSharkMarginMode = 'isolated'; 
+let currentSharkLeverage = 25;
+let currentSharkAsset = 'crypto_eth'; 
+let currentSharkDirection = 'long';
+
 // DOM Elements
 const searchQueryInput = document.getElementById('searchQuery');
 const channelFilterInput = document.getElementById('channelFilter');
@@ -2098,3 +2104,407 @@ function renderGrowthChart(labels, data) {
     }
   });
 }
+
+/**
+ * SHARK LEVERAGE TRADE SIMULATOR FUNCTIONS
+ */
+function calculateSharkTrade() {
+  const marginMode = currentSharkMarginMode;
+  const leverage = currentSharkLeverage;
+  const asset = currentSharkAsset;
+  const direction = currentSharkDirection;
+
+  const balance = parseFloat(document.getElementById('sharkAvailableBalance').value) || 0;
+  const entryPrice = parseFloat(document.getElementById('sharkEntryPrice').value) || 0;
+  const marginAmount = parseFloat(document.getElementById('sharkMarginAmount').value) || 0;
+  const isTPSLActive = document.getElementById('sharkSetTPSL').checked;
+  const tpPrice = parseFloat(document.getElementById('sharkTargetProfitPrice').value) || 0;
+  const slPrice = parseFloat(document.getElementById('sharkStopLossPrice').value) || 0;
+
+  // 1. Calculate Quantity
+  // Position Value = Margin * Leverage
+  const positionValue = marginAmount * leverage;
+  const qty = entryPrice > 0 ? (positionValue / entryPrice) : 0;
+
+  // Display Quantity label
+  const qtyCalculated = document.getElementById('sharkQtyCalculated');
+  const assetLabel = asset === 'crypto_eth' ? 'ETH' : (asset === 'crypto_btc' ? 'BTC' : 'Oz Gold');
+  if (qtyCalculated) {
+    qtyCalculated.textContent = `Position: ${qty.toFixed(4)} ${assetLabel}`;
+  }
+
+  // 2. Transaction Fees: 0.05% maker/taker entry & exit
+  const entryFee = positionValue * 0.0005;
+  let exitFee = positionValue * 0.0005; 
+  
+  // 3. Liquidation Price
+  const mm = 0.01; 
+  let liqPrice = 0;
+  if (direction === 'long') {
+    if (marginMode === 'isolated') {
+      liqPrice = entryPrice * (1 - 1 / leverage + mm);
+    } else {
+      liqPrice = entryPrice * (1 - balance / positionValue + mm);
+    }
+    if (liqPrice < 0) liqPrice = 0;
+  } else {
+    if (marginMode === 'isolated') {
+      liqPrice = entryPrice * (1 + 1 / leverage - mm);
+    } else {
+      liqPrice = entryPrice * (1 + balance / positionValue - mm);
+    }
+  }
+
+  // 4. Calculate TP / SL Projections
+  let targetProfitVal = 0;
+  let stopLossVal = 0;
+  let rrRatio = 'N/A';
+  let netGain = 0;
+  let tax = 0;
+
+  const tpPct = entryPrice > 0 ? ((tpPrice - entryPrice) / entryPrice * 100) : 0;
+  const slPct = entryPrice > 0 ? ((slPrice - entryPrice) / entryPrice * 100) : 0;
+  
+  const tpAstPct = document.getElementById('sharkTPAstPct');
+  const slAstPct = document.getElementById('sharkSLAstPct');
+  if (tpAstPct) {
+    tpAstPct.textContent = `${tpPct >= 0 ? '+' : ''}${tpPct.toFixed(1)}%`;
+    tpAstPct.style.color = tpPct >= 0 ? '#34d399' : '#f87171';
+  }
+  if (slAstPct) {
+    slAstPct.textContent = `${slPct >= 0 ? '+' : ''}${slPct.toFixed(1)}%`;
+    slAstPct.style.color = slPct >= 0 ? '#34d399' : '#f87171';
+  }
+
+  if (isTPSLActive && entryPrice > 0) {
+    let rawTpGain = 0;
+    let rawSlLoss = 0;
+
+    if (direction === 'long') {
+      rawTpGain = qty * (tpPrice - entryPrice);
+      rawSlLoss = qty * (entryPrice - slPrice);
+    } else {
+      rawTpGain = qty * (entryPrice - tpPrice);
+      rawSlLoss = qty * (slPrice - entryPrice);
+    }
+
+    targetProfitVal = rawTpGain;
+    stopLossVal = rawSlLoss;
+
+    const actualTpExitFee = qty * tpPrice * 0.0005;
+    const actualSlExitFee = qty * slPrice * 0.0005;
+    
+    const tpNetGross = targetProfitVal - (entryFee + actualTpExitFee);
+    const slNetGross = -stopLossVal - (entryFee + actualSlExitFee);
+
+    if (rawSlLoss > 0) {
+      rrRatio = `1 : ${(rawTpGain / rawSlLoss).toFixed(1)}`;
+    }
+
+    const taxRate = asset.startsWith('crypto') ? 0.30 : 0.15;
+    const taxLabel = document.getElementById('sharkTaxLabel');
+    if (taxLabel) {
+      taxLabel.textContent = asset.startsWith('crypto') ? 'Est. VDA Tax (30%)' : 'Est. STCG Tax (15%)';
+    }
+
+    if (tpNetGross > 0) {
+      tax = tpNetGross * taxRate;
+      netGain = tpNetGross - tax;
+    } else {
+      tax = 0;
+      netGain = tpNetGross; 
+    }
+    
+    exitFee = actualTpExitFee;
+  }
+
+  document.getElementById('sharkResMarginRequired').textContent = `₹${marginAmount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  document.getElementById('sharkResPositionValue').textContent = `₹${positionValue.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  document.getElementById('sharkResLiquidationPrice').textContent = `₹${liqPrice.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  
+  const rrElement = document.getElementById('sharkResRiskReward');
+  if (rrElement) {
+    rrElement.textContent = rrRatio;
+    rrElement.className = 'shark-metric-val';
+    if (rrRatio !== 'N/A') {
+      const parsedRatio = parseFloat(rrRatio.split(':')[1]);
+      if (parsedRatio >= 3) {
+        rrElement.classList.add('green');
+      } else {
+        rrElement.classList.add('red');
+      }
+    }
+  }
+
+  const totalFees = entryFee + exitFee;
+  document.getElementById('sharkResFees').textContent = `₹${totalFees.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  document.getElementById('sharkResTax').textContent = `₹${tax.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  
+  const netIncomeEl = document.getElementById('sharkResNetIncome');
+  if (netIncomeEl) {
+    const sign = netGain >= 0 ? '+' : '';
+    netIncomeEl.textContent = `${sign}₹${netGain.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    netIncomeEl.className = 'shark-metric-val';
+    if (netGain >= 0) {
+      netIncomeEl.classList.add('green');
+    } else {
+      netIncomeEl.classList.add('red');
+    }
+  }
+
+  renderSharkScenarios(entryPrice, qty, leverage, direction, marginMode, balance, tpPrice, slPrice, liqPrice, asset);
+}
+
+function renderSharkScenarios(entryPrice, qty, leverage, direction, marginMode, balance, tpPrice, slPrice, liqPrice, asset) {
+  const tbody = document.getElementById('sharkScenarioBody');
+  if (!tbody || entryPrice <= 0) return;
+
+  tbody.innerHTML = '';
+  
+  const shifts = [25, 10, 5, 2, 1, -1, -2, -5, -10, -25];
+  
+  if (direction === 'short') {
+    shifts.reverse();
+  }
+
+  const taxRate = asset.startsWith('crypto') ? 0.30 : 0.15;
+  const entryFee = qty * entryPrice * 0.0005;
+
+  shifts.forEach(pct => {
+    const targetPrice = entryPrice * (1 + pct / 100);
+    
+    let outcome = 'Normal';
+    let outcomeClass = 'normal';
+    
+    let isLiquidated = false;
+    let isSLHit = false;
+    let isTPHit = false;
+
+    if (direction === 'long') {
+      if (targetPrice <= liqPrice) {
+        isLiquidated = true;
+      } else if (slPrice > 0 && targetPrice <= slPrice) {
+        isSLHit = true;
+      } else if (tpPrice > 0 && targetPrice >= tpPrice) {
+        isTPHit = true;
+      }
+    } else {
+      if (targetPrice >= liqPrice) {
+        isLiquidated = true;
+      } else if (slPrice > 0 && targetPrice >= slPrice) {
+        isSLHit = true;
+      } else if (tpPrice > 0 && targetPrice <= tpPrice) {
+        isTPHit = true;
+      }
+    }
+
+    let pnl = 0;
+    let roi = 0;
+
+    if (isLiquidated) {
+      outcome = 'LIQUIDATED 💀';
+      outcomeClass = 'liq';
+      pnl = -qty * entryPrice / leverage; 
+      roi = -100;
+    } else {
+      if (direction === 'long') {
+        pnl = qty * (targetPrice - entryPrice);
+      } else {
+        pnl = qty * (entryPrice - targetPrice);
+      }
+      
+      const exitFee = qty * targetPrice * 0.0005;
+      pnl = pnl - (entryFee + exitFee);
+
+      if (pnl > 0) {
+        const scenarioTax = pnl * taxRate;
+        pnl = pnl - scenarioTax;
+      }
+
+      const initialMargin = (qty * entryPrice) / leverage;
+      roi = (pnl / initialMargin) * 100;
+
+      if (isTPHit) {
+        outcome = 'Take Profit 🎯';
+        outcomeClass = 'tp';
+      } else if (isSLHit) {
+        outcome = 'Stop Loss 🛑';
+        outcomeClass = 'sl';
+      }
+    }
+
+    const pnlSign = pnl >= 0 ? '+' : '';
+    const roiSign = roi >= 0 ? '+' : '';
+    const rowColor = pnl >= 0 ? 'color: #34d399;' : 'color: #f87171;';
+
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td style="font-weight: 600; ${rowColor}">${pct >= 0 ? '+' : ''}${pct}%</td>
+      <td>₹${targetPrice.toLocaleString('en-IN', { maximumFractionDigits: 1 })}</td>
+      <td style="${rowColor}">${pnlSign}₹${pnl.toLocaleString('en-IN', { maximumFractionDigits: 1 })}</td>
+      <td style="${rowColor}">${roiSign}${roi.toFixed(1)}%</td>
+      <td><span class="shark-outcome-badge ${outcomeClass}">${outcome}</span></td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+// Global helpers for quick leverage click
+window.setSharkLeverage = function(val) {
+  currentSharkLeverage = val;
+  const sharkLeverageSlider = document.getElementById('sharkLeverageSlider');
+  const sharkLeverageSliderVal = document.getElementById('sharkLeverageSliderVal');
+  const sharkLeverageLabel = document.getElementById('sharkLeverageLabel');
+  
+  if (sharkLeverageSlider) sharkLeverageSlider.value = val;
+  if (sharkLeverageSliderVal) sharkLeverageSliderVal.textContent = `${val}x`;
+  if (sharkLeverageLabel) sharkLeverageLabel.textContent = `${val}x`;
+  calculateSharkTrade();
+};
+
+// Wire up events in DOMContentLoaded
+document.addEventListener('DOMContentLoaded', () => {
+  const sharkLeverageTriggerBtn = document.getElementById('sharkLeverageTriggerBtn');
+  const sharkLeveragePopup = document.getElementById('sharkLeveragePopup');
+  const sharkLeverageSlider = document.getElementById('sharkLeverageSlider');
+  
+  if (sharkLeverageTriggerBtn && sharkLeveragePopup) {
+    sharkLeverageTriggerBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isVisible = sharkLeveragePopup.style.display === 'flex';
+      sharkLeveragePopup.style.display = isVisible ? 'none' : 'flex';
+    });
+
+    document.addEventListener('click', (e) => {
+      if (sharkLeveragePopup.style.display === 'flex' && !sharkLeveragePopup.contains(e.target) && e.target !== sharkLeverageTriggerBtn) {
+        sharkLeveragePopup.style.display = 'none';
+      }
+    });
+  }
+
+  if (sharkLeverageSlider) {
+    sharkLeverageSlider.addEventListener('input', (e) => {
+      const val = parseInt(e.target.value, 10);
+      setSharkLeverage(val);
+    });
+  }
+
+  const sharkMarginIsolated = document.getElementById('sharkMarginIsolated');
+  const sharkMarginCross = document.getElementById('sharkMarginCross');
+  
+  if (sharkMarginIsolated && sharkMarginCross) {
+    sharkMarginIsolated.addEventListener('click', () => {
+      currentSharkMarginMode = 'isolated';
+      sharkMarginIsolated.classList.add('active');
+      sharkMarginCross.classList.remove('active');
+      calculateSharkTrade();
+    });
+
+    sharkMarginCross.addEventListener('click', () => {
+      currentSharkMarginMode = 'cross';
+      sharkMarginCross.classList.add('active');
+      sharkMarginIsolated.classList.remove('active');
+      calculateSharkTrade();
+    });
+  }
+
+  const sharkBtnLong = document.getElementById('sharkBtnLong');
+  const sharkBtnShort = document.getElementById('sharkBtnShort');
+  
+  if (sharkBtnLong && sharkBtnShort) {
+    sharkBtnLong.addEventListener('click', () => {
+      currentSharkDirection = 'long';
+      sharkBtnLong.classList.remove('inactive');
+      sharkBtnShort.classList.add('inactive');
+      calculateSharkTrade();
+    });
+
+    sharkBtnShort.addEventListener('click', () => {
+      currentSharkDirection = 'short';
+      sharkBtnShort.classList.remove('inactive');
+      sharkBtnLong.classList.add('inactive');
+      calculateSharkTrade();
+    });
+  }
+
+  const sharkAssetSelect = document.getElementById('sharkAssetSelect');
+  if (sharkAssetSelect) {
+    sharkAssetSelect.addEventListener('change', (e) => {
+      currentSharkAsset = e.target.value;
+      
+      const entryPrice = document.getElementById('sharkEntryPrice');
+      const tpPrice = document.getElementById('sharkTargetProfitPrice');
+      const slPrice = document.getElementById('sharkStopLossPrice');
+      
+      if (currentSharkAsset === 'crypto_eth') {
+        if (entryPrice) entryPrice.value = 170000;
+        if (tpPrice) tpPrice.value = 185000;
+        if (slPrice) slPrice.value = 165000;
+      } else if (currentSharkAsset === 'crypto_btc') {
+        if (entryPrice) entryPrice.value = 5200000;
+        if (tpPrice) tpPrice.value = 5600000;
+        if (slPrice) slPrice.value = 5000000;
+      } else if (currentSharkAsset === 'commodity_gold') {
+        if (entryPrice) entryPrice.value = 60000;
+        if (tpPrice) tpPrice.value = 65000;
+        if (slPrice) slPrice.value = 58000;
+      }
+      
+      calculateSharkTrade();
+    });
+  }
+
+  const sharkPct25 = document.getElementById('sharkPct25');
+  const sharkPct50 = document.getElementById('sharkPct50');
+  const sharkPct75 = document.getElementById('sharkPct75');
+  const sharkPctMax = document.getElementById('sharkPctMax');
+  const sharkAvailableBalance = document.getElementById('sharkAvailableBalance');
+  const sharkMarginAmount = document.getElementById('sharkMarginAmount');
+
+  function setSharkMarginPct(pct) {
+    const bal = parseFloat(sharkAvailableBalance.value) || 0;
+    const amount = bal * pct;
+    sharkMarginAmount.value = Math.round(amount);
+    calculateSharkTrade();
+  }
+
+  if (sharkPct25) sharkPct25.addEventListener('click', () => setSharkMarginPct(0.25));
+  if (sharkPct50) sharkPct50.addEventListener('click', () => setSharkMarginPct(0.50));
+  if (sharkPct75) sharkPct75.addEventListener('click', () => setSharkMarginPct(0.75));
+  if (sharkPctMax) sharkPctMax.addEventListener('click', () => setSharkMarginPct(1.0));
+
+  const sharkSetTPSL = document.getElementById('sharkSetTPSL');
+  const sharkTPSLInputs = document.getElementById('sharkTPSLInputs');
+  if (sharkSetTPSL && sharkTPSLInputs) {
+    sharkSetTPSL.addEventListener('change', (e) => {
+      sharkTPSLInputs.style.display = e.target.checked ? 'flex' : 'none';
+      calculateSharkTrade();
+    });
+  }
+
+  const inputs = ['sharkAvailableBalance', 'sharkEntryPrice', 'sharkMarginAmount', 'sharkTargetProfitPrice', 'sharkStopLossPrice'];
+  inputs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', calculateSharkTrade);
+    }
+  });
+
+  const sharkSimulatorHeader = document.getElementById('sharkSimulatorHeader');
+  const sharkSimulatorContainer = document.getElementById('sharkSimulatorContainer');
+  const sharkSimulatorCollapseIcon = document.getElementById('sharkSimulatorCollapseIcon');
+  if (sharkSimulatorHeader && sharkSimulatorContainer && sharkSimulatorCollapseIcon) {
+    sharkSimulatorHeader.addEventListener('click', () => {
+      const isCollapsed = sharkSimulatorContainer.classList.toggle('collapsed');
+      if (isCollapsed) {
+        sharkSimulatorCollapseIcon.classList.add('chevron-rotated');
+      } else {
+        sharkSimulatorCollapseIcon.classList.remove('chevron-rotated');
+        setTimeout(calculateSharkTrade, 50);
+      }
+    });
+  }
+
+  // Initial calculation trigger
+  calculateSharkTrade();
+});
