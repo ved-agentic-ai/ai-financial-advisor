@@ -1,5 +1,6 @@
 const express = require('express');
 const path = require('path');
+const fs = require('fs');
 const dotenv = require('dotenv');
 const axios = require('axios');
 const ytSearch = require('yt-search');
@@ -660,6 +661,41 @@ app.post('/api/voice-assistant/query', async (req, res) => {
     console.error('[Assistant] Error processing query:', err.message);
     res.status(500).json({ error: 'Failed to process voice query', message: err.message });
   }
+});
+
+// --- PERSISTENT VISITOR TRACKER STATS ---
+const statsFilePath = path.join(__dirname, 'visitor_stats.json');
+
+function readStats() {
+  try {
+    if (fs.existsSync(statsFilePath)) {
+      const data = fs.readFileSync(statsFilePath, 'utf8');
+      return JSON.parse(data);
+    }
+  } catch (err) {
+    console.error('Error reading stats file:', err);
+  }
+  return { views: 0 };
+}
+
+function writeStats(stats) {
+  try {
+    fs.writeFileSync(statsFilePath, JSON.stringify(stats, null, 2), 'utf8');
+  } catch (err) {
+    console.error('Error writing stats file:', err);
+  }
+}
+
+app.post('/api/stats/views/increment', (req, res) => {
+  const stats = readStats();
+  stats.views = (stats.views || 0) + 1;
+  writeStats(stats);
+  res.json({ success: true, views: stats.views });
+});
+
+app.get('/api/stats/views', (req, res) => {
+  const stats = readStats();
+  res.json({ views: stats.views });
 });
 
 // Start listening on port 8082, scan upwards if busy

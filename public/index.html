@@ -1442,18 +1442,74 @@ Check out the design and architecture! Handcrafted with clean vanilla code, modu
       <button class="modal-close" id="settingsCloseBtn">
         <i data-lucide="x"></i>
       </button>
-      <div class="settings-panel">
-        <h3>YouTube API Integration</h3>
-        <p>Supply your own YouTube Data API v3 Key to bypass scraping rate limits and ensure exact filtering.</p>
+      
+      <!-- Tabbed Menu Headers -->
+      <div style="display: flex; gap: 0.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; margin-bottom: 1.25rem; margin-top: 0.5rem;">
+        <button id="tabSettingsBtn" class="btn active" style="font-size: 0.8rem; padding: 0.4rem 0.75rem; border-radius: 6px; display: flex; align-items: center; gap: 0.35rem; font-weight: 600; cursor: pointer; transition: all 0.2s;">
+          <i data-lucide="key" style="width: 14px; height: 14px;"></i> API Config
+        </button>
+        <button id="tabStatsBtn" class="btn" style="font-size: 0.8rem; padding: 0.4rem 0.75rem; border-radius: 6px; display: flex; align-items: center; gap: 0.35rem; font-weight: 500; cursor: pointer; transition: all 0.2s; border-color: transparent; background: transparent;">
+          <i data-lucide="bar-chart-2" style="width: 14px; height: 14px;"></i> Stats Tracker
+        </button>
+      </div>
+
+      <!-- Tab 1: YouTube API Integration -->
+      <div id="settingsConfigContent" class="settings-panel">
+        <h3 style="margin-top: 0; font-size: 1.05rem; display: flex; align-items: center; gap: 0.4rem;">
+          <i data-lucide="youtube" style="width: 16px; height: 16px; color: #ef4444;"></i> YouTube API Integration
+        </h3>
+        <p style="font-size: 0.76rem; color: var(--text-secondary); margin-bottom: 1rem; line-height: 1.4;">Supply your own YouTube Data API v3 Key to bypass scraping rate limits and ensure exact filtering.</p>
         
-        <div style="margin-bottom: 1.5rem;">
-          <label for="apiKeyInput" style="display: block; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.5rem; font-weight: 500;">YouTube API Key</label>
-          <input type="password" id="apiKeyInput" class="filter-input" placeholder="AIzaSy...">
+        <div style="margin-bottom: 1.25rem;">
+          <label for="apiKeyInput" style="display: block; font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.5rem; font-weight: 500;">YouTube API Key</label>
+          <input type="password" id="apiKeyInput" class="filter-input" placeholder="AIzaSy..." style="height: 38px;">
         </div>
 
         <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
-          <button id="clearApiKeyBtn" class="btn" style="color: var(--bearish-color); border-color: rgba(239, 68, 68, 0.2);">Clear</button>
-          <button id="saveApiKeyBtn" class="btn btn-primary">Save Key</button>
+          <button id="clearApiKeyBtn" class="btn" style="color: var(--bearish-color); border-color: rgba(239, 68, 68, 0.2); height: 38px;">Clear</button>
+          <button id="saveApiKeyBtn" class="btn btn-primary" style="height: 38px;">Save Key</button>
+        </div>
+      </div>
+
+      <!-- Tab 2: Visitor Statistics Tracker (Passcode Protected) -->
+      <div id="settingsStatsContent" class="settings-panel" style="display: none;">
+        <!-- Stats Passcode Unlock Screen -->
+        <div id="statsUnlockPanel" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1rem 0; text-align: center;">
+          <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 0.75rem;">
+            <i data-lucide="lock" style="width: 16px; height: 16px; color: var(--accent-blue);"></i>
+          </div>
+          <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.25rem; display: block;">Enter Passkey to View Analytics</span>
+          <span style="font-size: 0.72rem; color: var(--text-secondary); margin-bottom: 1rem; display: block; max-width: 280px; line-height: 1.35;">Input the master passcode key to access metrics.</span>
+          <div style="display: flex; gap: 0.5rem; width: 100%; max-width: 300px; margin-bottom: 0.5rem;">
+            <input type="password" id="statsPasskeyInput" class="filter-input" placeholder="Passkey..." style="flex: 1; height: 38px; padding: 0.5rem; font-size: 0.8rem;">
+            <button id="statsUnlockBtn" class="btn btn-primary" style="height: 38px; padding: 0 0.85rem; font-size: 0.8rem;">Unlock</button>
+          </div>
+        </div>
+
+        <!-- Stats Content Dashboard -->
+        <div id="statsMainContent" style="display: none;">
+          <h3 style="margin-top: 0; font-size: 1.05rem; display: flex; align-items: center; gap: 0.4rem;">
+            <i data-lucide="trending-up" style="width: 16px; height: 16px; color: var(--accent-blue);"></i> Visitor Analytics
+          </h3>
+          <p style="font-size: 0.76rem; color: var(--text-secondary); margin-bottom: 1.25rem; line-height: 1.4;">Real-time engagement metrics and traffic patterns.</p>
+          
+          <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); padding: 1rem; border-radius: 8px; margin-bottom: 1.25rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <span style="font-size: 0.7rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 0.25rem; font-weight: 600;">Total Site Views</span>
+                <span id="statsTotalViews" style="font-size: 1.6rem; font-weight: 700; color: var(--accent-blue); font-family: monospace;">---</span>
+              </div>
+              <div style="background: rgba(59, 130, 246, 0.1); padding: 0.5rem; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                <i data-lucide="users" style="width: 20px; height: 20px; color: var(--accent-blue);"></i>
+              </div>
+            </div>
+          </div>
+
+          <div style="display: flex; justify-content: flex-end; gap: 0.5rem;">
+            <button id="statsLockBtn" class="btn" style="height: 36px; padding: 0 0.85rem; font-size: 0.76rem; color: var(--text-secondary); display: flex; align-items: center; gap: 0.35rem;">
+              <i data-lucide="lock" style="width: 12px; height: 12px;"></i> Lock Stats
+            </button>
+          </div>
         </div>
       </div>
     </div>

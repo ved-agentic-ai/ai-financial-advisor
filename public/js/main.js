@@ -746,4 +746,122 @@ document.addEventListener('DOMContentLoaded', () => {
   calculateAndUpdateTradeSetup();
   calculateSharkTrade();
   initVoiceAssistantUnlock();
+  initSettingsTabsAndStats();
 });
+
+function initSettingsTabsAndStats() {
+  const tabSettingsBtn = document.getElementById('tabSettingsBtn');
+  const tabStatsBtn = document.getElementById('tabStatsBtn');
+  const settingsConfigContent = document.getElementById('settingsConfigContent');
+  const settingsStatsContent = document.getElementById('settingsStatsContent');
+
+  if (!tabSettingsBtn || !tabStatsBtn || !settingsConfigContent || !settingsStatsContent) return;
+
+  // Tab switching helper
+  const activateTab = (activeTabBtn, activeContent, inactiveTabBtn, inactiveContent) => {
+    activeTabBtn.classList.add('active');
+    activeTabBtn.style.color = 'var(--accent-blue)';
+    activeTabBtn.style.border = '1px solid rgba(59, 130, 246, 0.2)';
+    activeTabBtn.style.background = 'rgba(59, 130, 246, 0.05)';
+    activeContent.style.display = 'block';
+
+    inactiveTabBtn.classList.remove('active');
+    inactiveTabBtn.style.color = 'var(--text-secondary)';
+    inactiveTabBtn.style.border = '1px solid transparent';
+    inactiveTabBtn.style.background = 'transparent';
+    inactiveContent.style.display = 'none';
+  };
+
+  tabSettingsBtn.addEventListener('click', () => {
+    activateTab(tabSettingsBtn, settingsConfigContent, tabStatsBtn, settingsStatsContent);
+  });
+
+  tabStatsBtn.addEventListener('click', () => {
+    activateTab(tabStatsBtn, settingsStatsContent, tabSettingsBtn, settingsConfigContent);
+    // Refresh stats if already unlocked
+    if (localStorage.getItem('stats_tracker_unlocked') === 'true') {
+      fetchViewsCount();
+    }
+  });
+
+  // Track page views (once per session)
+  if (!sessionStorage.getItem('page_view_recorded')) {
+    fetch('/api/stats/views/increment', { method: 'POST' })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          sessionStorage.setItem('page_view_recorded', 'true');
+        }
+      })
+      .catch(err => console.error('Failed to increment visitor view count:', err));
+  }
+
+  // Stats Lock & Unlock logic
+  const statsUnlockBtn = document.getElementById('statsUnlockBtn');
+  const statsPasskeyInput = document.getElementById('statsPasskeyInput');
+  const statsUnlockPanel = document.getElementById('statsUnlockPanel');
+  const statsMainContent = document.getElementById('statsMainContent');
+  const statsTotalViews = document.getElementById('statsTotalViews');
+  const statsLockBtn = document.getElementById('statsLockBtn');
+
+  if (!statsUnlockBtn || !statsPasskeyInput || !statsUnlockPanel || !statsMainContent || !statsTotalViews || !statsLockBtn) return;
+
+  const fetchViewsCount = () => {
+    fetch('/api/stats/views')
+      .then(res => res.json())
+      .then(data => {
+        if (data && typeof data.views !== 'undefined') {
+          statsTotalViews.textContent = data.views.toLocaleString();
+        }
+      })
+      .catch(err => {
+        console.error('Failed to fetch stats:', err);
+        statsTotalViews.textContent = 'Error';
+      });
+  };
+
+  const unlockStats = () => {
+    statsUnlockPanel.style.display = 'none';
+    statsMainContent.style.display = 'block';
+    fetchViewsCount();
+  };
+
+  const lockStats = () => {
+    localStorage.removeItem('stats_tracker_unlocked');
+    statsPasskeyInput.value = '';
+    statsMainContent.style.display = 'none';
+    statsUnlockPanel.style.display = 'flex';
+  };
+
+  // Restore unlocked state
+  if (localStorage.getItem('stats_tracker_unlocked') === 'true') {
+    unlockStats();
+  }
+
+  statsUnlockBtn.addEventListener('click', () => {
+    const val = statsPasskeyInput.value.trim();
+    if (val === 'Welcome@123') {
+      localStorage.setItem('stats_tracker_unlocked', 'true');
+      unlockStats();
+      showToast('Analytics unlocked successfully!', 'success');
+      // Trigger Lucide to render the user icon inside statistics
+      if (typeof lucide !== 'undefined' && lucide.createIcons) {
+        lucide.createIcons();
+      }
+    } else {
+      showToast('Incorrect passkey.', 'error');
+    }
+  });
+
+  statsPasskeyInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+      statsUnlockBtn.click();
+    }
+  });
+
+  statsLockBtn.addEventListener('click', () => {
+    lockStats();
+    showToast('Analytics locked.', 'info');
+  });
+}
+
