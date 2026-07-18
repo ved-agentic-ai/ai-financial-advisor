@@ -857,7 +857,7 @@
         <!-- Tab 2: AI Toolkit Suite -->
         <div id="masterPanelAI" class="master-panel-content" style="display: none;">
           <h3 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 1.5rem; color: var(--accent-blue); display: flex; align-items: center; gap: 0.5rem;">
-            <i data-lucide="mic" style="width: 20px; height: 20px; color: var(--accent-blue);"></i> Multimodal AI Financial Voice Assistant
+            <i data-lucide="volume-2" id="voiceSpeakLastBtn" style="width: 20px; height: 20px; color: var(--accent-blue); cursor: pointer;" title="Read out last response"></i> Multimodal AI Financial Voice Assistant
           </h3>
           <div style="display: flex; gap: 1.5rem; flex-wrap: wrap;">
             <!-- Left Panel: Controls -->
@@ -865,8 +865,8 @@
               <div>
                 <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 0.5rem;">Select Market Focus</span>
                 <div style="display: flex; gap: 0.5rem;">
-                  <button class="voice-market-btn active" id="voiceMarketIN" style="flex: 1; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); color: #34d399; font-size: 0.85rem; padding: 0.6rem; border-radius: 8px; cursor: pointer; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 0.4rem;">🇮🇳 India (NSE)</button>
-                  <button class="voice-market-btn" id="voiceMarketSE" style="flex: 1; background: transparent; border: 1px solid var(--border-color); color: var(--text-secondary); font-size: 0.85rem; padding: 0.6rem; border-radius: 8px; cursor: pointer; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 0.4rem;">🇸🇪 Sweden (STO)</button>
+                  <button class="voice-market-btn active" id="voiceMarketIN" data-market="indian" style="flex: 1; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); color: #34d399; font-size: 0.85rem; padding: 0.6rem; border-radius: 8px; cursor: pointer; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 0.4rem;">🇮🇳 India (NSE)</button>
+                  <button class="voice-market-btn" id="voiceMarketSE" data-market="swedish" style="flex: 1; background: transparent; border: 1px solid var(--border-color); color: var(--text-secondary); font-size: 0.85rem; padding: 0.6rem; border-radius: 8px; cursor: pointer; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 0.4rem;">🇸🇪 Sweden (STO)</button>
                 </div>
               </div>
 

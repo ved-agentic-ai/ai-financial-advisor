@@ -126,7 +126,7 @@ function appendVoiceMessage(text, sender) {
 }
 
 async function handleVoiceQuerySubmit(queryText) {
-  const activeMarket = document.querySelector('.market-btn.active')?.dataset.market || 'indian';
+  const activeMarket = document.querySelector('.voice-market-btn.active')?.dataset.market || 'indian';
   try {
     const response = await fetch('/api/voice-assistant/query', {
       method: 'POST',
@@ -327,3 +327,207 @@ function speakText(text) {
     window.speechSynthesis.speak(utterance);
   }
 }
+
+function initVoiceMarketToggle() {
+  const btnIN = document.getElementById('voiceMarketIN');
+  const btnSE = document.getElementById('voiceMarketSE');
+  
+  if (!btnIN || !btnSE) return;
+  
+  const handleMarketChange = (activeBtn, inactiveBtn, activeBg, activeBorder, activeColor) => {
+    activeBtn.classList.add('active');
+    activeBtn.style.background = activeBg;
+    activeBtn.style.border = activeBorder;
+    activeBtn.style.color = activeColor;
+    activeBtn.style.fontWeight = '600';
+    
+    inactiveBtn.classList.remove('active');
+    inactiveBtn.style.background = 'transparent';
+    inactiveBtn.style.border = '1px solid var(--border-color)';
+    inactiveBtn.style.color = 'var(--text-secondary)';
+    inactiveBtn.style.fontWeight = '500';
+  };
+  
+  btnIN.addEventListener('click', () => {
+    handleMarketChange(btnIN, btnSE, 'rgba(16, 185, 129, 0.1)', '1px solid rgba(16, 185, 129, 0.2)', '#34d399');
+    showToast('Market focus switched to India (NSE)', 'success');
+  });
+  
+  btnSE.addEventListener('click', () => {
+    handleMarketChange(btnSE, btnIN, 'rgba(59, 130, 246, 0.1)', '1px solid rgba(59, 130, 246, 0.2)', '#60a5fa');
+    showToast('Market focus switched to Sweden (STO)', 'success');
+  });
+}
+
+function initVoiceSpeakLastListener() {
+  const speakLastBtn = document.getElementById('voiceSpeakLastBtn');
+  if (speakLastBtn) {
+    speakLastBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const bubbles = document.querySelectorAll('.voice-bubble.assistant');
+      if (bubbles.length > 0) {
+        const lastBubble = bubbles[bubbles.length - 1];
+        const text = lastBubble.innerText || lastBubble.textContent;
+        // Check if there is a mute status
+        const voiceMuteCheckbox = document.getElementById('voiceMuteCheckbox');
+        if (voiceMuteCheckbox && voiceMuteCheckbox.checked) {
+          showToast('Assistant is muted. Uncheck the mute option first.', 'info');
+          return;
+        }
+        speakVoiceAssistantText(text);
+        showToast('Reading out response...', 'success');
+      } else {
+        showToast('No responses to read out yet.', 'info');
+      }
+    });
+  }
+}
+
+let voicePanelRecognition = null;
+let isVoicePanelListening = false;
+
+function initVoicePanelSpeech() {
+  const micBtn = document.getElementById('voiceMicPulseBtn');
+  const micStatus = document.getElementById('voiceMicStatus');
+  const micRing = document.getElementById('voiceMicPulseRing');
+  const textInput = document.getElementById('voiceTextInput');
+
+  if (!micBtn || !micStatus || !micRing || !textInput) return;
+
+  if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    voicePanelRecognition = new SpeechRecognition();
+    voicePanelRecognition.continuous = false;
+    voicePanelRecognition.interimResults = false;
+    voicePanelRecognition.lang = 'en-US';
+
+    voicePanelRecognition.onstart = () => {
+      isVoicePanelListening = true;
+      micStatus.textContent = 'Listening... Speak now';
+      micBtn.style.transform = 'scale(1.1)';
+      micRing.style.opacity = '1';
+      
+      // Inject pulse animation keyframes dynamically if not present
+      if (!document.getElementById('voicePulseStyles')) {
+        const style = document.createElement('style');
+        style.id = 'voicePulseStyles';
+        style.innerHTML = `
+          @keyframes voicePanelPulse {
+            0% { transform: scale(1); opacity: 0.8; }
+            100% { transform: scale(1.4); opacity: 0.1; }
+          }
+        `;
+        document.head.appendChild(style);
+      }
+      micRing.style.animation = 'voicePanelPulse 1.2s infinite ease-out';
+    };
+
+    voicePanelRecognition.onend = () => {
+      isVoicePanelListening = false;
+      micStatus.textContent = 'Ready. Click to speak';
+      micBtn.style.transform = 'scale(1)';
+      micRing.style.opacity = '0';
+      micRing.style.animation = 'none';
+    };
+
+    voicePanelRecognition.onerror = (e) => {
+      console.error('Voice panel speech recognition error:', e.error);
+      if (e.error !== 'no-speech') {
+        showToast('Speech recognition error: ' + e.error, 'error');
+      }
+    };
+
+    voicePanelRecognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript;
+      textInput.value = transcript;
+      submitVoicePanelQuery(transcript);
+    };
+
+    micBtn.addEventListener('click', () => {
+      if (isVoicePanelListening) {
+        voicePanelRecognition.stop();
+      } else {
+        if ('speechSynthesis' in window) {
+          window.speechSynthesis.cancel();
+        }
+        voicePanelRecognition.start();
+      }
+    });
+  } else {
+    micBtn.style.opacity = '0.5';
+    micStatus.textContent = 'Speech input not supported';
+    micBtn.addEventListener('click', () => {
+      showToast('Speech recognition not supported in this browser.', 'error');
+    });
+  }
+}
+
+function submitVoicePanelQuery(queryText) {
+  if (!queryText || queryText.trim() === '') return;
+  
+  const textInput = document.getElementById('voiceTextInput');
+  if (textInput) textInput.value = '';
+  
+  appendVoiceMessage(queryText, 'user');
+  
+  const log = document.getElementById('voiceChatLog');
+  let indicator = null;
+  if (log) {
+    indicator = document.createElement('div');
+    indicator.id = 'voiceTypingIndicator';
+    indicator.className = 'voice-bubble assistant';
+    indicator.style.background = 'rgba(255,255,255,0.02)';
+    indicator.style.border = '1px solid var(--border-color)';
+    indicator.style.padding = '0.75rem';
+    indicator.style.borderRadius = '12px 12px 12px 0px';
+    indicator.style.fontSize = '0.8rem';
+    indicator.style.color = 'var(--text-secondary)';
+    indicator.style.alignSelf = 'flex-start';
+    indicator.innerHTML = `
+      <span style="display: flex; gap: 3px; align-items: center; justify-content: center; height: 12px;">
+        <span style="width: 4px; height: 4px; background: var(--text-secondary); border-radius: 50%; animation: voiceDot 1.2s infinite alternate;"></span>
+        <span style="width: 4px; height: 4px; background: var(--text-secondary); border-radius: 50%; animation: voiceDot 1.2s infinite alternate 0.4s;"></span>
+        <span style="width: 4px; height: 4px; background: var(--text-secondary); border-radius: 50%; animation: voiceDot 1.2s infinite alternate 0.8s;"></span>
+      </span>
+      <style>
+        @keyframes voiceDot {
+          0% { transform: translateY(0); opacity: 0.3; }
+          100% { transform: translateY(-4px); opacity: 1; }
+        }
+      </style>
+    `;
+    log.appendChild(indicator);
+    log.scrollTop = log.scrollHeight;
+  }
+  
+  handleVoiceQuerySubmit(queryText).finally(() => {
+    if (indicator) indicator.remove();
+  });
+}
+
+function initVoiceSendQuery() {
+  const sendBtn = document.getElementById('voiceSendBtn');
+  const textInput = document.getElementById('voiceTextInput');
+
+  if (!sendBtn || !textInput) return;
+
+  const performSubmit = () => {
+    const text = textInput.value.trim();
+    if (text === '') return;
+    submitVoicePanelQuery(text);
+  };
+
+  sendBtn.addEventListener('click', performSubmit);
+  textInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+      performSubmit();
+    }
+  });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  initVoiceMarketToggle();
+  initVoiceSpeakLastListener();
+  initVoicePanelSpeech();
+  initVoiceSendQuery();
+});
