@@ -192,6 +192,9 @@
         <button class="trade-tab-btn" id="masterTabYoutube" style="padding: 0.75rem 1.25rem; font-size: 0.9rem; display: flex; align-items: center; gap: 0.5rem;">
           <i data-lucide="youtube" style="width: 16px; height: 16px;"></i> YouTube Aggregator
         </button>
+        <button class="trade-tab-btn" id="masterTabDesign" style="padding: 0.75rem 1.25rem; font-size: 0.9rem; display: flex; align-items: center; gap: 0.5rem;">
+          <i data-lucide="book-open" style="width: 16px; height: 16px;"></i> Design & Architecture
+        </button>
       </div>
 
       <!-- Master Content Containers -->
@@ -719,41 +722,7 @@
                             Spikes bypass standard Stop Losses, forcing exits at worse prices (slippage). If a spike is larger than your leverage buffer, it triggers <strong>instant liquidation</strong> (100% loss of margin/capital).
                           </div>
 
-                          <!-- Dynamic Worst Case Scenario and Historical Context Card -->
-                          <div style="background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.05); padding: 0.75rem; border-radius: 6px; margin-top: 0.4rem; display: flex; flex-direction: column; gap: 0.5rem;">
-                            <!-- Dynamic Worst-Case Section -->
-                            <div style="text-align: left;">
-                              <div style="font-size: 0.74rem; font-weight: 700; color: #f87171; display: flex; align-items: center; gap: 0.25rem; margin-bottom: 0.25rem;">
-                                <i data-lucide="shield-alert" style="width: 13px; height: 13px; color: #f87171;"></i> Worst-Case Spike Scenarios
-                              </div>
-                              <div id="survivalSpikeWorstCaseMsg" style="font-size: 0.7rem; color: var(--text-secondary); margin-bottom: 0.4rem;">
-                                <!-- Dynamic message -->
-                              </div>
-                              
-                              <!-- Matrix Table -->
-                              <div style="display: flex; flex-direction: column; gap: 0.25rem; border: 1px solid rgba(255,255,255,0.05); border-radius: 4px; overflow: hidden; font-size: 0.66rem;">
-                                <div style="display: grid; grid-template-columns: 1.2fr 1.5fr 1.8fr 1.5fr; background: rgba(255,255,255,0.03); font-weight: 600; padding: 0.3rem 0.4rem; color: var(--text-secondary); border-bottom: 1px solid rgba(255,255,255,0.05);">
-                                  <span>Adverse Move</span>
-                                  <span>Price Level</span>
-                                  <span>Outcome</span>
-                                  <span>Capital Loss</span>
-                                </div>
-                                <div id="survivalSpikeMatrixRows" style="display: flex; flex-direction: column;">
-                                  <!-- Dynamic Rows generated in JS -->
-                                </div>
-                              </div>
-                            </div>
-                            
-                            <!-- Historical Context Section -->
-                            <div style="text-align: left; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 0.4rem;">
-                              <div style="font-size: 0.74rem; font-weight: 700; color: var(--accent-blue); display: flex; align-items: center; gap: 0.25rem; margin-bottom: 0.25rem;">
-                                <i data-lucide="history" style="width: 13px; height: 13px; color: var(--accent-blue);"></i> Historical Volatility Reference
-                              </div>
-                              <div id="survivalSpikeHistoryRef" style="font-size: 0.68rem; color: var(--text-secondary); line-height: 1.35;">
-                                <!-- Dynamic Reference Text based on current asset -->
-                              </div>
-                            </div>
-                          </div>
+                          <!-- Dynamic Worst Case Scenario and Historical Context Card will be in Tab 2 -->
                         </div>
                       </div>
 
@@ -776,41 +745,103 @@
                         </div>
                       </div>
 
-                      <!-- Yearly Breakdown Stats -->
-                      <div id="survivalYearlyBreakdownContainer" style="display: flex; flex-direction: column; gap: 0.4rem; font-size: 0.76rem; background: rgba(255,255,255,0.02); padding: 0.85rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); margin-top: 0.5rem;">
-                        <span style="font-weight: 700; color: var(--text-primary); border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 0.25rem; text-align: left;">Projected Yearly Growth Summary</span>
-                        <div id="survivalYearlyTableBody" style="display: flex; flex-direction: column; gap: 0.35rem; max-height: 185px; overflow-y: auto; padding-right: 0.25rem;">
-                          <!-- Populated via Javascript -->
-                        </div>
-                      </div>
-
-                      <!-- Compounding Education Tip Card -->
-                      <div style="background: rgba(59, 130, 246, 0.05); border: 1px solid rgba(59, 130, 246, 0.15); padding: 0.85rem; border-radius: 8px; font-size: 0.72rem; line-height: 1.4; color: var(--text-secondary); text-align: left; margin-top: 0.5rem; display: flex; flex-direction: column; gap: 0.35rem;">
-                        <div style="font-weight: 700; color: var(--accent-blue); display: flex; align-items: center; gap: 0.35rem;">
-                          <i data-lucide="info" style="width: 14px; height: 14px; color: var(--accent-blue);"></i> Linear vs. Exponential Compounding Info
-                        </div>
-                        <p style="margin: 0; color: var(--text-secondary); text-align: left;">
-                          Notice that your yearly growth percentage decreases over time. This is correct because you are trading with a <strong>fixed position size</strong> (Simple Growth). Your profit in rupees remains identical every year, which represents a smaller percentage of your expanding capital base.
-                        </p>
-                        <p style="margin: 0; color: var(--text-secondary); text-align: left;">
-                          💡 <strong>How to Compound:</strong> To achieve exponential compounding growth, you must reinvest profits by increasing your trade size proportionally (e.g., risking a constant percentage of your active capital per trade).
-                        </p>
-                      </div>
-
                     </div>
 
-                    <!-- Right Details: Growth Chart canvas -->
-                    <div style="flex: 1.2; min-width: 300px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-color); border-radius: 12px; padding: 1rem; display: flex; flex-direction: column; gap: 0.5rem; position: relative;">
-                      <span style="font-size: 0.8rem; font-weight: 700; color: var(--text-primary); display: block; text-align: left;">Multi-Year Capital Growth Simulation</span>
-                      <div style="position: relative; height: 180px; width: 100%;">
-                        <canvas id="sharkGrowthChart"></canvas>
+                    <!-- Right Details: Tabbed Result Container -->
+                    <div style="flex: 1.2; min-width: 300px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-color); border-radius: 12px; display: flex; flex-direction: column; overflow: hidden; position: relative;">
+                      
+                      <!-- Tabs Selector -->
+                      <div class="trade-tabs" style="border-bottom: 1px solid var(--border-color); padding: 0.5rem 0.75rem 0 0.75rem; background: rgba(15, 23, 42, 0.4); display: flex; gap: 0.4rem; margin-bottom: 0;">
+                        <button class="trade-tab-btn active" id="simResultTabChart" style="padding: 0.5rem 0.85rem; font-size: 0.76rem; display: flex; align-items: center; gap: 0.35rem;">
+                          <i data-lucide="line-chart" style="width: 14px; height: 14px;"></i> Growth Chart
+                        </button>
+                        <button class="trade-tab-btn" id="simResultTabMatrix" style="padding: 0.5rem 0.85rem; font-size: 0.76rem; display: flex; align-items: center; gap: 0.35rem;">
+                          <i data-lucide="alert-triangle" style="width: 14px; height: 14px;"></i> Worst-Case Matrix
+                        </button>
+                        <button class="trade-tab-btn" id="simResultTabTable" style="padding: 0.5rem 0.85rem; font-size: 0.76rem; display: flex; align-items: center; gap: 0.35rem;">
+                          <i data-lucide="table" style="width: 14px; height: 14px;"></i> Yearly Table
+                        </button>
                       </div>
-                      <div id="survivalProjectionSummary" style="font-size: 0.8rem; color: var(--text-primary); font-weight: 600; text-align: left; margin-top: 0.25rem;">
-                        Expected Capital after 1 Year: ₹100,000 (Growth: +0.0%)
-                      </div>
-                      <div style="font-size: 0.72rem; color: var(--text-secondary); line-height: 1.4; margin-top: 0.5rem; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 0.5rem; text-align: left; display: flex; flex-direction: column; gap: 0.25rem;">
-                        <div>🔵 <strong>Expected Growth (Average)</strong>: The smooth mathematical average outcome based on your Win Rate and Risk-to-Reward ratio.</div>
-                        <div>🟢 <strong>Simulated Path</strong>: A realistic pseudo-random walk showing how variance, streaks, and drawdowns look in a real trading sequence.</div>
+
+                      <!-- Tab Contents -->
+                      <div style="padding: 1rem; display: flex; flex-direction: column; gap: 0.75rem; flex: 1;">
+                        
+                        <!-- Pane 1: Chart -->
+                        <div id="simResultPaneChart" style="display: block;">
+                          <span style="font-size: 0.8rem; font-weight: 700; color: var(--text-primary); display: block; text-align: left; margin-bottom: 0.5rem;">Multi-Year Capital Growth Simulation</span>
+                          <div style="position: relative; height: 180px; width: 100%;">
+                            <canvas id="sharkGrowthChart"></canvas>
+                          </div>
+                          <div id="survivalProjectionSummary" style="font-size: 0.8rem; color: var(--text-primary); font-weight: 600; text-align: left; margin-top: 0.25rem;">
+                            Expected Capital after 1 Year: ₹100,000 (Growth: +0.0%)
+                          </div>
+                          <div style="font-size: 0.72rem; color: var(--text-secondary); line-height: 1.4; margin-top: 0.5rem; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 0.5rem; text-align: left; display: flex; flex-direction: column; gap: 0.25rem;">
+                            <div>🔵 <strong>Expected Growth (Average)</strong>: The smooth mathematical average outcome based on your Win Rate and Risk-to-Reward ratio.</div>
+                            <div>🟢 <strong>Simulated Path</strong>: A realistic pseudo-random walk showing how variance, streaks, and drawdowns look in a real trading sequence.</div>
+                          </div>
+                        </div>
+
+                        <!-- Pane 2: Volatility Spikes Matrix -->
+                        <div id="simResultPaneMatrix" style="display: none;">
+                          <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                            <span style="font-size: 0.8rem; font-weight: 700; color: var(--text-primary); display: block; text-align: left;">Volatility Spikes (Worst-Case Analysis)</span>
+                            <div style="background: rgba(248, 113, 113, 0.05); border: 1px solid rgba(248, 113, 113, 0.15); padding: 0.75rem; border-radius: 6px; font-size: 0.72rem; line-height: 1.4; text-align: left;">
+                              <p id="survivalSpikeWorstCaseMsg" style="margin: 0; color: var(--text-secondary);">
+                                An adverse price move of <strong>4.0%</strong> will trigger <strong>100% Instant Liquidation</strong>.
+                              </p>
+                            </div>
+                            
+                            <!-- Live Outcome Matrix -->
+                            <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); border-radius: 6px; overflow: hidden;">
+                              <div style="display: grid; grid-template-columns: 1.2fr 1.5fr 1.8fr 1.5fr; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; color: var(--accent-blue); padding: 0.4rem; background: rgba(255,255,255,0.02);">
+                                <span>Spike Size</span>
+                                <span>Target Price</span>
+                                <span>Outcome</span>
+                                <span>Cap Loss</span>
+                              </div>
+                              <div id="survivalSpikeMatrixRows" style="display: flex; flex-direction: column;">
+                                <!-- Dynamic Rows generated in JS -->
+                              </div>
+                            </div>
+                            
+                            <!-- Historical Context Section -->
+                            <div style="text-align: left; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 0.4rem;">
+                              <div style="font-size: 0.74rem; font-weight: 700; color: var(--accent-blue); display: flex; align-items: center; gap: 0.25rem; margin-bottom: 0.25rem;">
+                                <i data-lucide="history" style="width: 13px; height: 13px; color: var(--accent-blue);"></i> Historical Volatility Reference
+                              </div>
+                              <div id="survivalSpikeHistoryRef" style="font-size: 0.68rem; color: var(--text-secondary); line-height: 1.35;">
+                                <!-- Dynamic Reference Text based on current asset -->
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- Pane 3: Yearly Breakdown Table -->
+                        <div id="simResultPaneTable" style="display: none;">
+                          <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                            <!-- Yearly Breakdown Stats -->
+                            <div id="survivalYearlyBreakdownContainer" style="display: flex; flex-direction: column; gap: 0.4rem; font-size: 0.76rem; background: rgba(255,255,255,0.02); padding: 0.75rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.05);">
+                              <span style="font-weight: 700; color: var(--text-primary); border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 0.25rem; text-align: left;">Projected Yearly Growth Summary</span>
+                              <div id="survivalYearlyTableBody" style="display: flex; flex-direction: column; gap: 0.35rem; max-height: 185px; overflow-y: auto; padding-right: 0.25rem;">
+                                <!-- Populated via Javascript -->
+                              </div>
+                            </div>
+
+                            <!-- Compounding Education Tip Card -->
+                            <div style="background: rgba(59, 130, 246, 0.05); border: 1px solid rgba(59, 130, 246, 0.15); padding: 0.75rem; border-radius: 6px; font-size: 0.72rem; line-height: 1.4; color: var(--text-secondary); text-align: left; display: flex; flex-direction: column; gap: 0.35rem;">
+                              <div style="font-weight: 700; color: var(--accent-blue); display: flex; align-items: center; gap: 0.35rem;">
+                                <i data-lucide="info" style="width: 14px; height: 14px; color: var(--accent-blue);"></i> Linear vs. Exponential Compounding
+                              </div>
+                              <p style="margin: 0; color: var(--text-secondary); text-align: left;">
+                                Notice that your yearly growth percentage decreases over time. This is correct because you are trading with a <strong>fixed position size</strong> (Simple Growth).
+                              </p>
+                              <p style="margin: 0; color: var(--text-secondary); text-align: left;">
+                                💡 <strong>How to Compound:</strong> To achieve exponential compounding growth, reinvest profits by increasing your trade size proportionally.
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+
                       </div>
                     </div>
 
@@ -954,6 +985,316 @@
           </div>
         </div>
 
+        <!-- Tab 4: Design & Architecture -->
+        <div id="masterPanelDesign" class="master-panel-content" style="display: none;">
+          <style>
+            .design-accordion-item {
+              margin-bottom: 0.75rem;
+              border-radius: 8px;
+              overflow: hidden;
+            }
+            .design-accordion-header {
+              cursor: pointer;
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              padding: 1rem 1.25rem;
+              background: rgba(30, 41, 59, 0.4);
+              border: 1px solid var(--border-color);
+              border-radius: 8px;
+              transition: all 0.2s ease;
+              user-select: none;
+            }
+            .design-accordion-header:hover {
+              background: rgba(30, 41, 59, 0.6);
+              border-color: var(--accent-blue);
+            }
+            .design-accordion-header.active {
+              background: rgba(30, 41, 59, 0.7);
+              border-bottom-left-radius: 0;
+              border-bottom-right-radius: 0;
+              border-color: var(--accent-blue);
+            }
+            .design-accordion-content {
+              display: none;
+              padding: 1.25rem;
+              background: rgba(15, 23, 42, 0.4);
+              border: 1px solid var(--border-color);
+              border-top: none;
+              border-bottom-left-radius: 8px;
+              border-bottom-right-radius: 8px;
+              text-align: left;
+            }
+            .design-accordion-chevron {
+              transition: transform 0.25s ease;
+              color: var(--text-secondary);
+            }
+            .design-accordion-header.active .design-accordion-chevron {
+              transform: rotate(90deg);
+              color: var(--accent-blue);
+            }
+          </style>
+
+          <h3 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 1.5rem; color: var(--accent-blue); display: flex; align-items: center; gap: 0.5rem;">
+            <i data-lucide="book-open" style="width: 20px; height: 20px;"></i> System Architecture & Professional Portfolio Documentation
+          </h3>
+
+          <!-- Section 1: Architecture Overview and System Flow -->
+          <div class="design-accordion-item">
+            <div class="design-accordion-header active">
+              <span style="font-size: 0.95rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 0.5rem;">
+                <i data-lucide="network" style="width: 16px; height: 16px; color: var(--accent-blue);"></i> Core System Flow & Data Engineering
+              </span>
+              <i data-lucide="chevron-right" class="design-accordion-chevron"></i>
+            </div>
+            <div class="design-accordion-content" style="display: block;">
+              <p style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.45; margin-bottom: 1.25rem;">
+                This portfolio suite leverages a <strong>decoupled client-server architecture</strong>. The Node.js back-end serves as a secure proxy and data enrichment hub, managing caching, official API keys, and local scraping heuristics. The front-end leverages vanilla ES Modules, native DOM APIs, Web Audio, and Chart.js to render a fast, lightweight, and hardware-accelerated user experience.
+              </p>
+              
+              <!-- SVG Flow Diagram -->
+              <div style="display: flex; justify-content: center; background: rgba(0,0,0,0.15); padding: 1.5rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.03); overflow-x: auto;">
+                <svg width="680" height="240" viewBox="0 0 680 240" fill="none" xmlns="http://www.w3.org/2000/svg" style="font-family: 'Outfit', sans-serif;">
+                  <defs>
+                    <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                      <path d="M 0 1 L 10 5 L 0 9 z" fill="#475569" />
+                    </marker>
+                    <linearGradient id="blueGrad" x1="0" y1="0" x2="1" y2="1">
+                      <stop offset="0%" stop-color="#1e3a8a" stop-opacity="0.6"/>
+                      <stop offset="100%" stop-color="#3b82f6" stop-opacity="0.3"/>
+                    </linearGradient>
+                    <linearGradient id="purpleGrad" x1="0" y1="0" x2="1" y2="1">
+                      <stop offset="0%" stop-color="#581c87" stop-opacity="0.6"/>
+                      <stop offset="100%" stop-color="#8b5cf6" stop-opacity="0.3"/>
+                    </linearGradient>
+                    <linearGradient id="emeraldGrad" x1="0" y1="0" x2="1" y2="1">
+                      <stop offset="0%" stop-color="#064e3b" stop-opacity="0.6"/>
+                      <stop offset="100%" stop-color="#10b981" stop-opacity="0.3"/>
+                    </linearGradient>
+                  </defs>
+                  <rect x="10" y="20" width="130" height="200" rx="8" fill="url(#purpleGrad)" stroke="#8b5cf6" stroke-width="1.5"/>
+                  <text x="75" y="45" fill="#f8fafc" font-size="12" font-weight="700" text-anchor="middle">DATA SOURCES</text>
+                  <rect x="20" y="65" width="110" height="30" rx="4" fill="#0f172a" stroke="#334155"/>
+                  <text x="75" y="84" fill="#cbd5e1" font-size="9" text-anchor="middle">YouTube Search API</text>
+                  <rect x="20" y="110" width="110" height="30" rx="4" fill="#0f172a" stroke="#334155"/>
+                  <text x="75" y="129" fill="#cbd5e1" font-size="9" text-anchor="middle">Yahoo Finance</text>
+                  <rect x="20" y="155" width="110" height="30" rx="4" fill="#0f172a" stroke="#334155"/>
+                  <text x="75" y="174" fill="#cbd5e1" font-size="9" text-anchor="middle">Tickertape Sentiment</text>
+                  <path d="M 140 120 L 195 120" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+                  <rect x="205" y="20" width="160" height="200" rx="8" fill="url(#blueGrad)" stroke="#3b82f6" stroke-width="1.5"/>
+                  <text x="285" y="45" fill="#f8fafc" font-size="12" font-weight="700" text-anchor="middle">NODE.JS SERVER</text>
+                  <rect x="215" y="65" width="140" height="30" rx="4" fill="#0f172a" stroke="#334155"/>
+                  <text x="285" y="84" fill="#cbd5e1" font-size="9" text-anchor="middle">YouTube Parser & Cache</text>
+                  <rect x="215" y="110" width="140" height="30" rx="4" fill="#0f172a" stroke="#334155"/>
+                  <text x="285" y="129" fill="#cbd5e1" font-size="9" text-anchor="middle">Financial Ticker Scraper</text>
+                  <rect x="215" y="155" width="140" height="30" rx="4" fill="#0f172a" stroke="#334155"/>
+                  <text x="285" y="174" fill="#cbd5e1" font-size="9" text-anchor="middle">AI Insight Prompt Engine</text>
+                  <path d="M 365 120 L 420 120" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+                  <rect x="430" y="20" width="240" height="200" rx="8" fill="url(#emeraldGrad)" stroke="#10b981" stroke-width="1.5"/>
+                  <text x="550" y="45" fill="#f8fafc" font-size="12" font-weight="700" text-anchor="middle">CLIENT SIDE SUITE (JS)</text>
+                  <rect x="440" y="65" width="220" height="30" rx="4" fill="#0f172a" stroke="#334155"/>
+                  <text x="550" y="84" fill="#cbd5e1" font-size="9" text-anchor="middle">Videos Sentiment Classification</text>
+                  <rect x="440" y="110" width="220" height="30" rx="4" fill="#0f172a" stroke="#334155"/>
+                  <text x="550" y="129" fill="#cbd5e1" font-size="9" text-anchor="middle">Leverage & Volatility Compounding Engine</text>
+                  <rect x="440" y="155" width="220" height="30" rx="4" fill="#0f172a" stroke="#334155"/>
+                  <text x="550" y="174" fill="#cbd5e1" font-size="9" text-anchor="middle">Audio Synthesis & Web Speech APIs</text>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 2: API Registry Table -->
+          <div class="design-accordion-item">
+            <div class="design-accordion-header">
+              <span style="font-size: 0.95rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 0.5rem;">
+                <i data-lucide="database" style="width: 16px; height: 16px; color: var(--accent-blue);"></i> REST API Endpoints Registry
+              </span>
+              <i data-lucide="chevron-right" class="design-accordion-chevron"></i>
+            </div>
+            <div class="design-accordion-content">
+              <div style="overflow-x: auto;">
+                <table class="shark-table" style="font-size: 0.74rem;">
+                  <thead>
+                    <tr>
+                      <th>Endpoint</th>
+                      <th>Method</th>
+                      <th>Payload / Args</th>
+                      <th>Description</th>
+                      <th>Rationale & Usage</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td style="font-weight: 700; color: var(--accent-blue);">/api/videos</td>
+                      <td><span class="shark-outcome-badge normal" style="padding: 0.1rem 0.3rem;">GET</span></td>
+                      <td><code>q</code>, <code>hours</code>, <code>key</code></td>
+                      <td>Scrapes/Fetches Nifty videos</td>
+                      <td>Aggregates latest Youtube reports; proxies to bypass browser CORS constraints.</td>
+                    </tr>
+                    <tr>
+                      <td style="font-weight: 700; color: var(--accent-blue);">/api/ticker</td>
+                      <td><span class="shark-outcome-badge normal" style="padding: 0.1rem 0.3rem;">GET</span></td>
+                      <td>None</td>
+                      <td>Scrapes live stock rates</td>
+                      <td>Retrieves real-time index levels (Nifty 50, OMX 30, Gold) from Yahoo Finance.</td>
+                    </tr>
+                    <tr>
+                      <td style="font-weight: 700; color: var(--accent-blue);">/api/mmi</td>
+                      <td><span class="shark-outcome-badge normal" style="padding: 0.1rem 0.3rem;">GET</span></td>
+                      <td>None</td>
+                      <td>Fetches Market Mood Index</td>
+                      <td>Pulls Indian retail market sentiment (Extreme Fear to Extreme Greed) from Tickertape.</td>
+                    </tr>
+                    <tr>
+                      <td style="font-weight: 700; color: var(--accent-blue);">/api/generate-insights</td>
+                      <td><span class="shark-outcome-badge tp" style="padding: 0.1rem 0.3rem;">POST</span></td>
+                      <td><code>prompt</code></td>
+                      <td>Generates AI responses</td>
+                      <td>Utilizes Gemini Pro to synthesize qualitative video analysis into summary recommendations.</td>
+                    </tr>
+                    <tr>
+                      <td style="font-weight: 700; color: var(--accent-blue);">/api/voice-assistant/query</td>
+                      <td><span class="shark-outcome-badge tp" style="padding: 0.1rem 0.3rem;">POST</span></td>
+                      <td><code>query</code>, <code>market</code>, <code>lastTicker</code></td>
+                      <td>Voice assistant model hub</td>
+                      <td>Guides AI to interpret voice prompts into structured financial data responses.</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 3: Agentic AI, AI, and Machine Learning Skill Showcase -->
+          <div class="design-accordion-item">
+            <div class="design-accordion-header">
+              <span style="font-size: 0.95rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 0.5rem;">
+                <i data-lucide="cpu" style="width: 16px; height: 16px; color: var(--accent-blue);"></i> Agentic AI, AI, and Machine Learning Engineering
+              </span>
+              <i data-lucide="chevron-right" class="design-accordion-chevron"></i>
+            </div>
+            <div class="design-accordion-content">
+              <p style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.45; margin-bottom: 1rem;">
+                This dashboard showcases my deep understanding and practical engineering implementation of <strong>Agentic AI</strong>, <strong>Artificial Intelligence</strong>, and <strong>Machine Learning</strong> systems:
+              </p>
+              
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; flex-wrap: wrap;">
+                
+                <div style="background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.03); padding: 1rem; border-radius: 8px;">
+                  <span style="font-size: 0.85rem; font-weight: 700; color: var(--accent-blue); display: block; margin-bottom: 0.4rem;">🤖 1. Agentic AI & Memory Loops</span>
+                  <p style="font-size: 0.74rem; color: var(--text-secondary); margin: 0; line-height: 1.35;">
+                    The system implements an <strong>agentic state machine</strong>. It retains local configuration state (memory) in the client browser, reacts dynamically to user events by updating calculations on the fly, and uses structured model templates to route user intents. When using the AI Toolkit, the system decides when to trigger Gemini, how to enrich the context with live scraping data, and formats the output based on custom templates without requiring a centralized coordinator.
+                  </p>
+                </div>
+
+                <div style="background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.03); padding: 1rem; border-radius: 8px;">
+                  <span style="font-size: 0.85rem; font-weight: 700; color: var(--accent-blue); display: block; margin-bottom: 0.4rem;">🎙️ 2. Natural Language AI & Voice Synthesis</span>
+                  <p style="font-size: 0.74rem; color: var(--text-secondary); margin: 0; line-height: 1.35;">
+                    Deep NLP integrations are implemented via the Web Speech recognition API (Speech-to-Text) and Google TTS engine (Text-to-Speech). Speech synthesis cancels queue conflicts on click and selects high-fidelity natural models. In addition, the voice query endpoint guides Gemini Pro with strict system prompt engineering to parse raw natural language phrases (like "is Gold falling?") and map them to standard ticker structures for dashboard execution.
+                  </p>
+                </div>
+
+                <div style="background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.03); padding: 1rem; border-radius: 8px;">
+                  <span style="font-size: 0.85rem; font-weight: 700; color: var(--accent-blue); display: block; margin-bottom: 0.4rem;">📉 3. Volatility Modeling (Monte Carlo Methods)</span>
+                  <p style="font-size: 0.74rem; color: var(--text-secondary); margin: 0; line-height: 1.35;">
+                    The leverage simulator runs a localized <strong>random-walk mathematical simulation</strong> modeled after historical asset parameters (BTC standard deviation, ETH gapping, Gold slippage constants). It simulates sequential trading paths under variance to demonstrate consecutive losses probability, and evaluates capital survival boundaries, warning traders of mathematical ruin risk based on statistical probability curves.
+                  </p>
+                </div>
+
+                <div style="background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.03); padding: 1rem; border-radius: 8px;">
+                  <span style="font-size: 0.85rem; font-weight: 700; color: var(--accent-blue); display: block; margin-bottom: 0.4rem;">🏷️ 4. ML-Inspired Sentiment Classifier</span>
+                  <p style="font-size: 0.74rem; color: var(--text-secondary); margin: 0; line-height: 1.35;">
+                    The retail sentiment engine acts as a fast, client-side keyword classifier. It uses pre-trained positive/negative vocabulary tokens, applies distance-based word weights, and indexes structural parameters of YouTube video descriptions to compute aggregated bullish/bearish outlook percentages, mapping raw qualitative video listings to quantitative indicators in milliseconds.
+                  </p>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 4: Run Book / Operator Guide -->
+          <div class="design-accordion-item">
+            <div class="design-accordion-header">
+              <span style="font-size: 0.95rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 0.5rem;">
+                <i data-lucide="terminal" style="width: 16px; height: 16px; color: var(--accent-blue);"></i> Run Book & User Guidelines
+              </span>
+              <i data-lucide="chevron-right" class="design-accordion-chevron"></i>
+            </div>
+            <div class="design-accordion-content">
+              <div style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.78rem;">
+                <div style="padding: 0.5rem; background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.04); border-radius: 6px;">
+                  <strong>Step 1: Personal API Settings:</strong> Configure your own Youtube API key via the settings icon (⚙️) in the top right to avoid shared server rate limits.
+                </div>
+                <div style="padding: 0.5rem; background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.04); border-radius: 6px;">
+                  <strong>Step 2: Leverage Trading Simulation:</strong> Input your entry prices and margins. Switch between Isolated/Cross margins. Adjust the Win Rate mode to test the limits of exponential growth.
+                </div>
+                <div style="padding: 0.5rem; background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.04); border-radius: 6px;">
+                  <strong>Step 3: Volatility Spikes Simulation:</strong> Check the "Simulate Volatility Spikes" box and review the Worst-Case Matrix to inspect if high leverage triggers sudden liquidations.
+                </div>
+                <div style="padding: 0.5rem; background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.04); border-radius: 6px;">
+                  <strong>Step 4: Voice Assistant queries:</strong> Open the voice modal (🎙️), enter the authorized passkey (specified in `.env`) to unlock, and query things like "ETH price update", "Give me Nifty summary stats", or "Explain support and resistance".
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 5: Future Scope & Roadmap -->
+          <div class="design-accordion-item">
+            <div class="design-accordion-header">
+              <span style="font-size: 0.95rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 0.5rem;">
+                <i data-lucide="milestone" style="width: 16px; height: 16px; color: var(--accent-blue);"></i> Future Enhancements & Scope
+              </span>
+              <i data-lucide="chevron-right" class="design-accordion-chevron"></i>
+            </div>
+            <div class="design-accordion-content">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; font-size: 0.74rem; color: var(--text-secondary);">
+                <div>
+                  <span style="font-weight: 700; color: var(--text-primary); display: block; margin-bottom: 0.25rem;">🚀 Roadmap (Planned)</span>
+                  • Live Websocket Rates (continuous ticks)<br>
+                  • Real-time Option Chain & PCR Analysis<br>
+                  • Auto Stop-Loss and Take-Profit calculations<br>
+                  • SMS / Email alert notifications for spikes
+                </div>
+                <div>
+                  <span style="font-weight: 700; color: var(--text-primary); display: block; margin-bottom: 0.25rem;">🎯 Intended Audience</span>
+                  This suite is built for **leveraged derivative traders**, **risk analysts**, and **retail investors** who want to backtest and protect their capital allocations from volatility liquidation risks.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 6: LinkedIn Feature Post Generator -->
+          <div class="design-accordion-item">
+            <div class="design-accordion-header">
+              <span style="font-size: 0.95rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 0.5rem;">
+                <i data-lucide="linkedin" style="width: 16px; height: 16px; color: #0a66c2;"></i> Share on LinkedIn
+              </span>
+              <i data-lucide="chevron-right" class="design-accordion-chevron"></i>
+            </div>
+            <div class="design-accordion-content">
+              <h4 style="font-size: 0.9rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.85rem; display: flex; align-items: center; justify-content: space-between;">
+                <span>Showcase Agentic AI & ML Engineering</span>
+                <button id="copyPostBtn" onclick="copyLinkedInPost()" class="btn" style="padding: 0.3rem 0.6rem; font-size: 0.74rem; background: #0a66c2; color: #fff; border: none;">
+                  <i data-lucide="copy" style="width: 12px; height: 12px;"></i> Copy Post
+                </button>
+              </h4>
+              <div style="width: 100%;">
+                <textarea id="linkedinPostText" style="width: 100%; height: 150px; background: rgba(0,0,0,0.25); border: 1px solid var(--border-color); border-radius: 6px; padding: 0.5rem; color: var(--text-secondary); font-size: 0.74rem; font-family: sans-serif; resize: none;" readonly>🚀 Excited to share my personal portfolio project: A high-performance Agentic AI, AI & Machine Learning-driven Financial Advisor and Volatility Simulator Suite! 📈
+
+This portfolio showcases the practical applications of AI/ML engineering in derivatives risk analysis:
+1️⃣ Agentic Orchestration: Implements a stateful local memory feedback loop and multi-turn state coordinator to analyze capital survival paths in real-time.
+2️⃣ Machine Learning & Volatility Modeling: Models historical volatility parameters of digital assets (BTC, ETH, Gold) to project gapping slippages, run Monte Carlo simulations, and run a local keyword classifier for video sentiments.
+3️⃣ Natural Language AI Integration: Integrates Gemini Pro for qualitative research summary, Web Speech APIs for speech-to-text input parsing, and custom text-to-speech feedback synthesis.
+
+Check out the design and architecture! Handcrafted with clean vanilla code, modular ES modules, and dynamic canvas rendering.
+
+#ArtificialIntelligence #MachineLearning #AgenticAI #WebDevelopment #RiskAnalytics #PortfolioProject</textarea>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
       </div>
     </div>
 
@@ -1073,8 +1414,20 @@
       </div>
       
       <!-- Voice Frame Area -->
-      <div class="voice-frame-container">
-        <iframe src="https://app.millis.ai/agents/embedded?id=-OxQWS7itWrs3dFFAZE9&k=16RkibRDzFmLMXJpA4tuBhpdkWlkyUeF" width="100%" height="100%" allow="microphone"></iframe>
+      <div class="voice-frame-container" id="voiceFrameContainer" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; min-height: 250px; padding: 1.5rem; text-align: center; background: #111827; border-radius: 0 0 16px 16px;">
+        <!-- Unlock Panel -->
+        <div id="voiceUnlockPanel" style="display: flex; flex-direction: column; gap: 0.85rem; width: 100%; max-width: 240px; margin: auto;">
+          <div style="font-size: 0.74rem; color: var(--text-secondary); line-height: 1.45;">
+            🎙️ <strong>Authorized Access Only</strong><br>
+            Please enter the Voice Assistant API access key to activate the live speech model.
+          </div>
+          <input type="password" id="voicePasskeyInput" class="filter-input" placeholder="Enter API passkey..." style="height: 34px; text-align: center; font-size: 0.85rem; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); border-radius: 6px; color: #fff;">
+          <button id="voiceUnlockBtn" class="btn btn-primary" style="height: 34px; font-weight: 600; font-size: 0.8rem;">Activate Voice Model</button>
+        </div>
+        <!-- Iframe Holder -->
+        <div id="voiceIframeHolder" style="display: none; width: 100%; height: 100%; min-height: 250px;">
+          <!-- Dynamic Iframe will be injected here on validation -->
+        </div>
       </div>
     </div>
   </div>
@@ -1085,13 +1438,55 @@
     <span id="toastMsg">Notification message</span>
   </div>
 
-  <footer>
-    <p>YouTube Nifty Analysis App &bull; Built with HTML, CSS, and vanilla JS</p>
+  <footer style="margin-top: 2rem; border-top: 1px solid var(--border-color); padding: 1.5rem; text-align: center; font-size: 0.75rem; color: var(--text-secondary); background: rgba(15, 23, 42, 0.2);">
+    <div style="display: flex; justify-content: center; gap: 1rem; align-items: center; margin-top: 0.25rem;">
+      <span><strong>Developer:</strong> Ved Tripathi</span>
+      <span>&bull;</span>
+      <span><strong>Email:</strong> <a href="mailto:vedmtripathi@gmail.com" style="color: var(--accent-blue); text-decoration: none;">vedmtripathi@gmail.com</a></span>
+      <span>&bull;</span>
+      <a href="https://github.com/ved-agentic-ai/ai-financial-advisor" target="_blank" style="color: var(--accent-blue); text-decoration: none; display: flex; align-items: center; gap: 0.25rem;">
+        <i data-lucide="github" style="width: 14px; height: 14px;"></i> GitHub Remote Repo
+      </a>
+    </div>
   </footer>
 
-  <script src="app.js"></script>
+  <!-- Legal Disclaimer Modal -->
+  <div id="disclaimerModal" class="modal active" style="backdrop-filter: blur(10px); background: rgba(15, 23, 42, 0.7); display: flex; align-items: center; justify-content: center; z-index: 99999;">
+    <div class="modal-content" style="max-width: 550px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; padding: 1.75rem; text-align: left; box-shadow: var(--shadow-2xl);">
+      <h3 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 0.75rem; color: #f87171; display: flex; align-items: center; gap: 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 0.5rem;">
+        <i data-lucide="shield-alert" style="width: 20px; height: 20px; color: #f87171;"></i> Legal Disclaimer & Creator Statement
+      </h3>
+      <div style="font-size: 0.76rem; color: var(--text-secondary); line-height: 1.5; display: flex; flex-direction: column; gap: 0.75rem; max-height: 350px; overflow-y: auto; padding-right: 0.4rem;">
+        <p>
+          This dashboard is a <strong>solely personally developed project</strong> created entirely by the developer for educational and portfolio demonstration purposes. It has absolutely no affiliation, endorsement, connection, or association with any company, employer, firm, or external organization.
+        </p>
+        <p>
+          No corporate IP, internal designs, private ideas, or proprietary code structures from any firm have been utilized in this work. All creative concepts, software modules, and source files belong exclusively to the developer.
+        </p>
+        <p>
+          <strong>Decision-Making Advisory:</strong> The analytics, compounding models, and simulations presented herein are for illustrative purposes only. They do not constitute financial advice. Any reader or user must think rationally and exercise independent diligence before making trading decisions.
+        </p>
+        <p>
+          <strong>Accusation Warning:</strong> Absolutely no moonlighting, gaslighting, or unauthorized freelance activities were performed in the creation of this project. Any assertions or allegations stating otherwise are false, factually incorrect, and constitute actionable defamation. The creator reserves all legal rights to seek damages against defamatory remarks.
+        </p>
+      </div>
+      <div style="display: flex; justify-content: flex-end; margin-top: 1.25rem; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 0.75rem;">
+        <button id="disclaimerAcceptBtn" class="btn btn-primary" style="padding: 0.5rem 1.5rem; font-weight: 600;">Confirm & Enter Dashboard</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/state.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/chartManager.js"></script>
+  <script src="js/calculator.js"></script>
+  <script src="js/simulator.js"></script>
+  <script src="js/videos.js"></script>
+  <script src="js/chatbot.js"></script>
+  <script src="js/voiceAssistant.js"></script>
+  <script src="js/ticker.js"></script>
+  <script src="js/main.js"></script>
   <script>
-    // Initialize Lucide Icons
     lucide.createIcons();
   </script>
 </body>
