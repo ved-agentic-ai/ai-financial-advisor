@@ -695,6 +695,68 @@
                         <label for="survivalCompoundProfits" style="font-size: 0.78rem; color: var(--text-secondary); cursor: pointer; user-select: none; font-weight: 600;">Compound trade sizes (Reinvest profits)</label>
                       </div>
 
+                      <!-- Market Spike & Volatility Settings -->
+                      <div style="background: rgba(239, 68, 68, 0.02); border: 1px solid rgba(239, 68, 68, 0.15); padding: 0.85rem; border-radius: 8px; margin-top: 0.5rem; display: flex; flex-direction: column; gap: 0.5rem;">
+                        <div style="display: flex; align-items: center; gap: 0.4rem;">
+                          <input type="checkbox" id="survivalSimulateSpikes" style="accent-color: var(--accent-red); cursor: pointer;">
+                          <label for="survivalSimulateSpikes" style="font-size: 0.78rem; color: var(--text-secondary); cursor: pointer; user-select: none; font-weight: 750; display: flex; align-items: center; gap: 0.25rem;">
+                            ⚠️ Simulate Volatility Spikes (Slippage / Gapping)
+                          </label>
+                        </div>
+                        
+                        <div id="survivalSpikeControls" style="display: none; flex-direction: column; gap: 0.4rem; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 0.4rem;">
+                          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                            <div style="display: flex; flex-direction: column; gap: 0.2rem; align-items: flex-start;">
+                              <label style="font-size: 0.68rem; color: var(--text-secondary);">Spike Probability (%)</label>
+                              <input type="number" id="survivalSpikeProb" class="shark-input-field" value="2" min="0.1" max="20" step="0.1" style="height: 28px; font-size: 0.74rem; width: 100%; box-sizing: border-box; padding: 0 0.4rem;">
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 0.2rem; align-items: flex-start;">
+                              <label style="font-size: 0.68rem; color: var(--text-secondary);">Average Slippage on SL (%)</label>
+                              <input type="number" id="survivalSlippagePct" class="shark-input-field" value="15" min="0" max="100" style="height: 28px; font-size: 0.74rem; width: 100%; box-sizing: border-box; padding: 0 0.4rem;">
+                            </div>
+                          </div>
+                          <div style="font-size: 0.68rem; color: var(--text-secondary); line-height: 1.3; text-align: left;">
+                            Spikes bypass standard Stop Losses, forcing exits at worse prices (slippage). If a spike is larger than your leverage buffer, it triggers <strong>instant liquidation</strong> (100% loss of margin/capital).
+                          </div>
+
+                          <!-- Dynamic Worst Case Scenario and Historical Context Card -->
+                          <div style="background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.05); padding: 0.75rem; border-radius: 6px; margin-top: 0.4rem; display: flex; flex-direction: column; gap: 0.5rem;">
+                            <!-- Dynamic Worst-Case Section -->
+                            <div style="text-align: left;">
+                              <div style="font-size: 0.74rem; font-weight: 700; color: #f87171; display: flex; align-items: center; gap: 0.25rem; margin-bottom: 0.25rem;">
+                                <i data-lucide="shield-alert" style="width: 13px; height: 13px; color: #f87171;"></i> Worst-Case Spike Scenarios
+                              </div>
+                              <div id="survivalSpikeWorstCaseMsg" style="font-size: 0.7rem; color: var(--text-secondary); margin-bottom: 0.4rem;">
+                                <!-- Dynamic message -->
+                              </div>
+                              
+                              <!-- Matrix Table -->
+                              <div style="display: flex; flex-direction: column; gap: 0.25rem; border: 1px solid rgba(255,255,255,0.05); border-radius: 4px; overflow: hidden; font-size: 0.66rem;">
+                                <div style="display: grid; grid-template-columns: 1.2fr 1.5fr 1.8fr 1.5fr; background: rgba(255,255,255,0.03); font-weight: 600; padding: 0.3rem 0.4rem; color: var(--text-secondary); border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                  <span>Adverse Move</span>
+                                  <span>Price Level</span>
+                                  <span>Outcome</span>
+                                  <span>Capital Loss</span>
+                                </div>
+                                <div id="survivalSpikeMatrixRows" style="display: flex; flex-direction: column;">
+                                  <!-- Dynamic Rows generated in JS -->
+                                </div>
+                              </div>
+                            </div>
+                            
+                            <!-- Historical Context Section -->
+                            <div style="text-align: left; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 0.4rem;">
+                              <div style="font-size: 0.74rem; font-weight: 700; color: var(--accent-blue); display: flex; align-items: center; gap: 0.25rem; margin-bottom: 0.25rem;">
+                                <i data-lucide="history" style="width: 13px; height: 13px; color: var(--accent-blue);"></i> Historical Volatility Reference
+                              </div>
+                              <div id="survivalSpikeHistoryRef" style="font-size: 0.68rem; color: var(--text-secondary); line-height: 1.35;">
+                                <!-- Dynamic Reference Text based on current asset -->
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
                       <!-- Trading Frequency & Horizon Inputs -->
                       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; background: rgba(255,255,255,0.01); border: 1px solid var(--border-color); padding: 0.85rem; border-radius: 8px; margin-top: 0.5rem;">
                         <div class="shark-input-group" style="margin: 0; display: flex; flex-direction: column; align-items: flex-start;">
