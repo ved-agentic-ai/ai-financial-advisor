@@ -1208,7 +1208,130 @@
                   </p>
                 </div>
 
+                <div style="background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.03); padding: 1rem; border-radius: 8px; grid-column: span 2;">
+                  <span style="font-size: 0.85rem; font-weight: 700; color: var(--accent-blue); display: block; margin-bottom: 0.4rem;">📚 5. Retrieval-Augmented Generation (RAG) & LLM Hyperparameters</span>
+                  <p style="font-size: 0.74rem; color: var(--text-secondary); margin: 0; line-height: 1.35; margin-bottom: 0.5rem;">
+                    For granular voice responses, the assistant incorporates <strong>Retrieval-Augmented Generation (RAG)</strong> knowledge base paradigms:
+                  </p>
+                  <ul style="margin: 0; padding-left: 1.1rem; font-size: 0.72rem; color: var(--text-secondary); display: flex; flex-direction: column; gap: 0.35rem;">
+                    <li><strong>Types of RAG:</strong> Supports <em>Naive RAG</em> (retrieve and synthesize), <em>Advanced RAG</em> (pre-retrieval query rewriting, post-retrieval reranking), and <em>Modular RAG</em> (routing between specialized indexes).</li>
+                    <li><strong>Chunking Heuristics:</strong> Document segments are parsed into fixed-size overlapping text chunks (e.g. 512 tokens with 10% overlap) to retain contextual continuity.</li>
+                    <li><strong>Vector Embeddings & Relevance:</strong> Texts are vectorized using high-dimensional dense embedding models (like OpenAI text-embedding-3 or Bedrock Titan Embeddings). Cosine similarity measures coordinate proximity to rank document chunks by relevance.</li>
+                    <li><strong>LLM Generation Controls:</strong> 
+                      <ul>
+                        <li><strong>Temperature:</strong> Configured to low (e.g., 0.1 - 0.2) to ensure deterministic, factual financial output rather than high creativity.</li>
+                        <li><strong>Top-p (Nucleus Sampling):</strong> Sets cumulative probability threshold (e.g. 0.90) to sample tokens within the most likely cluster, ensuring coherence.</li>
+                        <li><strong>Top-k:</strong> Truncates sampling to the top k (e.g. 40) most probable vocabulary words to prevent long-tail gibberish.</li>
+                      </ul>
+                    </li>
+                  </ul>
+                </div>
+
               </div>
+            </div>
+          </div>
+
+          <!-- Section 3.5: AWS Cloud Implementation & Architecture -->
+          <div class="design-accordion-item">
+            <div class="design-accordion-header">
+              <span style="font-size: 0.95rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 0.5rem;">
+                <i data-lucide="cloud" style="width: 16px; height: 16px; color: var(--accent-blue);"></i> AWS Cloud Implementation & Granular Services Architecture
+              </span>
+              <i data-lucide="chevron-right" class="design-accordion-chevron"></i>
+            </div>
+            <div class="design-accordion-content">
+              <p style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.45; margin-bottom: 1.25rem;">
+                This architecture details how to scale the dashboard into a highly resilient, enterprise-grade, serverless system on the Amazon Web Services (AWS) cloud platform:
+              </p>
+              
+              <!-- SVG AWS Flow Diagram -->
+              <div style="display: flex; justify-content: center; background: rgba(0,0,0,0.15); padding: 1.5rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.03); overflow-x: auto; margin-bottom: 1.25rem;">
+                <svg width="680" height="300" viewBox="0 0 680 300" fill="none" xmlns="http://www.w3.org/2000/svg" style="font-family: 'Outfit', sans-serif;">
+                  <defs>
+                    <marker id="awsArrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+                      <path d="M 0 1 L 10 5 L 0 9 z" fill="#eab308" />
+                    </marker>
+                    <linearGradient id="orangeGrad" x1="0" y1="0" x2="1" y2="1">
+                      <stop offset="0%" stop-color="#7c2d12" stop-opacity="0.6"/>
+                      <stop offset="100%" stop-color="#ea580c" stop-opacity="0.3"/>
+                    </linearGradient>
+                    <linearGradient id="yellowGrad" x1="0" y1="0" x2="1" y2="1">
+                      <stop offset="0%" stop-color="#78350f" stop-opacity="0.6"/>
+                      <stop offset="100%" stop-color="#eab308" stop-opacity="0.3"/>
+                    </linearGradient>
+                  </defs>
+                  
+                  <!-- Column 1: Entry Point -->
+                  <rect x="10" y="20" width="130" height="260" rx="8" fill="url(#orangeGrad)" stroke="#ea580c" stroke-width="1.5"/>
+                  <text x="75" y="45" fill="#f8fafc" font-size="11" font-weight="700" text-anchor="middle">INGESTION LAYER</text>
+                  <rect x="20" y="70" width="110" height="40" rx="4" fill="#0f172a" stroke="#475569"/>
+                  <text x="75" y="90" fill="#cbd5e1" font-size="9" text-anchor="middle" font-weight="600">Amazon API Gateway</text>
+                  <text x="75" y="100" fill="#94a3b8" font-size="7" text-anchor="middle">REST APIs Routing</text>
+                  <rect x="20" y="130" width="110" height="40" rx="4" fill="#0f172a" stroke="#475569"/>
+                  <text x="75" y="150" fill="#cbd5e1" font-size="9" text-anchor="middle" font-weight="600">AWS Amplify/S3</text>
+                  <text x="75" y="160" fill="#94a3b8" font-size="7" text-anchor="middle">Static Web Hosting</text>
+                  
+                  <!-- Arrow 1 -> 2 -->
+                  <path d="M 140 150 L 195 150" stroke="#eab308" stroke-width="1.5" marker-end="url(#awsArrow)"/>
+                  
+                  <!-- Column 2: Serverless Compute -->
+                  <rect x="205" y="20" width="160" height="260" rx="8" fill="url(#yellowGrad)" stroke="#eab308" stroke-width="1.5"/>
+                  <text x="285" y="45" fill="#f8fafc" font-size="11" font-weight="700" text-anchor="middle">AWS COMPUTE</text>
+                  <rect x="215" y="70" width="140" height="45" rx="4" fill="#0f172a" stroke="#475569"/>
+                  <text x="285" y="90" fill="#cbd5e1" font-size="9" text-anchor="middle" font-weight="600">AWS Lambda</text>
+                  <text x="285" y="102" fill="#94a3b8" font-size="7" text-anchor="middle">Orchestration & Scraping</text>
+                  <rect x="215" y="135" width="140" height="45" rx="4" fill="#0f172a" stroke="#475569"/>
+                  <text x="285" y="155" fill="#cbd5e1" font-size="9" text-anchor="middle" font-weight="600">AWS Fargate (ECS)</text>
+                  <text x="285" y="167" fill="#94a3b8" font-size="7" text-anchor="middle">Continuous Scraping</text>
+                  <rect x="215" y="200" width="140" height="45" rx="4" fill="#0f172a" stroke="#475569"/>
+                  <text x="285" y="220" fill="#cbd5e1" font-size="9" text-anchor="middle" font-weight="600">Amazon ElastiCache</text>
+                  <text x="285" y="232" fill="#94a3b8" font-size="7" text-anchor="middle">Redis Price Caching</text>
+                  
+                  <!-- Arrow 2 -> 3 -->
+                  <path d="M 365 150 L 420 150" stroke="#eab308" stroke-width="1.5" marker-end="url(#awsArrow)"/>
+                  
+                  <!-- Column 3: AI/ML Services -->
+                  <rect x="430" y="20" width="240" height="260" rx="8" fill="url(#emeraldGrad)" stroke="#10b981" stroke-width="1.5"/>
+                  <text x="550" y="45" fill="#f8fafc" font-size="11" font-weight="700" text-anchor="middle">AWS AI & MACHINE LEARNING</text>
+                  
+                  <rect x="440" y="70" width="220" height="40" rx="4" fill="#0f172a" stroke="#475569"/>
+                  <text x="550" y="85" fill="#cbd5e1" font-size="9" text-anchor="middle" font-weight="600">Amazon Bedrock (LLM)</text>
+                  <text x="550" y="97" fill="#94a3b8" font-size="7" text-anchor="middle">Claude 3.5 Sonnet / Knowledge bases (RAG)</text>
+                  
+                  <rect x="440" y="120" width="220" height="40" rx="4" fill="#0f172a" stroke="#475569"/>
+                  <text x="550" y="135" fill="#cbd5e1" font-size="9" text-anchor="middle" font-weight="600">Amazon SageMaker AI</text>
+                  <text x="550" y="147" fill="#94a3b8" font-size="7" text-anchor="middle">Model Training & Transfer Learning Classifier</text>
+                  
+                  <rect x="440" y="170" width="220" height="40" rx="4" fill="#0f172a" stroke="#475569"/>
+                  <text x="550" y="185" fill="#cbd5e1" font-size="9" text-anchor="middle" font-weight="600">Amazon Transcribe & Translate</text>
+                  <text x="550" y="197" fill="#94a3b8" font-size="7" text-anchor="middle">Granular Speech-to-Text & Regional Translation</text>
+                  
+                  <rect x="440" y="220" width="220" height="40" rx="4" fill="#0f172a" stroke="#475569"/>
+                  <text x="550" y="235" fill="#cbd5e1" font-size="9" text-anchor="middle" font-weight="600">Comprehend & OpenSearch Vector</text>
+                  <text x="550" y="247" fill="#94a3b8" font-size="7" text-anchor="middle">Text Sentiment Analysis & Dense Vector Matches</text>
+                </svg>
+              </div>
+              
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; flex-wrap: wrap; font-size: 0.74rem; color: var(--text-secondary); line-height: 1.4;">
+                <div style="background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.03); padding: 1rem; border-radius: 8px;">
+                  <span style="font-weight: 700; color: var(--text-primary); display: block; margin-bottom: 0.35rem;">⚡ Ingest & Orchestration Layer</span>
+                  • <strong>Amazon API Gateway</strong>: Manages secure REST connections, request throttling, and CORS policies.<br>
+                  • <strong>AWS Lambda</strong>: Executes serverless functions to request Yahoo Finance data and coordinates NLP/ML invocations.<br>
+                  • <strong>Amazon S3 & CloudFront</strong>: Serves static web assets and bundles globally with sub-millisecond edge latency.<br>
+                  • <strong>Amazon ElastiCache (Redis)</strong>: Implements sub-millisecond shared caching for Nifty and Sweden indices.
+                </div>
+                
+                <div style="background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.03); padding: 1rem; border-radius: 8px;">
+                  <span style="font-weight: 700; color: var(--text-primary); display: block; margin-bottom: 0.35rem;">🧠 Granular Cognitive Services</span>
+                  • <strong>Amazon Bedrock</strong>: Connects with foundational models (Claude/Llama) and orchestrates modular RAG queries using Bedrock Knowledge Bases.<br>
+                  • <strong>Amazon SageMaker AI</strong>: Fine-tunes custom models. Utilizes SageMaker Training to perform transfer learning on historical volatility/sentiment classification datasets.<br>
+                  • <strong>Amazon Transcribe & Translate</strong>: Converts speech inputs into text streams (Transcribe) and translates regional Swedish or Hindi terminology to standard English representations (Translate).<br>
+                  • <strong>Amazon Comprehend</strong>: Evaluates sentiment weightings from Nifty media listings.<br>
+                  • <strong>Amazon OpenSearch Serverless</strong>: Acts as a Vector Database storing document embeddings.
+                </div>
+              </div>
+            </div>
+          </div>
             </div>
           </div>
 

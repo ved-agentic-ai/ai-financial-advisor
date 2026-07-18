@@ -70,6 +70,63 @@ The client-side coordinator acts as an autonomous agentic system. It monitors fo
 ### 4. Sentiment Classifier
 Processes video descriptions and titles through a client-side keyword sentiment classifier. Using distance-based word weights and polarity tokens, it compiles a quantitative bullish/bearish outlook score.
 
+### 5. Retrieval-Augmented Generation (RAG) & Generation Parameters
+The voice assistant relies on **Retrieval-Augmented Generation (RAG)** paradigms to supply accurate financial information:
+* **Types of RAG**: Supports *Naive RAG* (simple retrieve-then-read flow), *Advanced RAG* (implements pre-retrieval query rewriting and post-retrieval semantic reranking), and *Modular RAG* (routing queries to domain-specific vector spaces).
+* **Chunking & Overlap**: Documents are divided using token-based character chunking (e.g., 512 tokens) with a 10% overlap to preserve semantic context across chunk borders.
+* **Vector Embeddings**: High-dimensional text vectors are generated using dense embeddings (e.g., OpenAI `text-embedding-3` or Amazon Bedrock `Titan Embeddings`) and mapped to index coordinates.
+* **Semantic Relevance**: Measures proximity between query vectors and document chunks using cosine similarity scoring.
+* **Generation Controls**: Custom parameters constrain model behaviors:
+  - **Temperature** (0.1 - 0.2): Set low to ensure factual, deterministic financial output.
+  - **Top-P (Nucleus Sampling)** (0.90): Controls cumulative probability selection pool.
+  - **Top-K** (40): Focuses prediction on the top K most probable words.
+
+---
+
+## ☁️ Enterprise Cloud Implementation (AWS Architecture)
+
+To transition this application from a local portfolio model to an enterprise-grade service, the following serverless AWS architecture blueprint is designed:
+
+```
++---------------------------------------------------------------------------------------------------+
+|                                        AWS CLOUD ENVIRONMENT                                      |
+|                                                                                                   |
+|  +--------------------+      +--------------------+      +--------------------+                   |
+|  |  INGESTION LAYER   |      |   COMPUTE LAYER    |      |    AI/ML COGNITIVE |                   |
+|  |                    |      |                    |      |                    |                   |
+|  |  Amplify / S3      |      |  AWS Lambda        |      |  Amazon Bedrock    |                   |
+|  |  (Static Hosting)  | +--> |  (Serverless APIs) | +--> |  (LLM Models & RAG)|                   |
+|  |                    | |    |                    | |    |                    |                   |
+|  |  Amazon API Gateway| |    |  AWS Fargate (ECS) | |    |  Amazon SageMaker  |                   |
+|  |  (REST Endpoint)   | |    |  (Scraper Daemon)  | |    |  (Model Training)  |                   |
+|  +--------------------+ |    +--------------------+ |    +--------------------+                   |
+|                         |              |            |              |                              |
+|                         +--------------+------------+--------------+                              |
+|                                        |                                                          |
+|                                        v                                                          |
+|                              +--------------------+                                               |
+|                              |    DATABASES       |                                               |
+|                              |  ElastiCache Redis |                                               |
+|                              |  OpenSearch Vector |                                               |
+|                              +--------------------+                                               |
++---------------------------------------------------------------------------------------------------+
+```
+
+* **Ingestion Layer**:
+  - **Amazon S3 & CloudFront**: Delivers static client assets (HTML/CSS/JS) with low-latency CDN distribution.
+  - **Amazon API Gateway**: Routes REST requests from the front-end to compute instances and manages security filters.
+* **Compute Layer**:
+  - **AWS Lambda**: Executes serverless API controllers (e.g., fetching real-time Yahoo Finance ticker inputs) to avoid overhead.
+  - **AWS Fargate (Amazon ECS)**: Hosts scheduled containerized tasks to continuously scrape financial sentiment data.
+  - **Amazon ElastiCache (Redis)**: Caches high-frequency price feeds globally.
+* **AI/ML & Cognitive Services**:
+  - **Amazon Bedrock**: Serves generative models (Claude/Llama) and connects with OpenSearch vector search.
+  - **Amazon SageMaker AI**: Manages custom model cycles. SageMaker Training executes transfer learning on regional financial terms and runs customized sentiment classification training.
+  - **Amazon Transcribe**: Performs automatic speech-to-text translation (STT) on speech streams.
+  - **Amazon Translate**: Localizes multilingual queries (e.g. converting Swedish/Hindi terms to standard English).
+  - **Amazon Comprehend**: Runs NLP heuristics to index entity and polarity sentiments in real-time.
+  - **Amazon OpenSearch Serverless**: Serves as the Vector Database storing dense document embeddings.
+
 ---
 
 ## 📖 Run Book & Operator Guidelines
