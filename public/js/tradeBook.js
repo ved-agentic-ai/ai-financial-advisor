@@ -209,6 +209,15 @@ function bindTradeBookEvents() {
     });
   }
 
+  // Resolution Modal Controls
+  const resolutionModalClose = document.getElementById('resolutionModalClose');
+  const resModalCancelBtn = document.getElementById('resModalCancelBtn');
+  const resModalConfirmBtn = document.getElementById('resModalConfirmBtn');
+
+  if (resolutionModalClose) resolutionModalClose.addEventListener('click', closeResolutionModal);
+  if (resModalCancelBtn) resModalCancelBtn.addEventListener('click', closeResolutionModal);
+  if (resModalConfirmBtn) resModalConfirmBtn.addEventListener('click', confirmTradeResolution);
+
   if (tradeForm) {
     tradeForm.addEventListener('submit', handleNewTradeSubmit);
 
@@ -647,6 +656,22 @@ function renderDateTree(container) {
   container.innerHTML = treeHtml;
 }
 
+const LOSS_WISDOM_QUOTES = [
+  "Trading is purely a game of probability. A single stop loss is just an operational cost of doing business. Keep executing your edge — the math is in your favor over 100 trades!",
+  "Loss accepted with zero emotion. No revenge trading! Take a step back, stay calm, and wait patiently for the next high-confluence setup.",
+  "Master traders protect capital first. You respected your Stop Loss today — that is true discipline. Keep playing the long game!",
+  "Every stop loss respected protects your portfolio for the big trending wins. Stay patient and trust your risk-to-reward ratio."
+];
+
+const WIN_WISDOM_QUOTES = [
+  "Target hit! Excellent execution, but stay humble. Never assume you know the market or are superior to it. Market humility protects your profits.",
+  "Great profit booked! Remember: Overconfidence is a trader's biggest enemy. Stick strictly to your max 2 trades/day rule.",
+  "A winning trade is just 1 data point in your 100-trade sample. Stay calm, disciplined, and follow the exact same process next time.",
+  "Profits compound when you stay emotionally detached. Enjoy the win, shut the terminal, and protect your emotional capital."
+];
+
+let pendingResolution = null;
+
 function resolveOpenTrade(tradeId, outcome) {
   const trade = tradeBookState.find(t => t.id === tradeId);
   if (!trade) return;
@@ -655,18 +680,85 @@ function resolveOpenTrade(tradeId, outcome) {
   const exitPrice = isWin ? trade.targetPrice : trade.slPrice;
   const pnl = calculateTradePnL(trade.entryPrice, exitPrice, trade.positionSize, trade.direction);
   const sym = getCurrencySymbol(trade.currency || 'USD');
-  const outcomeText = isWin ? 'TARGET HIT (+WIN)' : 'STOP LOSS HIT (-LOSS)';
 
-  const confirmMsg = `Confirm resolving Trade #${trade.symbol} (${trade.direction})?\n\nOutcome: ${outcomeText}\nExit Price: ${sym}${exitPrice}\nCalculated PnL: ${pnl >= 0 ? '+' : ''}${sym}${pnl.toFixed(2)}`;
+  pendingResolution = { trade, outcome, exitPrice, pnl, sym, isWin };
 
-  if (confirm(confirmMsg)) {
-    trade.status = outcome;
-    trade.pnl = pnl;
-    saveTradeBookState();
-    renderTradeBookUI();
-    renderTradeBookCharts();
-    showToast(`Trade #${trade.symbol} resolved with ${isWin ? 'WIN' : 'LOSS'} (${pnl >= 0 ? '+' : ''}${sym}${pnl.toFixed(2)})`, isWin ? 'success' : 'error');
+  // Populate Resolution Modal Elements
+  const modal = document.getElementById('tradeResolutionModal');
+  const title = document.getElementById('resModalTitle');
+  const subtitle = document.getElementById('resModalSubtitle');
+  const outcomeBadge = document.getElementById('resModalOutcomeBadge');
+  const exitPriceEl = document.getElementById('resModalExitPrice');
+  const pnlEl = document.getElementById('resModalPnL');
+  const quoteEl = document.getElementById('resModalQuote');
+  const iconContainer = document.getElementById('resModalIconContainer');
+  const iconEl = document.getElementById('resModalIcon');
+  const coachingHeader = document.getElementById('resModalCoachingHeader');
+
+  if (!modal) return;
+
+  if (title) title.textContent = isWin ? 'Target Hit — Profit Booked!' : 'Stop Loss Hit — Capital Protected!';
+  if (subtitle) subtitle.textContent = `Asset: ${trade.symbol} (${trade.direction}) • Entry Price: ${sym}${trade.entryPrice}`;
+
+  if (outcomeBadge) {
+    outcomeBadge.textContent = isWin ? 'TARGET HIT (+WIN)' : 'STOP LOSS HIT (-LOSS)';
+    outcomeBadge.style.background = isWin ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)';
+    outcomeBadge.style.color = isWin ? '#34d399' : '#f87171';
+    outcomeBadge.style.border = isWin ? '1px solid rgba(16, 185, 129, 0.4)' : '1px solid rgba(239, 68, 68, 0.4)';
   }
+
+  if (exitPriceEl) exitPriceEl.textContent = `${sym}${exitPrice.toLocaleString()}`;
+  if (pnlEl) {
+    pnlEl.textContent = `${pnl >= 0 ? '+' : ''}${sym}${pnl.toFixed(2)}`;
+    pnlEl.style.color = pnl >= 0 ? '#34d399' : '#f87171';
+  }
+
+  if (iconContainer) {
+    iconContainer.style.background = isWin ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)';
+    iconContainer.style.border = isWin ? '2px solid rgba(16, 185, 129, 0.4)' : '2px solid rgba(239, 68, 68, 0.4)';
+    iconContainer.style.boxShadow = isWin ? '0 0 20px rgba(16, 185, 129, 0.3)' : '0 0 20px rgba(239, 68, 68, 0.3)';
+  }
+
+  if (iconEl) {
+    iconEl.setAttribute('data-lucide', isWin ? 'trophy' : 'shield-alert');
+    iconEl.style.color = isWin ? '#34d399' : '#f87171';
+  }
+
+  if (coachingHeader) {
+    coachingHeader.textContent = isWin ? '🧠 Winner Discipline Protocol' : '🛡️ Probability & Resiliency Mindset';
+    coachingHeader.style.color = isWin ? '#34d399' : '#60a5fa';
+  }
+
+  // Pick random psychological quote
+  const quotesList = isWin ? WIN_WISDOM_QUOTES : LOSS_WISDOM_QUOTES;
+  const selectedQuote = quotesList[Math.floor(Math.random() * quotesList.length)];
+  if (quoteEl) quoteEl.textContent = `"${selectedQuote}"`;
+
+  if (typeof lucide !== 'undefined' && lucide.createIcons) lucide.createIcons();
+
+  modal.classList.add('active');
+}
+
+function confirmTradeResolution() {
+  if (!pendingResolution) return;
+
+  const { trade, outcome, pnl, sym, isWin } = pendingResolution;
+  trade.status = outcome;
+  trade.pnl = pnl;
+
+  saveTradeBookState();
+  closeResolutionModal();
+  renderTradeBookUI();
+  renderTradeBookCharts();
+
+  showToast(`Trade #${trade.symbol} resolved with ${isWin ? 'WIN' : 'LOSS'} (${pnl >= 0 ? '+' : ''}${sym}${pnl.toFixed(2)})`, isWin ? 'success' : 'error');
+  pendingResolution = null;
+}
+
+function closeResolutionModal() {
+  const modal = document.getElementById('tradeResolutionModal');
+  if (modal) modal.classList.remove('active');
+  pendingResolution = null;
 }
 
 function getFilteredTradesByPeriod(period) {

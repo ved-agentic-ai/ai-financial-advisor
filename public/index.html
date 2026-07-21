@@ -1827,17 +1827,62 @@ Check out the design and architecture! Handcrafted with clean vanilla code, modu
     <span id="toastMsg">Notification message</span>
   </div>
 
-  <footer style="margin-top: 2rem; border-top: 1px solid var(--border-color); padding: 1.5rem; text-align: center; font-size: 0.75rem; color: var(--text-secondary); background: rgba(15, 23, 42, 0.2);">
-    <div style="display: flex; justify-content: center; gap: 1rem; align-items: center; margin-top: 0.25rem;">
-      <span><strong>Developer:</strong> Ved Tripathi</span>
-      <span>&bull;</span>
-      <span><strong>Email:</strong> <a href="mailto:vedmtripathi@gmail.com" style="color: var(--accent-blue); text-decoration: none;">vedmtripathi@gmail.com</a></span>
-      <span>&bull;</span>
-      <a href="https://github.com/ved-agentic-ai/ai-financial-advisor" target="_blank" style="color: var(--accent-blue); text-decoration: none; display: flex; align-items: center; gap: 0.25rem;">
-        <i data-lucide="github" style="width: 14px; height: 14px;"></i> GitHub Remote Repo
-      </a>
+  <!-- Interactive Trade Resolution & Psychological Coaching Modal -->
+  <div id="tradeResolutionModal" class="modal">
+    <div class="modal-content" style="max-width: 480px; background: rgba(15, 23, 42, 0.95); border: 2px solid var(--border-color); border-radius: 20px; padding: 1.75rem; box-shadow: 0 20px 50px rgba(0,0,0,0.6); text-align: center; position: relative;">
+      
+      <button class="modal-close" id="resolutionModalClose">
+        <i data-lucide="x"></i>
+      </button>
+
+      <!-- Dynamic Header Icon & Badge -->
+      <div id="resModalIconContainer" style="width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem auto; transition: all 0.3s ease;">
+        <i id="resModalIcon" data-lucide="target" style="width: 26px; height: 26px;"></i>
+      </div>
+
+      <h3 id="resModalTitle" style="margin: 0 0 0.3rem 0; font-size: 1.25rem; font-weight: 700; color: var(--text-primary);">
+        Confirm Trade Resolution
+      </h3>
+
+      <span id="resModalSubtitle" style="font-size: 0.78rem; color: var(--text-secondary); font-family: monospace; display: block; margin-bottom: 1.25rem;">
+        ETH (LONG) &bull; Entry #1
+      </span>
+
+      <!-- Trade Impact Box -->
+      <div style="background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); border-radius: 12px; padding: 1rem; margin-bottom: 1.25rem; text-align: left;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; font-size: 0.78rem;">
+          <span style="color: var(--text-secondary);">Resolution Outcome</span>
+          <strong id="resModalOutcomeBadge" style="padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem;">TARGET HIT</strong>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; font-size: 0.78rem;">
+          <span style="color: var(--text-secondary);">Execution Exit Price</span>
+          <strong id="resModalExitPrice" style="font-family: monospace; color: var(--text-primary);">₹168,844.00</strong>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; border-top: 1px dashed rgba(255,255,255,0.08); padding-top: 0.5rem;">
+          <span style="font-weight: 600; color: var(--text-primary);">Account Capital Impact</span>
+          <strong id="resModalPnL" style="font-family: monospace; font-size: 1.15rem; font-weight: 700; color: #34d399;">+₹1,500.00</strong>
+        </div>
+      </div>
+
+      <!-- Psychological Coaching & Discipline Mindset Box -->
+      <div id="resModalCoachingBox" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 1rem; margin-bottom: 1.5rem; text-align: left; position: relative; overflow: hidden;">
+        <div style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.78rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.4rem;">
+          <i data-lucide="brain-circuit" style="width: 16px; height: 16px; color: var(--accent-blue);"></i>
+          <span id="resModalCoachingHeader">Trader Mindset &amp; Discipline Note</span>
+        </div>
+        <p id="resModalQuote" style="margin: 0; font-size: 0.76rem; color: var(--text-secondary); line-height: 1.5; font-style: italic;">
+          "Trading is a game of probability. Accept the loss as an operational cost and stick to your 100-trade edge."
+        </p>
+      </div>
+
+      <!-- Action Buttons -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+        <button type="button" id="resModalCancelBtn" class="btn" style="padding: 0.65rem; font-weight: 600;">Cancel</button>
+        <button type="button" id="resModalConfirmBtn" class="btn btn-primary" style="padding: 0.65rem; font-weight: 700;">Confirm &amp; Record Entry</button>
+      </div>
+
     </div>
-  </footer>
+  </div>
 
   <!-- Log New Trade Form Modal -->
   <div id="tradeLogModal" class="modal">
