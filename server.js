@@ -848,7 +848,11 @@ app.post('/api/ai-proxy', async (req, res) => {
         if (response && response.data?.candidates) break;
       } catch (mErr) {
         lastError = mErr;
-        // Continue to try next candidate model
+        const errMsg = mErr.response?.data?.error?.message || '';
+        // If key is invalid, leaked, or unauthenticated, stop model iteration immediately
+        if (errMsg.includes('leaked') || errMsg.includes('not valid') || mErr.response?.status === 403 || mErr.response?.status === 401) {
+          break;
+        }
       }
     }
 
