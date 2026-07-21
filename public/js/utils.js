@@ -1,14 +1,19 @@
 // Stateless helper functions and formatters
-function getCurrencySymbol() {
-  const currency = document.getElementById('survivalCurrencySelect')?.value || 'INR';
+function getCurrencySymbol(customCurrency) {
+  const currency = customCurrency || document.getElementById('sharkCurrencySelect')?.value || document.getElementById('tradeCurrency')?.value || document.getElementById('survivalCurrencySelect')?.value || 'INR';
   if (currency === 'USD') return '$';
+  if (currency === 'USDT') return '₮';
   if (currency === 'SEK') return 'kr';
   return '₹';
 }
 
-function formatLargeCurrency(val) {
-  const currency = document.getElementById('survivalCurrencySelect')?.value || 'INR';
-  const symbol = getCurrencySymbol();
+function getSelectedCurrencyCode() {
+  return document.getElementById('sharkCurrencySelect')?.value || document.getElementById('tradeCurrency')?.value || document.getElementById('survivalCurrencySelect')?.value || 'INR';
+}
+
+function formatLargeCurrency(val, overrideCurrency) {
+  const currency = overrideCurrency || getSelectedCurrencyCode();
+  const symbol = getCurrencySymbol(currency);
   
   if (currency === 'INR') {
     if (val >= 10000000) {
@@ -32,9 +37,9 @@ function formatLargeCurrency(val) {
   }
 }
 
-function formatPreciseCurrency(val) {
-  const currency = document.getElementById('survivalCurrencySelect')?.value || 'INR';
-  const symbol = getCurrencySymbol();
+function formatPreciseCurrency(val, overrideCurrency) {
+  const currency = overrideCurrency || getSelectedCurrencyCode();
+  const symbol = getCurrencySymbol(currency);
   const locale = currency === 'INR' ? 'en-IN' : 'en-US';
   
   if (currency === 'SEK') {
@@ -149,8 +154,14 @@ function classifySentiment(title, description) {
 }
 
 function applyCurrencyAndAssetDefaults() {
-  const currency = document.getElementById('survivalCurrencySelect')?.value || 'INR';
-  const defaults = window.defaultAssetPrices[currency][window.currentSharkAsset];
+  const currency = getSelectedCurrencyCode();
+  const symbol = getCurrencySymbol(currency);
+
+  document.querySelectorAll('.shark-currency-suffix').forEach(el => {
+    el.textContent = symbol;
+  });
+
+  const defaults = window.defaultAssetPrices && window.defaultAssetPrices[currency] ? window.defaultAssetPrices[currency][window.currentSharkAsset] : null;
   if (!defaults) return;
 
   const abEl = document.getElementById('sharkAvailableBalance');

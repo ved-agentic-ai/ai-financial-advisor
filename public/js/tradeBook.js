@@ -795,6 +795,12 @@ function getFilteredTradesByPeriod(period) {
     } else if (period === 'YEAR') {
       const startOfYear = new Date(now.getFullYear(), 0, 1).getTime();
       return tDate >= startOfYear;
+    } else if (period === 'CUSTOM') {
+      const startEl = document.getElementById('tbStartDateInput');
+      const endEl = document.getElementById('tbEndDateInput');
+      const startMs = startEl && startEl.value ? new Date(startEl.value).getTime() : 0;
+      const endMs = endEl && endEl.value ? new Date(endEl.value + 'T23:59:59').getTime() : Date.now();
+      return tDate >= startMs && tDate <= endMs;
     }
     return true;
   });
@@ -1000,9 +1006,44 @@ function importTradeJournalJSON(e) {
   reader.readAsText(file);
 }
 
+function initTradeBook() {
+  loadTradeBookState();
+  renderTradeBookUI();
+  renderTradeBookCharts();
+
+  const periodSelect = document.getElementById('tbTimeFilter');
+  const customContainer = document.getElementById('tbCustomDateContainer');
+  const applyCustomBtn = document.getElementById('tbApplyCustomDateBtn');
+
+  if (periodSelect) {
+    periodSelect.addEventListener('change', () => {
+      if (periodSelect.value === 'CUSTOM') {
+        if (customContainer) customContainer.style.display = 'flex';
+      } else {
+        if (customContainer) customContainer.style.display = 'none';
+        renderTradeBookCharts();
+      }
+    });
+  }
+
+  if (applyCustomBtn) {
+    applyCustomBtn.addEventListener('click', () => {
+      renderTradeBookCharts();
+      showToast('Custom date range applied to Trade Book analytics!', 'info');
+    });
+  }
+}
+
 // Expose globally
 window.initTradeBook = initTradeBook;
-window.openTradeModal = openTradeModal;
+window.renderTradeBookUI = renderTradeBookUI;
+window.renderTradeBookCharts = renderTradeBookCharts;
+window.openTradeResolutionModal = openTradeResolutionModal;
+window.closeResolutionModal = closeResolutionModal;
+window.confirmTradeResolution = confirmTradeResolution;
+window.exportTradeJournalJSON = exportTradeJournalJSON;
+window.exportTradeJournalCSV = exportTradeJournalCSV;
+window.importTradeJournalJSON = importTradeJournalJSON; 
 window.closeTradeModal = closeTradeModal;
 window.deleteTrade = deleteTrade;
 window.resolveOpenTrade = resolveOpenTrade;

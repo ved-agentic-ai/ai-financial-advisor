@@ -28,5 +28,10 @@ window.defaultAssetPrices = {
     crypto_eth: { entry: 21000, balance: 100000, margin: 25000, tp: 22850, sl: 20390 },
     crypto_btc: { entry: 630000, balance: 1000000, margin: 250000, tp: 685440, sl: 611730 },
     commodity_gold: { entry: 21000, balance: 100000, margin: 25000, tp: 22850, sl: 20390 }
+  },
+  USDT: {
+    crypto_eth: { entry: 2000, balance: 10000, margin: 2500, tp: 2176, sl: 1942 },
+    crypto_btc: { entry: 60000, balance: 100000, margin: 25000, tp: 65280, sl: 58260 },
+    commodity_gold: { entry: 2000, balance: 10000, margin: 2500, tp: 2176, sl: 1942 }
   }
 };
