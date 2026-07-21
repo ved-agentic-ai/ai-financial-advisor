@@ -120,13 +120,12 @@ function openAIChatWithContext(sectionName) {
     contextBadge.textContent = `Context: ${sectionName}`;
   }
 
-  // Switch to AI Master Tab or Open Floating Widget
-  const masterTabAI = document.getElementById('masterTabAI');
-  const masterPanelAI = document.getElementById('masterPanelAI');
-
-  if (masterTabAI && masterPanelAI) {
-    masterTabAI.click();
-    masterPanelAI.scrollIntoView({ behavior: 'smooth' });
+  // Scroll to Standalone AI Advisor Section on Main Page
+  const standaloneAi = document.getElementById('standaloneAiAdvisorContainer');
+  if (standaloneAi) {
+    standaloneAi.scrollIntoView({ behavior: 'smooth' });
+    const chatInput = document.getElementById('aiChatInput');
+    if (chatInput) chatInput.focus();
   }
 
   showToast(`AI Assistant loaded with [Context: ${sectionName}]`, 'info');
