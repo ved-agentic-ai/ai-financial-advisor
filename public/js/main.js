@@ -888,15 +888,35 @@ const sharkLogToBookBtn = document.getElementById('sharkLogToBookBtn');
 if (sharkLogToBookBtn) {
   sharkLogToBookBtn.addEventListener('click', () => {
     // Extract values from Shark Leverage Calculator
-    const entryPrice = document.getElementById('sharkEntryPrice')?.value || '170000';
-    const marginAmount = document.getElementById('sharkMarginAmount')?.value || '25000';
-    const tpPrice = document.getElementById('sharkTargetProfitPrice')?.value || '185000';
-    const slPrice = document.getElementById('sharkStopLossPrice')?.value || '165000';
+    let entryPrice = parseFloat(document.getElementById('sharkEntryPrice')?.value || 170000);
+    let marginAmount = parseFloat(document.getElementById('sharkMarginAmount')?.value || 25000);
+    let rawTp = parseFloat(document.getElementById('sharkTargetProfitPrice')?.value || 185000);
+    let rawSl = parseFloat(document.getElementById('sharkStopLossPrice')?.value || 165000);
     const currency = document.getElementById('survivalCurrencySelect')?.value || 'INR';
 
     // Detect Long vs Short active state
     const isShort = document.getElementById('sharkBtnShort')?.classList.contains('active');
     const direction = isShort ? 'SHORT' : 'LONG';
+
+    // Check if TP/SL in Shark simulator is in % Move mode (or raw values are percentage < 100 while entry > 1000)
+    const isPctMode = document.getElementById('sharkTPSLModePct')?.classList.contains('active') || (rawSl < 100 && entryPrice > 1000);
+
+    let finalTp = rawTp;
+    let finalSl = rawSl;
+
+    if (isPctMode && entryPrice > 0) {
+      if (direction === 'LONG') {
+        finalTp = entryPrice * (1 + Math.abs(rawTp) / 100);
+        finalSl = entryPrice * (1 - Math.abs(rawSl) / 100);
+      } else {
+        finalTp = entryPrice * (1 - Math.abs(rawTp) / 100);
+        finalSl = entryPrice * (1 + Math.abs(rawSl) / 100);
+      }
+    }
+
+    // Format numbers
+    finalTp = parseFloat(finalTp.toFixed(2));
+    finalSl = parseFloat(finalSl.toFixed(2));
 
     // Pre-populate Trade Book Logger Modal
     const tbSymbol = document.getElementById('tbSymbol');
@@ -912,10 +932,10 @@ if (sharkLogToBookBtn) {
     if (tbEntry) tbEntry.value = entryPrice;
 
     const tbSL = document.getElementById('tbSL');
-    if (tbSL) tbSL.value = slPrice;
+    if (tbSL) tbSL.value = finalSl;
 
     const tbTarget = document.getElementById('tbTarget');
-    if (tbTarget) tbTarget.value = tpPrice;
+    if (tbTarget) tbTarget.value = finalTp;
 
     const tbPositionSize = document.getElementById('tbPositionSize');
     if (tbPositionSize) tbPositionSize.value = marginAmount;

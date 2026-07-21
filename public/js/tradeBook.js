@@ -125,15 +125,30 @@ async function saveTradeBookState() {
 
 function calculateTradeRR(entry, sl, target) {
   const entryNum = parseFloat(entry);
-  const slNum = parseFloat(sl);
-  const targetNum = parseFloat(target);
+  let slNum = parseFloat(sl);
+  let targetNum = parseFloat(target);
 
-  if (!entryNum || !slNum || !targetNum || entryNum === slNum) return '1:0.0';
+  if (!entryNum || !slNum || !targetNum) return '1:0.0';
 
-  const risk = Math.abs(entryNum - slNum);
-  const reward = Math.abs(targetNum - entryNum);
+  let risk = 0;
+  let reward = 0;
+
+  // Check if SL/Target inputs are percentage moves instead of absolute price levels
+  if (slNum < 100 && entryNum > 1000) {
+    risk = entryNum * (slNum / 100);
+  } else {
+    risk = Math.abs(entryNum - slNum);
+  }
+
+  if (targetNum < 100 && entryNum > 1000) {
+    reward = entryNum * (targetNum / 100);
+  } else {
+    reward = Math.abs(targetNum - entryNum);
+  }
+
+  if (!risk || risk === 0) return '1:0.0';
+
   const ratio = (reward / risk).toFixed(1);
-
   return `1:${ratio}`;
 }
 
@@ -198,9 +213,12 @@ function bindTradeBookEvents() {
     tradeForm.addEventListener('submit', handleNewTradeSubmit);
 
     // Live Risk:Reward & PnL calculation inputs
-    ['tbEntry', 'tbSL', 'tbTarget'].forEach(id => {
+    ['tbEntry', 'tbSL', 'tbTarget', 'tbDirection', 'tbCurrency'].forEach(id => {
       const el = document.getElementById(id);
-      if (el) el.addEventListener('input', updateModalRRPreview);
+      if (el) {
+        el.addEventListener('input', updateModalRRPreview);
+        el.addEventListener('change', updateModalRRPreview);
+      }
     });
   }
 
@@ -227,7 +245,20 @@ function updateModalRRPreview() {
   const entry = document.getElementById('tbEntry')?.value;
   const sl = document.getElementById('tbSL')?.value;
   const target = document.getElementById('tbTarget')?.value;
+  const curr = document.getElementById('tbCurrency')?.value || 'USD';
+  const sym = getCurrencySymbol(curr);
   const rrBadge = document.getElementById('tbRRPreview');
+
+  // Dynamically update price labels with current currency symbol
+  const labelCap = document.getElementById('tbLabelCapital');
+  const labelEntry = document.getElementById('tbLabelEntry');
+  const labelSL = document.getElementById('tbLabelSL');
+  const labelTarget = document.getElementById('tbLabelTarget');
+
+  if (labelCap) labelCap.textContent = `Position Capital (${sym})`;
+  if (labelEntry) labelEntry.textContent = `Entry Price (${sym})`;
+  if (labelSL) labelSL.textContent = `Stop Loss (${sym})`;
+  if (labelTarget) labelTarget.textContent = `Target Price (${sym})`;
 
   if (rrBadge && entry && sl && target) {
     const rrStr = calculateTradeRR(entry, sl, target);
