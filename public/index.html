@@ -1039,13 +1039,32 @@
                   </ul>
                 </div>
 
-                <div style="background: rgba(255,255,255,0.015); border: 1px solid rgba(255,255,255,0.04); padding: 0.85rem; border-radius: 8px;">
-                  <span style="font-size: 0.8rem; font-weight: 700; color: var(--accent-blue); display: block; margin-bottom: 0.3rem;">📈 Strategy Rules (100 Trades Discipline)</span>
-                  <ul style="margin: 0; padding-left: 1.1rem; font-size: 0.74rem; color: var(--text-secondary); display: flex; flex-direction: column; gap: 0.25rem;">
-                    <li><strong>Chart Indicator:</strong> Heikin Ashi candles on <strong>1-Hour Timeframe</strong>.</li>
-                    <li><strong>RSI Filter:</strong> RSI &gt; 50 = Long Only; RSI &lt; 50 = Short Only.</li>
-                    <li><strong>Trigger:</strong> Confluence with chart pattern formation or S/R breakout/breakdown.</li>
-                  </ul>
+                <div style="background: rgba(255,255,255,0.015); border: 1px solid rgba(255,255,255,0.04); padding: 0.85rem; border-radius: 8px; display: flex; flex-direction: column; justify-content: space-between;">
+                  <div>
+                    <span style="font-size: 0.8rem; font-weight: 700; color: var(--accent-blue); display: block; margin-bottom: 0.3rem;">📈 Strategy Rules (100 Trades Discipline)</span>
+                    <ul style="margin: 0 0 0.75rem 0; padding-left: 1.1rem; font-size: 0.74rem; color: var(--text-secondary); display: flex; flex-direction: column; gap: 0.25rem;">
+                      <li><strong>Chart Indicator:</strong> Heikin Ashi candles on <strong>1-Hour Timeframe</strong>.</li>
+                      <li><strong>RSI Filter:</strong> RSI &gt; 50 = Long Only; RSI &lt; 50 = Short Only.</li>
+                      <li><strong>Trigger:</strong> Pattern formation or S/R breakout/breakdown.</li>
+                    </ul>
+                  </div>
+
+                  <!-- 100 Trades Discipline Live Progress Tracker -->
+                  <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--border-color); padding: 0.6rem 0.75rem; border-radius: 6px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.72rem; margin-bottom: 0.35rem;">
+                      <span style="font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 0.3rem;">
+                        <i data-lucide="target" style="width: 13px; height: 13px; color: var(--accent-blue);"></i> 100-Trade Tracker
+                      </span>
+                      <span id="trackerPctBadge" style="font-family: monospace; font-weight: 700; color: #34d399;">0 / 100 (0%)</span>
+                    </div>
+                    <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.06); border-radius: 3px; overflow: hidden; margin-bottom: 0.35rem;">
+                      <div id="trackerProgressBar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #3b82f6, #34d399); transition: width 0.4s ease;"></div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 0.68rem; color: var(--text-secondary);">
+                      <span id="trackerExecutedText">Took: 0 trades</span>
+                      <span id="trackerRemainingText" style="color: #60a5fa; font-weight: 600;">100 Left to Complete</span>
+                    </div>
+                  </div>
                 </div>
 
                 <div style="background: rgba(255,255,255,0.015); border: 1px solid rgba(255,255,255,0.04); padding: 0.85rem; border-radius: 8px;">

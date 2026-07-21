@@ -399,11 +399,40 @@ function changeBookPage(delta) {
   }
 }
 
+function update100TradeTracker() {
+  const badge = document.getElementById('trackerPctBadge');
+  const bar = document.getElementById('trackerProgressBar');
+  const executedTxt = document.getElementById('trackerExecutedText');
+  const remainingTxt = document.getElementById('trackerRemainingText');
+
+  if (!badge || !bar || !executedTxt || !remainingTxt) return;
+
+  const totalTarget = 100;
+  const executed = tradeBookState.length;
+  const pct = Math.min(100, Math.round((executed / totalTarget) * 100));
+  const remaining = Math.max(0, totalTarget - executed);
+
+  badge.textContent = `${executed} / ${totalTarget} (${pct}%)`;
+  bar.style.width = `${pct}%`;
+  executedTxt.textContent = `Took: ${executed} trade${executed === 1 ? '' : 's'}`;
+
+  if (remaining > 0) {
+    remainingTxt.textContent = `${remaining} Left to Complete`;
+    remainingTxt.style.color = '#60a5fa';
+  } else {
+    remainingTxt.textContent = `🎉 100-Trade Discipline Complete!`;
+    remainingTxt.style.color = '#34d399';
+  }
+}
+
 function renderTradeBookUI() {
   const leftPageContent = document.getElementById('bookLeftPageContent');
   const rightPageContent = document.getElementById('bookRightPageContent');
   const pageCounter = document.getElementById('bookPageCounter');
   const dateTree = document.getElementById('bookDateTree');
+
+  // Update 100-Trade Discipline Tracker
+  update100TradeTracker();
 
   if (!leftPageContent || !rightPageContent) return;
 
