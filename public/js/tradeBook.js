@@ -430,7 +430,7 @@ function renderSingleTradePage(trade, indexNum) {
   
   const statusColor = isOpen ? '#60a5fa' : (isTargetHit ? '#34d399' : '#f87171');
   const statusBg = isOpen ? 'rgba(59, 130, 246, 0.15)' : (isTargetHit ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)');
-  const statusText = isOpen ? 'OPEN TRADE' : (isTargetHit ? 'TARGET HIT (+WIN)' : 'STOP LOSS HIT (-LOSS)');
+  const statusText = isOpen ? 'OPEN TRADE IN PROGRESS' : (isTargetHit ? 'TARGET HIT (+WIN)' : 'STOP LOSS HIT (-LOSS)');
 
   const dirBg = trade.direction === 'LONG' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)';
   const dirColor = trade.direction === 'LONG' ? '#34d399' : '#f87171';
@@ -465,11 +465,30 @@ function renderSingleTradePage(trade, indexNum) {
           <i data-lucide="calendar" style="width: 12px; height: 12px; vertical-align: middle; margin-right: 0.2rem;"></i> ${formattedDate}
         </div>
 
-        <!-- Outcome Badge -->
-        <div style="background: ${statusBg}; border: 1px solid ${statusColor}; color: ${statusColor}; padding: 0.4rem 0.6rem; border-radius: 6px; font-size: 0.75rem; font-weight: 700; display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-          <span>${statusText}</span>
-          <span style="font-family: monospace; font-size: 0.85rem;">${trade.pnl >= 0 ? '+' : ''}${sym}${trade.pnl.toFixed(2)}</span>
-        </div>
+        <!-- Outcome Badge & Interactive Resolution Triggers -->
+        ${isOpen ? `
+          <div style="background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.4); color: #60a5fa; padding: 0.4rem 0.6rem; border-radius: 6px; font-size: 0.75rem; font-weight: 700; display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+            <span style="display: flex; align-items: center; gap: 0.35rem;">
+              <span style="width: 8px; height: 8px; border-radius: 50%; background: #60a5fa; box-shadow: 0 0 8px #60a5fa; display: inline-block;"></span>
+              LIVE TRADE IN PROGRESS
+            </span>
+            <span style="font-size: 0.7rem; opacity: 0.8;">Active</span>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-bottom: 1rem;">
+            <button onclick="resolveOpenTrade('${trade.id}', 'TARGET_HIT')" class="btn" style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); color: #34d399; font-size: 0.72rem; font-weight: 700; padding: 0.45rem 0.2rem; cursor: pointer; text-align: center; border-radius: 6px; transition: all 0.2s;">
+              🎯 Target Hit (+WIN)
+            </button>
+            <button onclick="resolveOpenTrade('${trade.id}', 'SL_HIT')" class="btn" style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); color: #f87171; font-size: 0.72rem; font-weight: 700; padding: 0.45rem 0.2rem; cursor: pointer; text-align: center; border-radius: 6px; transition: all 0.2s;">
+              🛑 SL Hit (-LOSS)
+            </button>
+          </div>
+        ` : `
+          <div style="background: ${statusBg}; border: 1px solid ${statusColor}; color: ${statusColor}; padding: 0.4rem 0.6rem; border-radius: 6px; font-size: 0.75rem; font-weight: 700; display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <span>${statusText}</span>
+            <span style="font-family: monospace; font-size: 0.85rem;">${trade.pnl >= 0 ? '+' : ''}${sym}${trade.pnl.toFixed(2)}</span>
+          </div>
+        `}
 
         <!-- Metric Grid -->
         <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem; background: rgba(0,0,0,0.2); border: 1px solid var(--border-color); padding: 0.6rem; border-radius: 8px; font-size: 0.7rem; margin-bottom: 1rem;">
@@ -568,34 +587,102 @@ function renderDateTree(container) {
   container.innerHTML = treeHtml;
 }
 
+function resolveOpenTrade(tradeId, outcome) {
+  const trade = tradeBookState.find(t => t.id === tradeId);
+  if (!trade) return;
+
+  const isWin = outcome === 'TARGET_HIT';
+  const exitPrice = isWin ? trade.targetPrice : trade.slPrice;
+  const pnl = calculateTradePnL(trade.entryPrice, exitPrice, trade.positionSize, trade.direction);
+  const sym = getCurrencySymbol(trade.currency || 'USD');
+  const outcomeText = isWin ? 'TARGET HIT (+WIN)' : 'STOP LOSS HIT (-LOSS)';
+
+  const confirmMsg = `Confirm resolving Trade #${trade.symbol} (${trade.direction})?\n\nOutcome: ${outcomeText}\nExit Price: ${sym}${exitPrice}\nCalculated PnL: ${pnl >= 0 ? '+' : ''}${sym}${pnl.toFixed(2)}`;
+
+  if (confirm(confirmMsg)) {
+    trade.status = outcome;
+    trade.pnl = pnl;
+    saveTradeBookState();
+    renderTradeBookUI();
+    renderTradeBookCharts();
+    showToast(`Trade #${trade.symbol} resolved with ${isWin ? 'WIN' : 'LOSS'} (${pnl >= 0 ? '+' : ''}${sym}${pnl.toFixed(2)})`, isWin ? 'success' : 'error');
+  }
+}
+
+function getFilteredTradesByPeriod(period) {
+  if (!period || period === 'ALL') return tradeBookState;
+
+  const now = new Date();
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+
+  return tradeBookState.filter(t => {
+    const tDate = new Date(t.date).getTime();
+    if (isNaN(tDate)) return true;
+
+    if (period === 'TODAY') {
+      return tDate >= startOfToday;
+    } else if (period === 'WEEK') {
+      const startOfWeek = startOfToday - (6 * 24 * 60 * 60 * 1000);
+      return tDate >= startOfWeek;
+    } else if (period === 'MONTH') {
+      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+      return tDate >= startOfMonth;
+    } else if (period === '30DAYS') {
+      const startOf30Days = startOfToday - (30 * 24 * 60 * 60 * 1000);
+      return tDate >= startOf30Days;
+    } else if (period === 'YEAR') {
+      const startOfYear = new Date(now.getFullYear(), 0, 1).getTime();
+      return tDate >= startOfYear;
+    }
+    return true;
+  });
+}
+
 function renderTradeBookCharts() {
   const pnlCanvas = document.getElementById('pnlGrowthChart');
   const psychCanvas = document.getElementById('psychologyChart');
 
   if (!pnlCanvas || !psychCanvas || typeof Chart === 'undefined') return;
 
+  const periodSelect = document.getElementById('tbTimeFilter');
+  const periodVal = periodSelect ? periodSelect.value : 'ALL';
+  const filteredTrades = getFilteredTradesByPeriod(periodVal);
+
   // Compute metrics
-  const totalTrades = tradeBookState.length;
-  const wins = tradeBookState.filter(t => t.status === 'TARGET_HIT').length;
-  const winRate = totalTrades > 0 ? ((wins / totalTrades) * 100).toFixed(1) : '0.0';
-  const netPnL = tradeBookState.reduce((acc, t) => acc + (t.pnl || 0), 0);
+  const totalTrades = filteredTrades.length;
+  const closedTrades = filteredTrades.filter(t => t.status !== 'OPEN');
+  const wins = closedTrades.filter(t => t.status === 'TARGET_HIT').length;
+  const losses = closedTrades.filter(t => t.status === 'SL_HIT').length;
+  const openCount = filteredTrades.filter(t => t.status === 'OPEN').length;
+
+  const winRate = closedTrades.length > 0 ? ((wins / closedTrades.length) * 100).toFixed(1) : '0.0';
+  const netPnL = filteredTrades.reduce((acc, t) => acc + (t.pnl || 0), 0);
+  const totalCapital = filteredTrades.reduce((acc, t) => acc + (t.positionSize || 0), 0);
+  const capitalReturn = totalCapital > 0 ? ((netPnL / totalCapital) * 100).toFixed(1) : '0.0';
+
+  const defaultSym = filteredTrades.length > 0 ? getCurrencySymbol(filteredTrades[0].currency) : '$';
 
   // Update DOM Metric Badges
   const metricNetPnL = document.getElementById('tbMetricNetPnL');
   const metricWinRate = document.getElementById('tbMetricWinRate');
   const metricTotalTrades = document.getElementById('tbMetricTotalTrades');
+  const metricCapitalImpact = document.getElementById('tbMetricCapitalImpact');
 
   if (metricNetPnL) {
-    metricNetPnL.textContent = `${netPnL >= 0 ? '+' : ''}$${netPnL.toFixed(2)}`;
+    metricNetPnL.textContent = `${netPnL >= 0 ? '+' : ''}${defaultSym}${netPnL.toFixed(2)}`;
     metricNetPnL.style.color = netPnL >= 0 ? '#34d399' : '#f87171';
   }
-  if (metricWinRate) metricWinRate.textContent = `${winRate}%`;
-  if (metricTotalTrades) metricTotalTrades.textContent = totalTrades;
+  if (metricWinRate) metricWinRate.textContent = `${winRate}% (${wins}W / ${losses}L)`;
+  if (metricTotalTrades) metricTotalTrades.textContent = `${totalTrades} (${openCount} Open)`;
+  if (metricCapitalImpact) {
+    metricCapitalImpact.textContent = `${capitalReturn >= 0 ? '+' : ''}${capitalReturn}% Return`;
+    metricCapitalImpact.style.color = capitalReturn >= 0 ? '#60a5fa' : '#f87171';
+  }
 
   // 1. Render PnL Growth Chart
-  const chronTrades = [...tradeBookState].reverse();
+  const chronTrades = [...filteredTrades].reverse();
   let cumPnL = 0;
-  const labels = chronTrades.map((t, idx) => `Trade #${idx + 1}`);
+  const labels = chronTrades.map((t, idx) => `#${idx + 1} (${t.symbol})`);
   const pnlData = chronTrades.map(t => {
     cumPnL += (t.pnl || 0);
     return cumPnL;
@@ -612,7 +699,7 @@ function renderTradeBookCharts() {
     data: {
       labels: labels.length > 0 ? labels : ['Start'],
       datasets: [{
-        label: 'Cumulative Net PnL ($)',
+        label: `Cumulative Net PnL (${defaultSym})`,
         data: pnlData.length > 0 ? pnlData : [0],
         borderColor: '#3b82f6',
         backgroundColor: grad1,
@@ -712,3 +799,4 @@ window.initTradeBook = initTradeBook;
 window.openTradeModal = openTradeModal;
 window.closeTradeModal = closeTradeModal;
 window.deleteTrade = deleteTrade;
+window.resolveOpenTrade = resolveOpenTrade;

@@ -851,10 +851,14 @@ function initSettingsTabsAndStats() {
     unlockStats();
   }
 
+  const statsLockError = document.getElementById('statsLockError');
+
   statsUnlockBtn.addEventListener('click', () => {
     const val = statsPasskeyInput.value.trim();
     if (val === 'Welcome@123') {
       localStorage.setItem('stats_tracker_unlocked', 'true');
+      if (statsLockError) statsLockError.style.display = 'none';
+      statsPasskeyInput.style.borderColor = 'var(--border-color)';
       unlockStats();
       showToast('Analytics unlocked successfully!', 'success');
       // Trigger Lucide to render the user icon inside statistics
@@ -862,7 +866,9 @@ function initSettingsTabsAndStats() {
         lucide.createIcons();
       }
     } else {
-      showToast('Incorrect passkey.', 'error');
+      if (statsLockError) statsLockError.style.display = 'block';
+      statsPasskeyInput.style.borderColor = '#f87171';
+      showToast('Invalid Passcode! Key does not match.', 'error');
     }
   });
 
@@ -874,7 +880,83 @@ function initSettingsTabsAndStats() {
 
   statsLockBtn.addEventListener('click', () => {
     lockStats();
-    showToast('Analytics locked.', 'info');
   });
 }
 
+// 18. Direct Shark Leverage Log to Trade Book Listener
+const sharkLogToBookBtn = document.getElementById('sharkLogToBookBtn');
+if (sharkLogToBookBtn) {
+  sharkLogToBookBtn.addEventListener('click', () => {
+    // Extract values from Shark Leverage Calculator
+    const entryPrice = document.getElementById('sharkEntryPrice')?.value || '170000';
+    const marginAmount = document.getElementById('sharkMarginAmount')?.value || '25000';
+    const tpPrice = document.getElementById('sharkTargetProfitPrice')?.value || '185000';
+    const slPrice = document.getElementById('sharkStopLossPrice')?.value || '165000';
+    const currency = document.getElementById('survivalCurrencySelect')?.value || 'INR';
+
+    // Detect Long vs Short active state
+    const isShort = document.getElementById('sharkBtnShort')?.classList.contains('active');
+    const direction = isShort ? 'SHORT' : 'LONG';
+
+    // Pre-populate Trade Book Logger Modal
+    const tbSymbol = document.getElementById('tbSymbol');
+    if (tbSymbol) tbSymbol.value = 'ETH';
+
+    const tbCurrency = document.getElementById('tbCurrency');
+    if (tbCurrency) tbCurrency.value = currency;
+
+    const tbDirection = document.getElementById('tbDirection');
+    if (tbDirection) tbDirection.value = direction;
+
+    const tbEntry = document.getElementById('tbEntry');
+    if (tbEntry) tbEntry.value = entryPrice;
+
+    const tbSL = document.getElementById('tbSL');
+    if (tbSL) tbSL.value = slPrice;
+
+    const tbTarget = document.getElementById('tbTarget');
+    if (tbTarget) tbTarget.value = tpPrice;
+
+    const tbPositionSize = document.getElementById('tbPositionSize');
+    if (tbPositionSize) tbPositionSize.value = marginAmount;
+
+    const tbStatus = document.getElementById('tbStatus');
+    if (tbStatus) tbStatus.value = 'OPEN';
+
+    // Switch to Trade Book Master Tab
+    const masterTabTradeBook = document.getElementById('masterTabTradeBook');
+    const masterPanelTradeBook = document.getElementById('masterPanelTradeBook');
+    if (masterTabTradeBook && masterPanelTradeBook) {
+      const tabs = [
+        document.getElementById('masterTabTrader'),
+        document.getElementById('masterTabAI'),
+        document.getElementById('masterTabYoutube'),
+        masterTabTradeBook,
+        document.getElementById('masterTabDesign')
+      ];
+      const panels = [
+        document.getElementById('masterPanelTrader'),
+        document.getElementById('masterPanelAI'),
+        document.getElementById('masterPanelYoutube'),
+        masterPanelTradeBook,
+        document.getElementById('masterPanelDesign')
+      ];
+      tabs.forEach(t => { if (t) t.classList.remove('active'); });
+      panels.forEach(p => { if (p) p.style.display = 'none'; });
+
+      masterTabTradeBook.classList.add('active');
+      masterPanelTradeBook.style.display = 'block';
+
+      if (typeof window.initTradeBook === 'function') {
+        window.initTradeBook();
+      }
+    }
+
+    // Open Trade Logger Form Modal
+    if (typeof window.openTradeModal === 'function') {
+      window.openTradeModal();
+    }
+
+    showToast('Shark Trade setup loaded! Review and click Save Entry.', 'info');
+  });
+}

@@ -522,6 +522,11 @@
                     <button class="shark-action-btn long" id="sharkBtnLong">Buy / Long</button>
                     <button class="shark-action-btn short inactive" id="sharkBtnShort">Sell / Short</button>
                   </div>
+                  <div style="margin-top: 0.6rem;">
+                    <button class="btn" id="sharkLogToBookBtn" style="width: 100%; background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.4); color: var(--accent-blue); display: flex; align-items: center; justify-content: center; gap: 0.5rem; font-size: 0.82rem; font-weight: 700; padding: 0.55rem;">
+                      <i data-lucide="book-plus" style="width: 16px; height: 16px;"></i> Log to Trade Book Directly
+                    </button>
+                  </div>
                 </div>
 
                 <!-- Right Column: Real-time Analysis & Table -->
@@ -1107,12 +1112,25 @@
 
             <!-- PnL & Behavioral Analytics Dashboard -->
             <div style="background: rgba(15, 23, 42, 0.4); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.25rem;">
-              <h4 style="margin: 0 0 1rem 0; font-size: 0.95rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 0.4rem;">
-                <i data-lucide="line-chart" style="width: 18px; height: 18px; color: var(--accent-blue);"></i> Journal Analytics & PnL Performance
-              </h4>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+                <h4 style="margin: 0; font-size: 0.95rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 0.4rem;">
+                  <i data-lucide="line-chart" style="width: 18px; height: 18px; color: var(--accent-blue);"></i> Journal Analytics & PnL Performance
+                </h4>
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                  <span style="font-size: 0.75rem; color: var(--text-secondary); font-weight: 600;">Time Period:</span>
+                  <select id="tbTimeFilter" class="filter-input" style="height: 32px; font-size: 0.75rem; padding: 0.2rem 0.6rem; font-weight: 600;">
+                    <option value="ALL" selected>All Time</option>
+                    <option value="TODAY">Today</option>
+                    <option value="WEEK">This Week</option>
+                    <option value="MONTH">This Month</option>
+                    <option value="30DAYS">Last 30 Days</option>
+                    <option value="YEAR">This Year</option>
+                  </select>
+                </div>
+              </div>
 
               <!-- Top Metrics Cards -->
-              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 1.25rem;">
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem; margin-bottom: 1.25rem;">
                 <div style="background: rgba(0,0,0,0.2); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.85rem;">
                   <span style="font-size: 0.7rem; color: var(--text-secondary); display: block; margin-bottom: 0.2rem;">Cumulative Net PnL</span>
                   <strong id="tbMetricNetPnL" style="font-size: 1.35rem; font-family: monospace; color: #34d399;">+$0.00</strong>
@@ -1124,6 +1142,10 @@
                 <div style="background: rgba(0,0,0,0.2); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.85rem;">
                   <span style="font-size: 0.7rem; color: var(--text-secondary); display: block; margin-bottom: 0.2rem;">Total Logged Trades</span>
                   <strong id="tbMetricTotalTrades" style="font-size: 1.35rem; font-family: monospace; color: var(--text-primary);">0</strong>
+                </div>
+                <div style="background: rgba(0,0,0,0.2); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.85rem;">
+                  <span style="font-size: 0.7rem; color: var(--text-secondary); display: block; margin-bottom: 0.2rem;">Total Capital Return</span>
+                  <strong id="tbMetricCapitalImpact" style="font-size: 1.35rem; font-family: monospace; color: #60a5fa;">0.0%</strong>
                 </div>
               </div>
 
@@ -1649,6 +1671,9 @@ Check out the design and architecture! Handcrafted with clean vanilla code, modu
           <div style="display: flex; gap: 0.5rem; width: 100%; max-width: 300px; margin-bottom: 0.5rem;">
             <input type="password" id="statsPasskeyInput" class="filter-input" placeholder="Passkey..." style="flex: 1; height: 38px; padding: 0.5rem; font-size: 0.8rem;">
             <button id="statsUnlockBtn" class="btn btn-primary" style="height: 38px; padding: 0 0.85rem; font-size: 0.8rem;">Unlock</button>
+          </div>
+          <div id="statsLockError" style="display: none; color: #f87171; font-size: 0.76rem; margin-top: 0.4rem; font-weight: 600; text-align: center;">
+            <i data-lucide="alert-circle" style="width: 14px; height: 14px; vertical-align: middle; margin-right: 0.2rem;"></i> Invalid Passcode! Please enter correct key.
           </div>
         </div>
 
