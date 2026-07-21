@@ -245,16 +245,18 @@ document.addEventListener('DOMContentLoaded', () => {
   const masterTabTrader = document.getElementById('masterTabTrader');
   const masterTabAI = document.getElementById('masterTabAI');
   const masterTabYoutube = document.getElementById('masterTabYoutube');
+  const masterTabTradeBook = document.getElementById('masterTabTradeBook');
   const masterTabDesign = document.getElementById('masterTabDesign');
 
   const masterPanelTrader = document.getElementById('masterPanelTrader');
   const masterPanelAI = document.getElementById('masterPanelAI');
   const masterPanelYoutube = document.getElementById('masterPanelYoutube');
+  const masterPanelTradeBook = document.getElementById('masterPanelTradeBook');
   const masterPanelDesign = document.getElementById('masterPanelDesign');
 
   function switchMasterTab(activeTab, activePanel) {
-    const tabs = [masterTabTrader, masterTabAI, masterTabYoutube, masterTabDesign];
-    const panels = [masterPanelTrader, masterPanelAI, masterPanelYoutube, masterPanelDesign];
+    const tabs = [masterTabTrader, masterTabAI, masterTabYoutube, masterTabTradeBook, masterTabDesign];
+    const panels = [masterPanelTrader, masterPanelAI, masterPanelYoutube, masterPanelTradeBook, masterPanelDesign];
 
     const isCurrentlyActive = activeTab && activeTab.classList.contains('active');
 
@@ -282,6 +284,14 @@ document.addEventListener('DOMContentLoaded', () => {
   if (masterTabYoutube && masterPanelYoutube) {
     masterTabYoutube.addEventListener('click', () => {
       switchMasterTab(masterTabYoutube, masterPanelYoutube);
+    });
+  }
+  if (masterTabTradeBook && masterPanelTradeBook) {
+    masterTabTradeBook.addEventListener('click', () => {
+      switchMasterTab(masterTabTradeBook, masterPanelTradeBook);
+      if (typeof window.initTradeBook === 'function') {
+        window.initTradeBook();
+      }
     });
   }
   if (masterTabDesign && masterPanelDesign) {
@@ -747,6 +757,9 @@ document.addEventListener('DOMContentLoaded', () => {
   calculateSharkTrade();
   initVoiceAssistantUnlock();
   initSettingsTabsAndStats();
+  if (typeof window.initTradeBook === 'function') {
+    window.initTradeBook();
+  }
 });
 
 function initSettingsTabsAndStats() {

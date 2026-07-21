@@ -698,6 +698,51 @@ app.get('/api/stats/views', (req, res) => {
   res.json({ views: stats.views });
 });
 
+// --- PERSISTENT TRADE BOOK DATABASE ---
+const tradesDbPath = path.join(__dirname, 'trades_db.json');
+
+function readTradesDb() {
+  try {
+    if (fs.existsSync(tradesDbPath)) {
+      const data = fs.readFileSync(tradesDbPath, 'utf8');
+      return JSON.parse(data);
+    }
+  } catch (err) {
+    console.error('Error reading trades_db.json:', err);
+  }
+  return [];
+}
+
+function writeTradesDb(trades) {
+  try {
+    fs.writeFileSync(tradesDbPath, JSON.stringify(trades, null, 2), 'utf8');
+  } catch (err) {
+    console.error('Error writing trades_db.json:', err);
+  }
+}
+
+app.get('/api/trade-book', (req, res) => {
+  const trades = readTradesDb();
+  res.json(trades);
+});
+
+app.post('/api/trade-book', (req, res) => {
+  const newTrades = req.body;
+  if (Array.isArray(newTrades)) {
+    writeTradesDb(newTrades);
+    return res.json({ success: true, count: newTrades.length });
+  }
+  res.status(400).json({ error: 'Expected array of trade entries' });
+});
+
+app.delete('/api/trade-book/:id', (req, res) => {
+  const { id } = req.params;
+  let trades = readTradesDb();
+  trades = trades.filter(t => t.id !== id);
+  writeTradesDb(trades);
+  res.json({ success: true, count: trades.length });
+});
+
 // Start listening on port 8082, scan upwards if busy
 const DEFAULT_PORT = 8082;
 function startServer(port) {

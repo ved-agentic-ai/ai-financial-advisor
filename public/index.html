@@ -192,8 +192,11 @@
         <button class="trade-tab-btn" id="masterTabYoutube" style="padding: 0.75rem 1.25rem; font-size: 0.9rem; display: flex; align-items: center; gap: 0.5rem;">
           <i data-lucide="youtube" style="width: 16px; height: 16px;"></i> YouTube Aggregator
         </button>
+        <button class="trade-tab-btn" id="masterTabTradeBook" style="padding: 0.75rem 1.25rem; font-size: 0.9rem; display: flex; align-items: center; gap: 0.5rem;">
+          <i data-lucide="book-open" style="width: 16px; height: 16px;"></i> Interactive Trade Book
+        </button>
         <button class="trade-tab-btn" id="masterTabDesign" style="padding: 0.75rem 1.25rem; font-size: 0.9rem; display: flex; align-items: center; gap: 0.5rem;">
-          <i data-lucide="book-open" style="width: 16px; height: 16px;"></i> Design & Architecture
+          <i data-lucide="layers" style="width: 16px; height: 16px;"></i> Design & Architecture
         </button>
       </div>
 
@@ -985,7 +988,170 @@
           </div>
         </div>
 
-        <!-- Tab 4: Design & Architecture -->
+        <!-- Tab 4: Interactive Trade Book Journal -->
+        <div id="masterPanelTradeBook" class="master-panel-content" style="display: none;">
+          <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+            
+            <!-- Header Banner & Action Bar -->
+            <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.2); padding: 1.25rem; border-radius: 12px; border: 1px solid var(--border-color); flex-wrap: wrap; gap: 1rem;">
+              <div>
+                <h3 style="font-size: 1.2rem; font-weight: 700; color: var(--text-primary); margin: 0 0 0.25rem 0; display: flex; align-items: center; gap: 0.5rem;">
+                  <i data-lucide="book-open" style="width: 22px; height: 22px; color: var(--accent-blue);"></i> Strict Discipline Trade Journal
+                </h3>
+                <p style="font-size: 0.78rem; color: var(--text-secondary); margin: 0;">Log daily trades, track strategy rules, enforce emotional discipline, and backtest 100 consecutive executions.</p>
+              </div>
+              <div style="display: flex; gap: 0.6rem; flex-wrap: wrap;">
+                <button id="addTradeBtn" class="btn btn-primary" style="display: flex; align-items: center; gap: 0.4rem; font-weight: 600; padding: 0.55rem 1rem;">
+                  <i data-lucide="plus-circle" style="width: 16px; height: 16px;"></i> Log New Trade
+                </button>
+                <button id="exportJournalBtn" class="btn" style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.8rem;" title="Export Backup JSON">
+                  <i data-lucide="download" style="width: 14px; height: 14px;"></i> Export
+                </button>
+                <button id="importJournalBtn" class="btn" style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.8rem;" title="Import Backup JSON">
+                  <i data-lucide="upload" style="width: 14px; height: 14px;"></i> Import
+                </button>
+                <input type="file" id="importFileInput" accept=".json" style="display: none;">
+                <button id="resetJournalBtn" class="btn" style="color: #f87171; border-color: rgba(239, 68, 68, 0.2); font-size: 0.8rem;" title="Reset All Data">
+                  <i data-lucide="rotate-ccw" style="width: 14px; height: 14px;"></i> Reset
+                </button>
+              </div>
+            </div>
+
+            <!-- Trading Rules & Strategy Drawer -->
+            <div style="background: rgba(15, 23, 42, 0.4); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.25rem;">
+              <h4 style="margin: 0 0 0.85rem 0; font-size: 0.95rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 0.4rem;">
+                <i data-lucide="shield-check" style="width: 18px; height: 18px; color: #34d399;"></i> Non-Negotiable Trading Rules & Psychology Protocol
+              </h4>
+
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 0.85rem;">
+                
+                <div style="background: rgba(255,255,255,0.015); border: 1px solid rgba(255,255,255,0.04); padding: 0.85rem; border-radius: 8px;">
+                  <span style="font-size: 0.8rem; font-weight: 700; color: var(--accent-blue); display: block; margin-bottom: 0.3rem;">⚡ Execution Constraints</span>
+                  <ul style="margin: 0; padding-left: 1.1rem; font-size: 0.74rem; color: var(--text-secondary); display: flex; flex-direction: column; gap: 0.25rem;">
+                    <li><strong>Max 2 Trades / Day:</strong> Never exceed 2 entries per calendar day. Stop after 2 trades regardless of outcome.</li>
+                    <li><strong>Min R:R (1:3):</strong> Minimum Risk-to-Reward ratio of 1:3 required before opening position.</li>
+                    <li><strong>Leverage:</strong> Fixed 25x max leverage allocation.</li>
+                  </ul>
+                </div>
+
+                <div style="background: rgba(255,255,255,0.015); border: 1px solid rgba(255,255,255,0.04); padding: 0.85rem; border-radius: 8px;">
+                  <span style="font-size: 0.8rem; font-weight: 700; color: var(--accent-blue); display: block; margin-bottom: 0.3rem;">📈 Strategy Rules (100 Trades Discipline)</span>
+                  <ul style="margin: 0; padding-left: 1.1rem; font-size: 0.74rem; color: var(--text-secondary); display: flex; flex-direction: column; gap: 0.25rem;">
+                    <li><strong>Chart Indicator:</strong> Heikin Ashi candles on <strong>1-Hour Timeframe</strong>.</li>
+                    <li><strong>RSI Filter:</strong> RSI &gt; 50 = Long Only; RSI &lt; 50 = Short Only.</li>
+                    <li><strong>Trigger:</strong> Confluence with chart pattern formation or S/R breakout/breakdown.</li>
+                  </ul>
+                </div>
+
+                <div style="background: rgba(255,255,255,0.015); border: 1px solid rgba(255,255,255,0.04); padding: 0.85rem; border-radius: 8px;">
+                  <span style="font-size: 0.8rem; font-weight: 700; color: var(--accent-blue); display: block; margin-bottom: 0.3rem;">🧠 Trading Psychology Protocol</span>
+                  <ul style="margin: 0; padding-left: 1.1rem; font-size: 0.74rem; color: var(--text-secondary); display: flex; flex-direction: column; gap: 0.25rem;">
+                    <li><strong>No Revenge Trading:</strong> Never re-enter to get even after SL. Accept losses as operational cost.</li>
+                    <li><strong>Set &amp; Forget:</strong> After entry, let SL or Target hit automatically. No constant terminal checking.</li>
+                    <li><strong>Patience:</strong> 1H timeframe swings take hours to days to play out. Give trades breathing space.</li>
+                    <li><strong>Chop vs Trend:</strong> Respect R:R during choppy range markets; trending moves will compound total profits.</li>
+                  </ul>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- 3D Book Journal Simulation Spread -->
+            <div style="position: relative;">
+              
+              <!-- Book Spine Controls / Pagination Header -->
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                <span style="font-size: 0.85rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 0.4rem;">
+                  <i data-lucide="book" style="width: 16px; height: 16px; color: var(--accent-blue);"></i> 3D Interactive Journal Pages
+                </span>
+                
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                  <span id="bookPageCounter" style="font-size: 0.78rem; color: var(--text-secondary); font-family: monospace;">Page 1 of 1</span>
+                  <div style="display: flex; gap: 0.35rem;">
+                    <button id="prevPageBtn" class="btn" style="padding: 0.3rem 0.6rem; font-size: 0.75rem;" title="Previous Page">
+                      <i data-lucide="chevron-left" style="width: 14px; height: 14px;"></i> Prev
+                    </button>
+                    <button id="nextPageBtn" class="btn" style="padding: 0.3rem 0.6rem; font-size: 0.75rem;" title="Next Page">
+                      Next <i data-lucide="chevron-right" style="width: 14px; height: 14px;"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Main Dual-Page Book Container -->
+              <div id="tradeBookSpread" class="trade-book-spread" style="display: grid; grid-template-columns: 220px 1fr 1fr; gap: 1rem; background: rgba(15, 23, 42, 0.6); border: 2px solid var(--border-color); border-radius: 16px; padding: 1.25rem; min-height: 440px; box-shadow: inset 0 0 30px rgba(0,0,0,0.5), var(--shadow-lg); transition: all 0.3s ease;">
+                
+                <!-- Left Sidebar: Date Tree Index -->
+                <div style="border-right: 1px solid var(--border-color); padding-right: 1rem;">
+                  <h5 style="margin: 0 0 0.6rem 0; font-size: 0.8rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 0.3rem;">
+                    <i data-lucide="layers" style="width: 14px; height: 14px; color: var(--accent-blue);"></i> Archive Index
+                  </h5>
+                  <div id="bookDateTree" style="max-height: 380px; overflow-y: auto; padding-right: 0.25rem;">
+                    <!-- Date hierarchy tree loaded via JS -->
+                  </div>
+                </div>
+
+                <!-- Left Page (Spread Page 1) -->
+                <div id="bookLeftPageContent" style="background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.03); border-radius: 12px; padding: 1.1rem; position: relative;">
+                  <!-- Single Trade Card Rendered via JS -->
+                </div>
+
+                <!-- Right Page (Spread Page 2) -->
+                <div id="bookRightPageContent" style="background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.03); border-radius: 12px; padding: 1.1rem; position: relative;">
+                  <!-- Single Trade Card Rendered via JS -->
+                </div>
+
+              </div>
+
+            </div>
+
+            <!-- PnL & Behavioral Analytics Dashboard -->
+            <div style="background: rgba(15, 23, 42, 0.4); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.25rem;">
+              <h4 style="margin: 0 0 1rem 0; font-size: 0.95rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 0.4rem;">
+                <i data-lucide="line-chart" style="width: 18px; height: 18px; color: var(--accent-blue);"></i> Journal Analytics & PnL Performance
+              </h4>
+
+              <!-- Top Metrics Cards -->
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 1.25rem;">
+                <div style="background: rgba(0,0,0,0.2); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.85rem;">
+                  <span style="font-size: 0.7rem; color: var(--text-secondary); display: block; margin-bottom: 0.2rem;">Cumulative Net PnL</span>
+                  <strong id="tbMetricNetPnL" style="font-size: 1.35rem; font-family: monospace; color: #34d399;">+$0.00</strong>
+                </div>
+                <div style="background: rgba(0,0,0,0.2); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.85rem;">
+                  <span style="font-size: 0.7rem; color: var(--text-secondary); display: block; margin-bottom: 0.2rem;">Win Rate</span>
+                  <strong id="tbMetricWinRate" style="font-size: 1.35rem; font-family: monospace; color: var(--accent-blue);">0.0%</strong>
+                </div>
+                <div style="background: rgba(0,0,0,0.2); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.85rem;">
+                  <span style="font-size: 0.7rem; color: var(--text-secondary); display: block; margin-bottom: 0.2rem;">Total Logged Trades</span>
+                  <strong id="tbMetricTotalTrades" style="font-size: 1.35rem; font-family: monospace; color: var(--text-primary);">0</strong>
+                </div>
+              </div>
+
+              <!-- Canvas Charts Grid -->
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;">
+                
+                <div style="background: rgba(0,0,0,0.15); border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem;">
+                  <span style="font-size: 0.8rem; font-weight: 700; color: var(--text-primary); display: block; margin-bottom: 0.75rem;">Account Growth Curve</span>
+                  <div style="height: 200px; position: relative;">
+                    <canvas id="pnlGrowthChart"></canvas>
+                  </div>
+                </div>
+
+                <div style="background: rgba(0,0,0,0.15); border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem;">
+                  <span style="font-size: 0.8rem; font-weight: 700; color: var(--text-primary); display: block; margin-bottom: 0.75rem;">Psychology & Emotional Discipline Breakdown</span>
+                  <div style="height: 200px; position: relative;">
+                    <canvas id="psychologyChart"></canvas>
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Tab 5: Design & Architecture -->
         <div id="masterPanelDesign" class="master-panel-content" style="display: none;">
           <style>
             .design-accordion-item {
@@ -1629,6 +1795,137 @@ Check out the design and architecture! Handcrafted with clean vanilla code, modu
     </div>
   </footer>
 
+  <!-- Log New Trade Form Modal -->
+  <div id="tradeLogModal" class="modal">
+    <div class="modal-content" style="max-width: 520px; max-height: 90vh; overflow-y: auto;">
+      <button class="modal-close" id="tradeModalClose">
+        <i data-lucide="x"></i>
+      </button>
+
+      <h3 style="margin-top: 0; font-size: 1.1rem; color: var(--text-primary); display: flex; align-items: center; gap: 0.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem;">
+        <i data-lucide="plus-circle" style="width: 18px; height: 18px; color: var(--accent-blue);"></i> Log Trade Entry
+      </h3>
+
+      <form id="tradeForm" style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1rem;">
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.65rem;">
+          <div>
+            <label style="display: block; font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 0.35rem;">Asset / Symbol</label>
+            <select id="tbSymbol" class="filter-input" style="height: 38px; font-weight: 600;">
+              <option value="BTC">BTC (Bitcoin)</option>
+              <option value="ETH">ETH (Ethereum)</option>
+              <option value="GOLD">GOLD (XAU/USD)</option>
+            </select>
+          </div>
+          <div>
+            <label style="display: block; font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 0.35rem;">Currency</label>
+            <select id="tbCurrency" class="filter-input" style="height: 38px; font-weight: 600;">
+              <option value="USD">DOLLAR ($)</option>
+              <option value="INR">INR (₹)</option>
+              <option value="USDT">USDT (₮)</option>
+              <option value="SEK">SEK (kr)</option>
+            </select>
+          </div>
+          <div>
+            <label style="display: block; font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 0.35rem;">Direction</label>
+            <select id="tbDirection" class="filter-input" style="height: 38px; font-weight: 600;">
+              <option value="LONG">LONG (Buy)</option>
+              <option value="SHORT">SHORT (Sell)</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+          <div>
+            <label style="display: block; font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 0.35rem;">Date &amp; Time</label>
+            <input type="datetime-local" id="tbDate" class="filter-input" style="height: 38px; font-size: 0.78rem;" required>
+          </div>
+          <div>
+            <label style="display: block; font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 0.35rem;">Position Capital</label>
+            <input type="number" id="tbPositionSize" class="filter-input" value="1000" step="100" min="10" style="height: 38px; font-family: monospace;" required>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.6rem;">
+          <div>
+            <label style="display: block; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.35rem;">Entry Price ($)</label>
+            <input type="number" id="tbEntry" class="filter-input" placeholder="65000" step="any" style="height: 38px; font-family: monospace;" required>
+          </div>
+          <div>
+            <label style="display: block; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.35rem;">Stop Loss ($)</label>
+            <input type="number" id="tbSL" class="filter-input" placeholder="64500" step="any" style="height: 38px; font-family: monospace;" required>
+          </div>
+          <div>
+            <label style="display: block; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.35rem;">Target ($)</label>
+            <input type="number" id="tbTarget" class="filter-input" placeholder="66500" step="any" style="height: 38px; font-family: monospace;" required>
+          </div>
+        </div>
+
+        <!-- Live R:R Badge Preview -->
+        <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.2); padding: 0.6rem 0.8rem; border-radius: 8px; border: 1px solid var(--border-color);">
+          <span style="font-size: 0.78rem; color: var(--text-secondary);">Calculated Risk:Reward</span>
+          <span id="tbRRPreview" style="font-size: 0.85rem; font-weight: 700; font-family: monospace; padding: 0.2rem 0.5rem; border-radius: 4px; background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3);">1:3.0</span>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+          <div>
+            <label style="display: block; font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 0.35rem;">Trade Status</label>
+            <select id="tbStatus" class="filter-input" style="height: 38px; font-weight: 600;">
+              <option value="TARGET_HIT">Target Hit (Win)</option>
+              <option value="SL_HIT">Stop Loss Hit (Loss)</option>
+              <option value="OPEN">Open Position</option>
+            </select>
+          </div>
+          <div>
+            <label style="display: block; font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 0.35rem;">Psychology State</label>
+            <select id="tbPsychology" class="filter-input" style="height: 38px; font-weight: 600;">
+              <option value="Calm">Calm &amp; Disciplined</option>
+              <option value="FOMO">FOMO Entry</option>
+              <option value="Revenge">Revenge Trade</option>
+              <option value="Random">Random / Impulsive</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Rule Compliance Verification Checklist -->
+        <div style="background: rgba(255,255,255,0.015); border: 1px solid var(--border-color); padding: 0.75rem; border-radius: 8px;">
+          <span style="font-size: 0.78rem; font-weight: 700; color: var(--text-primary); display: block; margin-bottom: 0.5rem;">Rule Verification Checklist</span>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem; font-size: 0.72rem; color: var(--text-secondary);">
+            <label style="display: flex; align-items: center; gap: 0.35rem; cursor: pointer;">
+              <input type="checkbox" id="ruleCheckMaxTrades" checked> Max 2 trades today
+            </label>
+            <label style="display: flex; align-items: center; gap: 0.35rem; cursor: pointer;">
+              <input type="checkbox" id="ruleCheckMinRR" checked> R:R &gt;= 1:3 ratio
+            </label>
+            <label style="display: flex; align-items: center; gap: 0.35rem; cursor: pointer;">
+              <input type="checkbox" id="ruleCheckLeverage" checked> Leverage 25x max
+            </label>
+            <label style="display: flex; align-items: center; gap: 0.35rem; cursor: pointer;">
+              <input type="checkbox" id="ruleCheckStrategy" checked> Heikin Ashi 1H / RSI signal
+            </label>
+            <label style="display: flex; align-items: center; gap: 0.35rem; cursor: pointer;">
+              <input type="checkbox" id="ruleCheckNoRevenge" checked> No revenge trading
+            </label>
+            <label style="display: flex; align-items: center; gap: 0.35rem; cursor: pointer;">
+              <input type="checkbox" id="ruleCheckSetForget" checked> Set &amp; forget (No mobile check)
+            </label>
+          </div>
+        </div>
+
+        <div>
+          <label style="display: block; font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 0.35rem;">Trade Lessons &amp; Journal Notes</label>
+          <textarea id="tbNotes" class="filter-input" placeholder="Pattern observed, key takeaways, market context..." style="height: 60px; font-size: 0.78rem; resize: none;"></textarea>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 0.5rem;">
+          <button type="button" onclick="closeTradeModal()" class="btn">Cancel</button>
+          <button type="submit" class="btn btn-primary" style="padding: 0.5rem 1.25rem; font-weight: 600;">Save Entry</button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
   <!-- Legal Disclaimer Modal -->
   <div id="disclaimerModal" class="modal active" style="backdrop-filter: blur(10px); background: rgba(15, 23, 42, 0.7); display: flex; align-items: center; justify-content: center; z-index: 99999;">
     <div class="modal-content" style="max-width: 550px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; padding: 1.75rem; text-align: left; box-shadow: var(--shadow-2xl);">
@@ -1664,6 +1961,7 @@ Check out the design and architecture! Handcrafted with clean vanilla code, modu
   <script src="js/chatbot.js"></script>
   <script src="js/voiceAssistant.js"></script>
   <script src="js/ticker.js"></script>
+  <script src="js/tradeBook.js"></script>
   <script src="js/main.js"></script>
   <script>
     lucide.createIcons();

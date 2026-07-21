@@ -2,3 +2,4 @@ node_modules/
 .env
 package-lock.json
 visitor_stats.json
+trades_db.json
