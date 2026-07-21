@@ -743,6 +743,113 @@ app.delete('/api/trade-book/:id', (req, res) => {
   res.json({ success: true, count: trades.length });
 });
 
+// --- APP LLM CONFIGURATION & PROXY ROUTES ---
+const llmConfigPath = path.join(__dirname, 'llm_config.json');
+
+function readLlmConfig() {
+  try {
+    if (fs.existsSync(llmConfigPath)) {
+      return JSON.parse(fs.readFileSync(llmConfigPath, 'utf8'));
+    }
+  } catch (err) {
+    console.error('Error reading llm_config.json:', err);
+  }
+  return { apiKey: '', passkey: 'Welcome@123', status: 'ACTIVE' };
+}
+
+function writeLlmConfig(cfg) {
+  try {
+    fs.writeFileSync(llmConfigPath, JSON.stringify(cfg, null, 2), 'utf8');
+  } catch (err) {
+    console.error('Error writing llm_config.json:', err);
+  }
+}
+
+app.get('/api/app-llm-key', (req, res) => {
+  const cfg = readLlmConfig();
+  res.json({
+    status: cfg.status || 'ACTIVE',
+    hasKey: Boolean(cfg.apiKey),
+    maskedKey: cfg.apiKey ? `${cfg.apiKey.slice(0, 4)}...${cfg.apiKey.slice(-4)}` : 'Not Configured'
+  });
+});
+
+app.post('/api/app-llm-key', (req, res) => {
+  const { passkey, apiKey } = req.body;
+  const cfg = readLlmConfig();
+
+  if (passkey !== 'Welcome@123') {
+    return res.status(401).json({ error: '⚠️ Invalid Passcode! Passcode verification failed.' });
+  }
+
+  if (!apiKey || apiKey.trim().length < 8) {
+    return res.status(400).json({ error: '⚠️ Invalid LLM Key format. Key must be at least 8 characters long.' });
+  }
+
+  cfg.apiKey = apiKey.trim();
+  cfg.status = 'ACTIVE';
+  writeLlmConfig(cfg);
+
+  res.json({
+    success: true,
+    message: 'App LLM Key updated successfully!',
+    maskedKey: `${cfg.apiKey.slice(0, 4)}...${cfg.apiKey.slice(-4)}`
+  });
+});
+
+// AI Proxy for App-Provided & Personal Key Requests
+app.post('/api/ai-proxy', async (req, res) => {
+  const { prompt, sectionContext, userKey, mode } = req.body;
+
+  let keyToUse = userKey;
+  
+  if (mode === 'APP_KEY' || !keyToUse) {
+    const cfg = readLlmConfig();
+    keyToUse = cfg.apiKey || process.env.GEMINI_API_KEY || process.env.PALM_API_KEY;
+  }
+
+  if (!keyToUse) {
+    return res.status(400).json({ error: 'No API Key available. Please enter your Gemini API Key in Personal Key mode or configure App Key.' });
+  }
+
+  try {
+    // Call Gemini REST API endpoint
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${keyToUse}`;
+    
+    const systemInstruction = `You are the Antigravity AI Advisor & Trading Strategist. You provide concise, expert, friendly answers about:
+    1. Active Trader & Shark Leverage Simulator (25x leverage, margin, risk/reward).
+    2. Interactive Trade Book & 100-Trade Discipline Protocol.
+    3. Modern Web Design & Architecture.
+    4. Financial/Trading YouTube Video Analysis.
+    Current Section Context: ${sectionContext || 'General Advisor'}.
+    Keep responses clear, professional, concise, and structured with bullet points.`;
+
+    const geminiPayload = {
+      contents: [
+        {
+          role: 'user',
+          parts: [{ text: `${systemInstruction}\n\nUser Question: ${prompt}` }]
+        }
+      ]
+    };
+
+    const response = await axios.post(url, geminiPayload, { headers: { 'Content-Type': 'application/json' } });
+    
+    const candidates = response.data?.candidates;
+    if (candidates && candidates.length > 0) {
+      const text = candidates[0].content?.parts[0]?.text || 'No response generated.';
+      const usage = response.data?.usageMetadata || { promptTokenCount: Math.ceil(prompt.length / 4), candidatesTokenCount: Math.ceil(text.length / 4), totalTokenCount: Math.ceil((prompt.length + text.length) / 4) };
+      return res.json({ text, usageMetadata: usage });
+    }
+    
+    res.status(500).json({ error: 'Invalid response from AI provider.' });
+  } catch (err) {
+    console.error('AI Proxy Error:', err.response?.data || err.message);
+    const msg = err.response?.data?.error?.message || 'Failed to process request with LLM key.';
+    res.status(500).json({ error: `⚠️ AI API Error: ${msg}` });
+  }
+});
+
 // Start listening on port 8082, scan upwards if busy
 const DEFAULT_PORT = 8082;
 function startServer(port) {

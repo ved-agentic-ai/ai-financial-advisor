@@ -81,10 +81,12 @@ async function loadTradeBookState() {
     const response = await fetch('/api/trade-book');
     if (response.ok) {
       const serverData = await response.json();
-      if (Array.isArray(serverData) && serverData.length > 0) {
+      if (Array.isArray(serverData)) {
         tradeBookState = serverData;
         try { localStorage.setItem('user_trade_book_v1', JSON.stringify(tradeBookState)); } catch(e){}
-        return;
+        if (serverData.length > 0 || localStorage.getItem('user_trade_book_has_initialized')) {
+          return;
+        }
       }
     }
   } catch (e) {
@@ -93,19 +95,24 @@ async function loadTradeBookState() {
 
   try {
     const data = localStorage.getItem('user_trade_book_v1');
-    if (data) {
-      tradeBookState = JSON.parse(data);
+    const initialized = localStorage.getItem('user_trade_book_has_initialized');
+    
+    if (data !== null || initialized) {
+      tradeBookState = data ? JSON.parse(data) : [];
     } else {
+      // First time initial load demo trades
       tradeBookState = [...DEMO_TRADES];
+      localStorage.setItem('user_trade_book_has_initialized', 'true');
       saveTradeBookState();
     }
   } catch (e) {
     console.error('Failed to load trade book state:', e);
-    tradeBookState = [...DEMO_TRADES];
+    tradeBookState = [];
   }
 }
 
 async function saveTradeBookState() {
+  localStorage.setItem('user_trade_book_has_initialized', 'true');
   try {
     localStorage.setItem('user_trade_book_v1', JSON.stringify(tradeBookState));
   } catch (e) {
@@ -190,7 +197,10 @@ function bindTradeBookEvents() {
   if (prevPageBtn) prevPageBtn.addEventListener('click', () => changeBookPage(-1));
   if (nextPageBtn) nextPageBtn.addEventListener('click', () => changeBookPage(1));
 
+  const exportJournalCSVBtn = document.getElementById('exportJournalCSVBtn');
+
   if (exportJournalBtn) exportJournalBtn.addEventListener('click', exportTradeJournalJSON);
+  if (exportJournalCSVBtn) exportJournalCSVBtn.addEventListener('click', exportTradeJournalCSV);
   if (importJournalBtn && importFileInput) {
     importJournalBtn.addEventListener('click', () => importFileInput.click());
     importFileInput.addEventListener('change', importTradeJournalJSON);
@@ -918,6 +928,50 @@ function exportTradeJournalJSON() {
   downloadAnchor.click();
   downloadAnchor.remove();
   showToast('Trade Book exported to JSON successfully!', 'success');
+}
+
+function exportTradeJournalCSV() {
+  if (tradeBookState.length === 0) {
+    showToast('No trade records to export.', 'warning');
+    return;
+  }
+
+  const headers = ['Trade ID', 'Date', 'Symbol', 'Direction', 'Currency', 'Position Capital', 'Entry Price', 'Stop Loss', 'Target Price', 'Status', 'Calculated PnL', 'Psychology', 'Notes'];
+  
+  const csvRows = [];
+  csvRows.push(headers.join(','));
+
+  tradeBookState.forEach(trade => {
+    const row = [
+      `"${trade.id || ''}"`,
+      `"${trade.date || ''}"`,
+      `"${trade.symbol || ''}"`,
+      `"${trade.direction || ''}"`,
+      `"${trade.currency || 'USD'}"`,
+      trade.positionSize || 0,
+      trade.entryPrice || 0,
+      trade.slPrice || 0,
+      trade.targetPrice || 0,
+      `"${trade.status || 'OPEN'}"`,
+      trade.pnl || 0,
+      `"${(trade.psychology || '').replace(/"/g, '""')}"`,
+      `"${(trade.notes || '').replace(/"/g, '""')}"`
+    ];
+    csvRows.push(row.join(','));
+  });
+
+  const csvString = csvRows.join('\n');
+  const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `Trade_Journal_Export_${new Date().toISOString().slice(0, 10)}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+
+  showToast('Trade Journal exported to CSV / Excel format successfully!', 'success');
 }
 
 function importTradeJournalJSON(e) {

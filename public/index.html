@@ -862,62 +862,120 @@
           </div>
         </div>
 
-        <!-- Tab 2: AI Toolkit Suite -->
+        <!-- Tab 2: AI Toolkit Suite & Interactive LLM Advisor -->
         <div id="masterPanelAI" class="master-panel-content" style="display: none;">
-          <h3 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 1.5rem; color: var(--accent-blue); display: flex; align-items: center; gap: 0.5rem;">
-            <i data-lucide="volume-2" id="voiceSpeakLastBtn" style="width: 20px; height: 20px; color: var(--accent-blue); cursor: pointer;" title="Read out last response"></i> Multimodal AI Financial Voice Assistant
-          </h3>
-          <div style="display: flex; gap: 1.5rem; flex-wrap: wrap;">
-            <!-- Left Panel: Controls -->
-            <div style="flex: 1; min-width: 280px; display: flex; flex-direction: column; gap: 1.25rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.85rem; flex-wrap: wrap; gap: 0.75rem;">
+            <h3 style="margin: 0; font-size: 1.15rem; font-weight: 700; color: var(--accent-blue); display: flex; align-items: center; gap: 0.5rem;">
+              <i data-lucide="bot" style="width: 20px; height: 20px; color: var(--accent-blue);"></i> Antigravity Interactive AI Advisor &amp; LLM Assistant
+            </h3>
+            <div style="display: flex; align-items: center; gap: 0.65rem;">
+              <span id="aiActiveContextBadge" style="font-size: 0.75rem; font-weight: 700; padding: 0.25rem 0.6rem; border-radius: 20px; background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3);">
+                Context: General Advisor
+              </span>
+              <button id="aiGeminiGuideBtn" class="btn" style="font-size: 0.75rem; padding: 0.3rem 0.65rem; background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.3); color: #34d399;" title="How to get free/premium Gemini API key">
+                <i data-lucide="key" style="width: 13px; height: 13px;"></i> How to Get Gemini Key
+              </button>
+            </div>
+          </div>
+
+          <!-- LLM Key Mode Selector & Real-Time Metrics Bar -->
+          <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.15rem; margin-bottom: 1.25rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem;">
+              
+              <!-- Key Mode Radio Buttons -->
               <div>
-                <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 0.5rem;">Select Market Focus</span>
-                <div style="display: flex; gap: 0.5rem;">
-                  <button class="voice-market-btn active" id="voiceMarketIN" data-market="indian" style="flex: 1; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); color: #34d399; font-size: 0.85rem; padding: 0.6rem; border-radius: 8px; cursor: pointer; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 0.4rem;">🇮🇳 India (NSE)</button>
-                  <button class="voice-market-btn" id="voiceMarketSE" data-market="swedish" style="flex: 1; background: transparent; border: 1px solid var(--border-color); color: var(--text-secondary); font-size: 0.85rem; padding: 0.6rem; border-radius: 8px; cursor: pointer; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 0.4rem;">🇸🇪 Sweden (STO)</button>
+                <span style="font-size: 0.78rem; font-weight: 700; color: var(--text-primary); display: block; margin-bottom: 0.4rem;">Select Connection Mode:</span>
+                <div style="display: flex; gap: 1.25rem; font-size: 0.8rem; color: var(--text-secondary);">
+                  <label style="display: flex; align-items: center; gap: 0.35rem; cursor: pointer;">
+                    <input type="radio" name="aiMode" id="aiModePersonal" value="PERSONAL_KEY" checked style="accent-color: var(--accent-blue);">
+                    <strong>Option 1: Personal API Key</strong> (Gemini / OpenAI)
+                  </label>
+                  <label style="display: flex; align-items: center; gap: 0.35rem; cursor: pointer;">
+                    <input type="radio" name="aiMode" id="aiModeApp" value="APP_KEY" style="accent-color: var(--accent-blue);">
+                    <strong>Option 2: App-Provided Key</strong> (Max 3 Requests / Session)
+                  </label>
                 </div>
               </div>
 
-              <div style="display: flex; flex-direction: column; align-items: center; gap: 0.75rem; background: rgba(255,255,255,0.01); border: 1px solid var(--border-color); padding: 1.5rem; border-radius: 12px; text-align: center;">
-                <div style="position: relative; width: 80px; height: 80px;">
-                  <button class="voice-mic-pulse-btn" id="voiceMicPulseBtn" style="width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #10b981, #059669); border: none; color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; z-index: 10; box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4); transition: all 0.3s ease;">
-                    <i data-lucide="mic" id="voiceMicIcon" style="width: 32px; height: 32px;"></i>
-                  </button>
-                  <div class="voice-pulse-ring" id="voiceMicPulseRing" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 50%; border: 3px solid #34d399; opacity: 0; pointer-events: none; box-sizing: border-box;"></div>
+              <!-- Metrics Live Badges -->
+              <div style="display: flex; gap: 0.65rem; flex-wrap: wrap;">
+                <div style="background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); padding: 0.45rem 0.75rem; border-radius: 8px; font-size: 0.72rem;">
+                  <span style="color: var(--text-secondary); display: block;">Tokens Used</span>
+                  <strong id="aiTokensUsedBadge" style="font-family: monospace; color: #34d399; font-size: 0.85rem;">0 Tokens</strong>
                 </div>
-                <span id="voiceMicStatus" style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">Ready. Click to speak</span>
-              </div>
-
-              <!-- Text Input Fallback Area -->
-              <div style="display: flex; flex-direction: column; gap: 0.5rem; background: rgba(255,255,255,0.01); border: 1px solid var(--border-color); padding: 1rem; border-radius: 12px;">
-                <label for="voiceTextInput" style="font-size: 0.78rem; font-weight: 600; color: var(--text-secondary);">Or type your query:</label>
-                <div style="display: flex; gap: 0.5rem;">
-                  <input type="text" id="voiceTextInput" class="filter-input" placeholder="Type stock name or query..." style="flex: 1; height: 36px; border-radius: 6px; border-color: var(--border-color);">
-                  <button id="voiceSendBtn" class="btn btn-primary" style="height: 36px; padding: 0 0.85rem; font-size: 0.8rem; display: flex; align-items: center; gap: 0.3rem;">
-                    <i data-lucide="send" style="width: 12px; height: 12px;"></i> Send
-                  </button>
+                <div style="background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); padding: 0.45rem 0.75rem; border-radius: 8px; font-size: 0.72rem;">
+                  <span style="color: var(--text-secondary); display: block;">Rate Limit</span>
+                  <strong id="aiRpmBadge" style="font-family: monospace; color: #60a5fa; font-size: 0.85rem;">0 RPM</strong>
+                </div>
+                <div style="background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); padding: 0.45rem 0.75rem; border-radius: 8px; font-size: 0.72rem;">
+                  <span style="color: var(--text-secondary); display: block;">App Session Quota</span>
+                  <strong id="aiAppQuotaBadge" style="font-family: monospace; color: #fbbf24; font-size: 0.85rem;">3 / 3 Left</strong>
                 </div>
               </div>
 
-              <div style="display: flex; align-items: center; gap: 0.5rem; justify-content: center;">
-                <input type="checkbox" id="voiceMuteCheckbox" style="accent-color: #10b981; width: 16px; height: 16px; cursor: pointer;">
-                <label for="voiceMuteCheckbox" style="font-size: 0.8rem; color: var(--text-secondary); cursor: pointer; user-select: none;">Mute assistant speech output</label>
-              </div>
             </div>
 
-            <!-- Right Panel: Conversation Log -->
-            <div style="flex: 2; min-width: 320px; display: flex; flex-direction: column; height: 350px; border: 1px solid var(--border-color); border-radius: 12px; background: rgba(15, 23, 42, 0.4); overflow: hidden;">
-              <div style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); background: rgba(30, 41, 59, 0.3); font-size: 0.8rem; font-weight: 600; color: var(--text-primary);">
-                Insights & Responses
+            <!-- Option 1: Personal Key Input Drawer -->
+            <div id="aiPersonalKeyPanel" style="display: block; background: rgba(0,0,0,0.25); border: 1px dashed rgba(255,255,255,0.08); padding: 0.85rem; border-radius: 8px;">
+              <div style="display: flex; gap: 0.65rem; align-items: center;">
+                <input type="password" id="aiPersonalKeyInput" class="filter-input" placeholder="Paste your Gemini API Key (e.g. AIzaSy...)" style="flex: 1; height: 38px; font-family: monospace;">
+                <button id="aiSavePersonalKeyBtn" class="btn btn-primary" style="height: 38px; padding: 0 1rem; font-size: 0.8rem;">Save API Key</button>
               </div>
-              <div class="voice-chat-log" id="voiceChatLog" style="flex: 1; padding: 1rem; overflow-y: auto; display: flex; flex-direction: column; gap: 0.75rem;">
-                <div class="voice-bubble assistant" style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); padding: 0.75rem; border-radius: 12px 12px 12px 0px; font-size: 0.8rem; line-height: 1.4; color: var(--text-secondary); max-width: 90%; align-self: flex-start; text-align: left;">
-                  Hello! I am your <strong>Multimodal AI Financial Voice Assistant</strong>. Choose India or Sweden market focus on the left, type or click the mic, and ask your financial queries.
-                  <div style="margin-top: 0.4rem; font-size: 0.72rem; color: var(--text-secondary); opacity: 0.8; font-style: italic;">
-                    Try: "Tell me about Volvo" or "Competitors of Reliance"
+              <span style="font-size: 0.68rem; color: var(--text-secondary); display: block; margin-top: 0.4rem;">
+                🔒 Your personal key is stored locally in your browser storage and never sent to external servers except direct Google Gemini API calls.
+              </span>
+            </div>
+
+            <!-- Option 2: App Key Quota Panel -->
+            <div id="aiAppKeyPanel" style="display: none; background: rgba(251, 191, 36, 0.05); border: 1px solid rgba(251, 191, 36, 0.2); padding: 0.85rem; border-radius: 8px; font-size: 0.75rem; color: var(--text-secondary);">
+              <span style="font-weight: 700; color: #fbbf24;">⚡ App-Provided Free Access Mode:</span> Allows up to <strong>3 medium-complexity queries per session</strong> using the server's default Gemini key. For unlimited queries and deep reasoning, switch to <strong>Option 1: Personal API Key</strong>.
+            </div>
+
+          </div>
+
+          <!-- Main Interactive AI Chat Window -->
+          <div style="display: flex; flex-direction: column; height: 420px; border: 1px solid var(--border-color); border-radius: 12px; background: rgba(15, 23, 42, 0.4); overflow: hidden;">
+            
+            <div style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); background: rgba(30, 41, 59, 0.3); font-size: 0.8rem; font-weight: 600; color: var(--text-primary); display: flex; justify-content: space-between; align-items: center;">
+              <span style="display: flex; align-items: center; gap: 0.4rem;">
+                <i data-lucide="sparkles" style="width: 15px; height: 15px; color: var(--accent-blue);"></i> AI Assistant Conversation
+              </span>
+              <span style="font-size: 0.7rem; color: var(--text-secondary);">Ask anything about Active Trader, Trade Book, Design, or YouTube</span>
+            </div>
+
+            <div id="aiChatMessages" style="flex: 1; padding: 1rem; overflow-y: auto; display: flex; flex-direction: column; gap: 0.75rem;">
+              <div style="display: flex; gap: 0.65rem; align-items: flex-start;">
+                <div style="width: 32px; height: 32px; border-radius: 50%; background: rgba(52, 211, 153, 0.15); border: 1px solid rgba(52, 211, 153, 0.4); display: flex; align-items: center; justify-content: center; color: #34d399;">
+                  <i data-lucide="bot" style="width: 16px; height: 16px;"></i>
+                </div>
+                <div style="max-width: 85%; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-color); padding: 0.85rem; border-radius: 12px; font-size: 0.82rem; color: var(--text-primary); line-height: 1.5;">
+                  Hello! I am your <strong>Antigravity AI Advisor &amp; Strategy Coach</strong>.
+                  <br><br>
+                  You can ask me questions about:
+                  <ul style="margin: 0.4rem 0 0 0; padding-left: 1.1rem; color: var(--text-secondary); display: flex; flex-direction: column; gap: 0.25rem;">
+                    <li><strong>Active Trader / Shark Simulator:</strong> 25x leverage, margin calculations, liquidation risk.</li>
+                    <li><strong>Interactive Trade Book:</strong> 100-trade discipline rules, win rate math, risk-to-reward.</li>
+                    <li><strong>Design &amp; Architecture:</strong> Glassmorphic UI design system tokens, 3D spread animations.</li>
+                    <li><strong>YouTube Intelligence:</strong> Ticker sentiment, market video summaries.</li>
+                  </ul>
+                  <div style="margin-top: 0.5rem; font-size: 0.72rem; color: #60a5fa; font-style: italic;">
+                    💡 Tip: Click the "💡 Ask AI About Section" button on any header to pre-select that section's context!
                   </div>
                 </div>
               </div>
+            </div>
+
+            <!-- Chat Input Controls -->
+            <div style="padding: 0.75rem 1rem; border-top: 1px solid var(--border-color); background: rgba(15, 23, 42, 0.6); display: flex; gap: 0.65rem;">
+              <input type="text" id="aiChatInput" class="filter-input" placeholder="Type your trading or architecture question here..." style="flex: 1; height: 40px; font-size: 0.82rem;">
+              <button id="aiSendBtn" class="btn btn-primary" style="height: 40px; padding: 0 1.25rem; font-weight: 700; display: flex; align-items: center; gap: 0.4rem;">
+                <i data-lucide="send" style="width: 14px; height: 14px;"></i> Ask AI
+              </button>
+            </div>
+
+          </div>
+
+        </div>
             </div>
           </div>
         </div>
@@ -1010,7 +1068,10 @@
                   <i data-lucide="plus-circle" style="width: 16px; height: 16px;"></i> Log New Trade
                 </button>
                 <button id="exportJournalBtn" class="btn" style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.8rem;" title="Export Backup JSON">
-                  <i data-lucide="download" style="width: 14px; height: 14px;"></i> Export
+                  <i data-lucide="download" style="width: 14px; height: 14px;"></i> Export JSON
+                </button>
+                <button id="exportJournalCSVBtn" class="btn" style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.3); color: #34d399;" title="Export Excel / CSV Spreadsheet">
+                  <i data-lucide="file-spreadsheet" style="width: 14px; height: 14px;"></i> Export CSV / Excel
                 </button>
                 <button id="importJournalBtn" class="btn" style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.8rem;" title="Import Backup JSON">
                   <i data-lucide="upload" style="width: 14px; height: 14px;"></i> Import
@@ -2041,6 +2102,51 @@ Check out the design and architecture! Handcrafted with clean vanilla code, modu
     </div>
   </div>
 
+  <!-- Gemini API Key Step-by-Step Guide Modal -->
+  <div id="geminiKeyGuideModal" class="modal">
+    <div class="modal-content" style="max-width: 540px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; padding: 1.75rem; text-align: left;">
+      <button class="modal-close" id="geminiGuideClose">
+        <i data-lucide="x"></i>
+      </button>
+
+      <h3 style="font-size: 1.15rem; font-weight: 700; color: #34d399; margin: 0 0 0.85rem 0; display: flex; align-items: center; gap: 0.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.6rem;">
+        <i data-lucide="key" style="width: 20px; height: 20px; color: #34d399;"></i> How to Get Your Gemini API Key (Free &amp; Premium)
+      </h3>
+
+      <div style="font-size: 0.78rem; color: var(--text-secondary); line-height: 1.5; display: flex; flex-direction: column; gap: 0.85rem; max-height: 60vh; overflow-y: auto;">
+        
+        <p>
+          Google provides free &amp; paid Gemini API keys for AI models (Gemini 1.5 Flash / Pro). Follow these simple steps:
+        </p>
+
+        <div style="background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); padding: 0.85rem; border-radius: 8px;">
+          <strong style="color: var(--accent-blue); display: block; margin-bottom: 0.35rem;">Step 1: Open Google AI Studio</strong>
+          Visit the official Google AI Studio key generator portal:
+          <br>
+          <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color: #60a5fa; font-weight: 700; text-decoration: underline; display: inline-flex; align-items: center; gap: 0.25rem; margin-top: 0.25rem;">
+            https://aistudio.google.com/app/apikey <i data-lucide="external-link" style="width: 12px; height: 12px;"></i>
+          </a>
+        </div>
+
+        <div style="background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); padding: 0.85rem; border-radius: 8px;">
+          <strong style="color: var(--accent-blue); display: block; margin-bottom: 0.35rem;">Step 2: Sign In with your Google / Jio Account</strong>
+          Sign in using your Google account (works with standard Gmail as well as Google One / Jio-linked Google subscriptions).
+        </div>
+
+        <div style="background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); padding: 0.85rem; border-radius: 8px;">
+          <strong style="color: var(--accent-blue); display: block; margin-bottom: 0.35rem;">Step 3: Click "Create API Key"</strong>
+          Click the blue <strong>"Create API key"</strong> button -&gt; select or create a new project -&gt; click <strong>"Create API key in existing project"</strong>.
+        </div>
+
+        <div style="background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); padding: 0.85rem; border-radius: 8px;">
+          <strong style="color: var(--accent-blue); display: block; margin-bottom: 0.35rem;">Step 4: Copy &amp; Save Key into Dashboard</strong>
+          Copy your generated key (starts with <code>AIzaSy...</code>) and paste it under <strong>Option 1: Personal API Key</strong> in the Antigravity AI Advisor tab.
+        </div>
+
+      </div>
+    </div>
+  </div>
+
   <script src="js/state.js"></script>
   <script src="js/utils.js"></script>
   <script src="js/chartManager.js"></script>
@@ -2051,6 +2157,7 @@ Check out the design and architecture! Handcrafted with clean vanilla code, modu
   <script src="js/voiceAssistant.js"></script>
   <script src="js/ticker.js"></script>
   <script src="js/tradeBook.js"></script>
+  <script src="js/aiAssistant.js"></script>
   <script src="js/main.js"></script>
   <script>
     lucide.createIcons();

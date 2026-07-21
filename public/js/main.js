@@ -24,6 +24,11 @@ window.copyLinkedInPost = function() {
 };
 
 document.addEventListener('DOMContentLoaded', () => {
+  // Initialize AI Assistant & Dual LLM Key Engine
+  if (typeof initAIAssistant === 'function') {
+    initAIAssistant();
+  }
+
   // 1. YouTube videos scanning & indicators
   fetchVideos();
   
