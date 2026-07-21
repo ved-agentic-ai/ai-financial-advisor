@@ -81,12 +81,11 @@ async function loadTradeBookState() {
     const response = await fetch('/api/trade-book');
     if (response.ok) {
       const serverData = await response.json();
-      if (Array.isArray(serverData)) {
+      if (Array.isArray(serverData) && serverData.length > 0) {
         tradeBookState = serverData;
         try { localStorage.setItem('user_trade_book_v1', JSON.stringify(tradeBookState)); } catch(e){}
-        if (serverData.length > 0 || localStorage.getItem('user_trade_book_has_initialized')) {
-          return;
-        }
+        localStorage.setItem('user_trade_book_has_initialized', 'true');
+        return;
       }
     }
   } catch (e) {
@@ -97,8 +96,10 @@ async function loadTradeBookState() {
     const data = localStorage.getItem('user_trade_book_v1');
     const initialized = localStorage.getItem('user_trade_book_has_initialized');
     
-    if (data !== null || initialized) {
-      tradeBookState = data ? JSON.parse(data) : [];
+    if (data !== null && data !== undefined) {
+      tradeBookState = JSON.parse(data);
+    } else if (initialized) {
+      tradeBookState = [];
     } else {
       // First time initial load demo trades
       tradeBookState = [...DEMO_TRADES];
@@ -159,6 +160,41 @@ function calculateTradeRR(entry, sl, target) {
   return `1:${ratio}`;
 }
 
+function calculateTradeOutcomes(trade) {
+  if (!trade) return { maxWin: 0, maxLoss: 0, winPct: 0, lossPct: 0 };
+
+  const e = parseFloat(trade.entryPrice) || 0;
+  const sl = parseFloat(trade.slPrice) || 0;
+  const tp = parseFloat(trade.targetPrice) || 0;
+  const p = parseFloat(trade.positionSize) || 1000;
+  const dir = trade.direction || 'LONG';
+  const lev = trade.leverage || 25;
+
+  if (!e || !p) return { maxWin: 0, maxLoss: 0, winPct: 0, lossPct: 0 };
+
+  let tpPctMove = 0;
+  let slPctMove = 0;
+
+  if (dir === 'LONG') {
+    tpPctMove = tp > 0 ? (tp - e) / e : 0;
+    slPctMove = sl > 0 ? (e - sl) / e : 0;
+  } else {
+    // SHORT
+    tpPctMove = tp > 0 ? (e - tp) / e : 0;
+    slPctMove = sl > 0 ? (sl - e) / e : 0;
+  }
+
+  tpPctMove = Math.max(0, tpPctMove);
+  slPctMove = Math.max(0, slPctMove);
+
+  const maxWin = p * lev * tpPctMove;
+  const maxLoss = p * lev * slPctMove;
+  const winPct = tpPctMove * lev * 100;
+  const lossPct = slPctMove * lev * 100;
+
+  return { maxWin, maxLoss, winPct, lossPct };
+}
+
 function calculateTradePnL(entry, exit, positionSize, direction) {
   const e = parseFloat(entry);
   const x = parseFloat(exit);
@@ -171,11 +207,28 @@ function calculateTradePnL(entry, exit, positionSize, direction) {
   return p * 25 * pctChange;
 }
 
-function initTradeBook() {
-  loadTradeBookState();
+async function initTradeBook() {
+  await loadTradeBookState();
   bindTradeBookEvents();
   renderTradeBookUI();
   renderTradeBookCharts();
+}
+
+async function deleteTrade(id) {
+  tradeBookState = tradeBookState.filter(t => t.id !== id);
+  saveTradeBookState();
+
+  try {
+    await fetch(`/api/trade-book/${id}`, { method: 'DELETE' });
+  } catch (e) {}
+
+  if (currentPageIndex > 0 && currentPageIndex * 2 >= tradeBookState.length) {
+    currentPageIndex = Math.max(0, currentPageIndex - 1);
+  }
+
+  renderTradeBookUI();
+  renderTradeBookCharts();
+  showToast('Trade entry deleted.', 'info');
 }
 
 function bindTradeBookEvents() {
@@ -316,28 +369,26 @@ function closeTradeModal() {
 
 function handleNewTradeSubmit(e) {
   e.preventDefault();
-
   const symbol = document.getElementById('tbSymbol')?.value || 'BTC';
   const currency = document.getElementById('tbCurrency')?.value || 'USD';
   const direction = document.getElementById('tbDirection')?.value || 'LONG';
   const date = document.getElementById('tbDate')?.value || new Date().toISOString();
-  const entryPrice = parseFloat(document.getElementById('tbEntry')?.value || 0);
-  const slPrice = parseFloat(document.getElementById('tbSL')?.value || 0);
-  const targetPrice = parseFloat(document.getElementById('tbTarget')?.value || 0);
+  const entryPrice = parseFloat(document.getElementById('tbEntryPrice')?.value || document.getElementById('tbEntry')?.value || 0);
+  const slPrice = parseFloat(document.getElementById('tbSlPrice')?.value || document.getElementById('tbSL')?.value || 0);
+  const targetPrice = parseFloat(document.getElementById('tbTargetPrice')?.value || document.getElementById('tbTarget')?.value || 0);
   const positionSize = parseFloat(document.getElementById('tbPositionSize')?.value || 1000);
-  const status = document.getElementById('tbStatus')?.value || 'TARGET_HIT';
+  
+  // Default newly submitted trades to 'OPEN' (Live Trade In Progress)
+  const status = 'OPEN';
   const psychology = document.getElementById('tbPsychology')?.value || 'Calm';
   const notes = document.getElementById('tbNotes')?.value.trim() || '';
+  const tradeGrade = document.getElementById('tbGrade')?.value || 'A+';
+  const tradeLesson = document.getElementById('tbLesson')?.value.trim() || '';
+  const postTradeNotes = document.getElementById('tbPostNotes')?.value.trim() || '';
 
   // Calculate R:R
   const rrRatio = calculateTradeRR(entryPrice, slPrice, targetPrice);
-
-  // Calculate PnL
-  let exitPrice = status === 'TARGET_HIT' ? targetPrice : slPrice;
-  let pnl = 0;
-  if (status !== 'OPEN') {
-    pnl = calculateTradePnL(entryPrice, exitPrice, positionSize, direction);
-  }
+  const pnl = 0; // Open trade has 0 realized PnL
 
   // Check Rule Compliance
   const maxTrades = document.getElementById('ruleCheckMaxTrades')?.checked ?? true;
@@ -373,7 +424,10 @@ function handleNewTradeSubmit(e) {
       setAndForget
     },
     psychology,
-    notes
+    notes,
+    tradeGrade,
+    tradeLesson,
+    postTradeNotes
   };
 
   tradeBookState.unshift(newTrade);
@@ -384,17 +438,15 @@ function handleNewTradeSubmit(e) {
   renderTradeBookUI();
   renderTradeBookCharts();
 
-  showToast('New Trade logged in your Trade Book!', 'success');
+  showToast(`Trade #${symbol} logged as LIVE TRADE IN PROGRESS ⏳!`, 'success');
 }
 
 function deleteTrade(id) {
-  if (confirm('Delete this trade entry from your journal?')) {
-    tradeBookState = tradeBookState.filter(t => t.id !== id);
-    saveTradeBookState();
-    renderTradeBookUI();
-    renderTradeBookCharts();
-    showToast('Trade entry deleted.', 'info');
-  }
+  tradeBookState = tradeBookState.filter(t => t.id !== id);
+  saveTradeBookState();
+  renderTradeBookUI();
+  renderTradeBookCharts();
+  showToast('Trade entry deleted.', 'info');
 }
 
 function changeBookPage(delta) {
@@ -506,10 +558,11 @@ function renderSingleTradePage(trade, indexNum) {
   const isTargetHit = trade.status === 'TARGET_HIT';
   const isOpen = trade.status === 'OPEN';
   const sym = getCurrencySymbol(trade.currency || 'USD');
+  const outcomes = calculateTradeOutcomes(trade);
   
   const statusColor = isOpen ? '#60a5fa' : (isTargetHit ? '#34d399' : '#f87171');
   const statusBg = isOpen ? 'rgba(59, 130, 246, 0.15)' : (isTargetHit ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)');
-  const statusText = isOpen ? 'OPEN TRADE IN PROGRESS' : (isTargetHit ? 'TARGET HIT (+WIN)' : 'STOP LOSS HIT (-LOSS)');
+  const statusText = isOpen ? 'LIVE TRADE IN PROGRESS ⏳' : (isTargetHit ? 'TARGET HIT (+WIN)' : 'STOP LOSS HIT (-LOSS)');
 
   const dirBg = trade.direction === 'LONG' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)';
   const dirColor = trade.direction === 'LONG' ? '#34d399' : '#f87171';
@@ -520,6 +573,16 @@ function renderSingleTradePage(trade, indexNum) {
   const formattedDate = new Date(trade.date).toLocaleString(undefined, {
     year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
   });
+
+  // Calculate clean display PnL for resolved trades
+  let pnlDisplayVal = 0;
+  if (!isOpen) {
+    if (isTargetHit) {
+      pnlDisplayVal = Math.abs(trade.pnl || outcomes.maxWin);
+    } else {
+      pnlDisplayVal = -Math.abs(trade.pnl || outcomes.maxLoss);
+    }
+  }
 
   return `
     <div class="trade-page-card" style="display: flex; flex-direction: column; height: 100%; justify-content: space-between;">
@@ -549,9 +612,21 @@ function renderSingleTradePage(trade, indexNum) {
           <div style="background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.4); color: #60a5fa; padding: 0.4rem 0.6rem; border-radius: 6px; font-size: 0.75rem; font-weight: 700; display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
             <span style="display: flex; align-items: center; gap: 0.35rem;">
               <span style="width: 8px; height: 8px; border-radius: 50%; background: #60a5fa; box-shadow: 0 0 8px #60a5fa; display: inline-block;"></span>
-              LIVE TRADE IN PROGRESS
+              LIVE TRADE IN PROGRESS ⏳
             </span>
             <span style="font-size: 0.7rem; opacity: 0.8;">Active</span>
+          </div>
+
+          <!-- Potential PnL Breakdown Box -->
+          <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-color); padding: 0.55rem 0.7rem; border-radius: 8px; font-size: 0.72rem; margin-bottom: 0.75rem; display: flex; flex-direction: column; gap: 0.35rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="color: var(--text-secondary);">🎯 Potential Win (Target Hit)</span>
+              <strong style="color: #34d399; font-family: monospace;">+${sym}${outcomes.maxWin.toFixed(2)} (+${outcomes.winPct.toFixed(1)}%)</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="color: var(--text-secondary);">🛑 Potential Loss (SL Hit)</span>
+              <strong style="color: #f87171; font-family: monospace;">-${sym}${outcomes.maxLoss.toFixed(2)} (-${outcomes.lossPct.toFixed(1)}%)</strong>
+            </div>
           </div>
 
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-bottom: 1rem;">
@@ -565,7 +640,7 @@ function renderSingleTradePage(trade, indexNum) {
         ` : `
           <div style="background: ${statusBg}; border: 1px solid ${statusColor}; color: ${statusColor}; padding: 0.4rem 0.6rem; border-radius: 6px; font-size: 0.75rem; font-weight: 700; display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
             <span>${statusText}</span>
-            <span style="font-family: monospace; font-size: 0.85rem;">${trade.pnl >= 0 ? '+' : ''}${sym}${trade.pnl.toFixed(2)}</span>
+            <span style="font-family: monospace; font-size: 0.85rem;">${pnlDisplayVal >= 0 ? '+' : ''}${sym}${pnlDisplayVal.toFixed(2)}</span>
           </div>
         `}
 
@@ -586,7 +661,7 @@ function renderSingleTradePage(trade, indexNum) {
         </div>
 
         <!-- Rules & Psychology Summary -->
-        <div style="display: flex; flex-direction: column; gap: 0.4rem; font-size: 0.72rem; margin-bottom: 1rem;">
+        <div style="display: flex; flex-direction: column; gap: 0.4rem; font-size: 0.72rem; margin-bottom: 0.8rem;">
           <div style="display: flex; justify-content: space-between; align-items: center;">
             <span style="color: var(--text-secondary);">Risk : Reward Ratio</span>
             <strong style="color: var(--accent-blue); font-family: monospace;">${trade.rrRatio}</strong>
@@ -605,10 +680,36 @@ function renderSingleTradePage(trade, indexNum) {
           </div>
         </div>
 
-        <!-- Journal Notes -->
+        <!-- Post-Trade Retrospective & Grade Card Block -->
+        <div style="background: rgba(16, 185, 129, 0.05); border-left: 3px solid #34d399; padding: 0.6rem 0.75rem; border-radius: 0 8px 8px 0; font-size: 0.72rem; color: var(--text-primary); line-height: 1.4; margin-bottom: 0.8rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+            <strong style="color: #34d399; font-size: 0.74rem; display: flex; align-items: center; gap: 0.3rem;">
+              <i data-lucide="notebook-pen" style="width: 14px; height: 14px;"></i> Post-Trade Retrospective &amp; Analysis:
+            </strong>
+            <div style="display: flex; align-items: center; gap: 0.35rem;">
+              <span style="font-size: 0.68rem; font-weight: 700; padding: 0.1rem 0.4rem; border-radius: 4px; background: rgba(52, 211, 153, 0.15); color: #34d399; border: 1px solid rgba(52, 211, 153, 0.3);">
+                Grade: ${trade.tradeGrade || 'A+'}
+              </span>
+              <button onclick="openPostTradeNoteModal('${trade.id}')" class="btn" style="padding: 0.15rem 0.4rem; font-size: 0.68rem; background: rgba(59, 130, 246, 0.15); border-color: rgba(59, 130, 246, 0.4); color: #60a5fa; font-weight: 700; display: flex; align-items: center; gap: 0.25rem;" title="Add/Edit Post-Trade Reflection">
+                <i data-lucide="edit-3" style="width: 11px; height: 11px;"></i> Edit Note
+              </button>
+            </div>
+          </div>
+
+          ${trade.tradeLesson ? `<div style="font-style: italic; color: #60a5fa; margin-bottom: 0.25rem;">💡 Lesson: ${trade.tradeLesson}</div>` : ''}
+          ${trade.postTradeNotes ? `<div style="color: var(--text-secondary); white-space: pre-wrap;">${trade.postTradeNotes}</div>` : `
+            <div style="margin-top: 0.3rem;">
+              <button onclick="openPostTradeNoteModal('${trade.id}')" style="background: none; border: 1px dashed rgba(52, 211, 153, 0.4); color: #34d399; padding: 0.3rem 0.6rem; border-radius: 6px; font-size: 0.7rem; font-weight: 600; cursor: pointer; width: 100%; text-align: center; transition: all 0.2s;">
+                + Add Post-Trade Reflection &amp; Lesson Notes
+              </button>
+            </div>
+          `}
+        </div>
+
+        <!-- General Journal Notes -->
         ${trade.notes ? `
           <div style="background: rgba(255,255,255,0.015); border-left: 2px solid var(--accent-blue); padding: 0.5rem 0.6rem; border-radius: 0 6px 6px 0; font-size: 0.72rem; color: var(--text-secondary); line-height: 1.4;">
-            <strong style="color: var(--text-primary); display: block; margin-bottom: 0.2rem;">Lesson / Takeaway:</strong>
+            <strong style="color: var(--text-primary); display: block; margin-bottom: 0.2rem;">General Journal Notes:</strong>
             ${trade.notes}
           </div>
         ` : ''}
@@ -688,7 +789,15 @@ function resolveOpenTrade(tradeId, outcome) {
 
   const isWin = outcome === 'TARGET_HIT';
   const exitPrice = isWin ? trade.targetPrice : trade.slPrice;
-  const pnl = calculateTradePnL(trade.entryPrice, exitPrice, trade.positionSize, trade.direction);
+  const outcomes = calculateTradeOutcomes(trade);
+  
+  let pnl = 0;
+  if (isWin) {
+    pnl = Math.abs(outcomes.maxWin > 0 ? outcomes.maxWin : calculateTradePnL(trade.entryPrice, trade.targetPrice, trade.positionSize, trade.direction));
+  } else {
+    pnl = -Math.abs(outcomes.maxLoss > 0 ? outcomes.maxLoss : calculateTradePnL(trade.entryPrice, trade.slPrice, trade.positionSize, trade.direction));
+  }
+  
   const sym = getCurrencySymbol(trade.currency || 'USD');
 
   pendingResolution = { trade, outcome, exitPrice, pnl, sym, isWin };
@@ -755,6 +864,14 @@ function confirmTradeResolution() {
   const { trade, outcome, pnl, sym, isWin } = pendingResolution;
   trade.status = outcome;
   trade.pnl = pnl;
+
+  const gradeEl = document.getElementById('resModalGrade');
+  const lessonEl = document.getElementById('resModalLesson');
+  const postNotesEl = document.getElementById('resModalPostNotes');
+
+  if (gradeEl) trade.tradeGrade = gradeEl.value;
+  if (lessonEl && lessonEl.value.trim()) trade.tradeLesson = lessonEl.value.trim();
+  if (postNotesEl && postNotesEl.value.trim()) trade.postTradeNotes = postNotesEl.value.trim();
 
   saveTradeBookState();
   closeResolutionModal();
@@ -1037,6 +1154,68 @@ function initTradeBook() {
   }
 }
 
+function openPostTradeNoteModal(tradeId) {
+  const trade = tradeBookState.find(t => t.id === tradeId);
+  if (!trade) return;
+
+  const modal = document.getElementById('postTradeNoteModal');
+  const idInput = document.getElementById('editNoteTradeId');
+  const symbolEl = document.getElementById('editNoteTradeSymbol');
+  const subEl = document.getElementById('editNoteTradeSub');
+  const badgeEl = document.getElementById('editNoteTradeStatusBadge');
+  const gradeSelect = document.getElementById('editNoteGrade');
+  const lessonInput = document.getElementById('editNoteLesson');
+  const notesTextarea = document.getElementById('editNotePostNotes');
+
+  if (idInput) idInput.value = trade.id;
+  if (symbolEl) symbolEl.textContent = `${trade.symbol} (${trade.direction || 'LONG'})`;
+  const sym = getCurrencySymbol(trade.currency || 'USD');
+  if (subEl) subEl.textContent = `Entry: ${sym}${trade.entryPrice} • Ref: #${trade.id}`;
+
+  if (badgeEl) {
+    const isWin = trade.status === 'TARGET_HIT';
+    const isOpen = trade.status === 'OPEN';
+    badgeEl.textContent = isOpen ? 'LIVE IN PROGRESS ⏳' : (isWin ? 'TARGET HIT (+WIN)' : 'STOP LOSS HIT (-LOSS)');
+    badgeEl.style.color = isOpen ? '#60a5fa' : (isWin ? '#34d399' : '#f87171');
+    badgeEl.style.background = isOpen ? 'rgba(59, 130, 246, 0.15)' : (isWin ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)');
+  }
+
+  if (gradeSelect) gradeSelect.value = trade.tradeGrade || 'A+';
+  if (lessonInput) lessonInput.value = trade.tradeLesson || '';
+  if (notesTextarea) notesTextarea.value = trade.postTradeNotes || '';
+
+  if (modal) modal.classList.add('active');
+  if (typeof lucide !== 'undefined' && lucide.createIcons) lucide.createIcons();
+}
+
+function closePostTradeNoteModal() {
+  const modal = document.getElementById('postTradeNoteModal');
+  if (modal) modal.classList.remove('active');
+}
+
+function savePostTradeNoteModal() {
+  const tradeId = document.getElementById('editNoteTradeId')?.value;
+  if (!tradeId) return;
+
+  const trade = tradeBookState.find(t => t.id === tradeId);
+  if (!trade) return;
+
+  const grade = document.getElementById('editNoteGrade')?.value || 'A+';
+  const lesson = document.getElementById('editNoteLesson')?.value.trim() || '';
+  const postNotes = document.getElementById('editNotePostNotes')?.value.trim() || '';
+
+  trade.tradeGrade = grade;
+  trade.tradeLesson = lesson;
+  trade.postTradeNotes = postNotes;
+
+  saveTradeBookState();
+  closePostTradeNoteModal();
+  renderTradeBookUI();
+  renderTradeBookCharts();
+
+  showToast(`Post-trade retrospective saved for #${trade.symbol}!`, 'success');
+}
+
 // Expose globally
 window.initTradeBook = initTradeBook;
 window.renderTradeBookUI = renderTradeBookUI;
@@ -1050,3 +1229,6 @@ window.importTradeJournalJSON = importTradeJournalJSON;
 window.closeTradeModal = closeTradeModal;
 window.deleteTrade = deleteTrade;
 window.resolveOpenTrade = resolveOpenTrade;
+window.openPostTradeNoteModal = openPostTradeNoteModal;
+window.closePostTradeNoteModal = closePostTradeNoteModal;
+window.savePostTradeNoteModal = savePostTradeNoteModal;

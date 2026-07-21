@@ -582,3 +582,26 @@ window.setSharkLeverage = function(val) {
   if (sharkLeverageLabel) sharkLeverageLabel.textContent = `${val}x`;
   calculateSharkTrade();
 };
+
+document.addEventListener('DOMContentLoaded', () => {
+  const survivalCurrencySelect = document.getElementById('survivalCurrencySelect');
+  const tradeCurrency = document.getElementById('tradeCurrency');
+
+  if (survivalCurrencySelect) {
+    survivalCurrencySelect.addEventListener('change', (e) => {
+      const val = e.target.value;
+      if (tradeCurrency) tradeCurrency.value = val;
+      if (typeof calculateSharkTrade === 'function') calculateSharkTrade();
+      if (typeof calculateAndUpdateTradeSetup === 'function') calculateAndUpdateTradeSetup();
+    });
+  }
+
+  if (tradeCurrency) {
+    tradeCurrency.addEventListener('change', (e) => {
+      const val = e.target.value;
+      if (survivalCurrencySelect) survivalCurrencySelect.value = val;
+      if (typeof calculateSharkTrade === 'function') calculateSharkTrade();
+      if (typeof calculateAndUpdateTradeSetup === 'function') calculateAndUpdateTradeSetup();
+    });
+  }
+});

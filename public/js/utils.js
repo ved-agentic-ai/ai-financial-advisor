@@ -1,14 +1,26 @@
 // Stateless helper functions and formatters
+function getSelectedCurrencyCode() {
+  const survivalSelect = document.getElementById('survivalCurrencySelect');
+  if (survivalSelect && survivalSelect.value) {
+    return survivalSelect.value;
+  }
+  const tradeSelect = document.getElementById('tradeCurrency');
+  if (tradeSelect && tradeSelect.value) {
+    return tradeSelect.value;
+  }
+  const sharkSelect = document.getElementById('sharkCurrencySelect');
+  if (sharkSelect && sharkSelect.value) {
+    return sharkSelect.value;
+  }
+  return 'INR';
+}
+
 function getCurrencySymbol(customCurrency) {
-  const currency = customCurrency || document.getElementById('sharkCurrencySelect')?.value || document.getElementById('tradeCurrency')?.value || document.getElementById('survivalCurrencySelect')?.value || 'INR';
+  const currency = customCurrency || getSelectedCurrencyCode();
   if (currency === 'USD') return '$';
   if (currency === 'USDT') return '₮';
   if (currency === 'SEK') return 'kr';
   return '₹';
-}
-
-function getSelectedCurrencyCode() {
-  return document.getElementById('sharkCurrencySelect')?.value || document.getElementById('tradeCurrency')?.value || document.getElementById('survivalCurrencySelect')?.value || 'INR';
 }
 
 function formatLargeCurrency(val, overrideCurrency) {

@@ -899,99 +899,95 @@ function initSettingsTabsAndStats() {
 }
 
 // 18. Direct Shark Leverage Log to Trade Book Listener
+window.loadSharkTradeIntoTradeBookModal = function(directionOverride) {
+  let entryPrice = parseFloat(document.getElementById('sharkEntryPrice')?.value || 170000);
+  let marginAmount = parseFloat(document.getElementById('sharkMarginAmount')?.value || 25000);
+  let rawTp = parseFloat(document.getElementById('sharkTargetProfitPrice')?.value || 185000);
+  let rawSl = parseFloat(document.getElementById('sharkStopLossPrice')?.value || 165000);
+  const currency = document.getElementById('survivalCurrencySelect')?.value || 'INR';
+  const assetVal = document.getElementById('sharkAssetSelect')?.value || 'crypto_eth';
+
+  let symbol = 'ETH';
+  if (assetVal === 'crypto_btc') symbol = 'BTC';
+  if (assetVal === 'commodity_gold') symbol = 'GOLD';
+
+  // Detect Long vs Short active state
+  let direction = directionOverride || 'LONG';
+  if (!directionOverride) {
+    const isShort = (window.currentSharkDirection === 'short') || (!document.getElementById('sharkBtnShort')?.classList.contains('inactive'));
+    direction = isShort ? 'SHORT' : 'LONG';
+  }
+
+  // Check if TP/SL in Shark simulator is in % Move mode (or raw values are percentage < 100 while entry > 1000)
+  const isPctMode = window.currentSharkTPSLMode === 'pct' || document.getElementById('sharkTPSLModePct')?.classList.contains('active') || (rawSl < 100 && entryPrice > 1000);
+
+  let finalTp = rawTp;
+  let finalSl = rawSl;
+
+  if (isPctMode && entryPrice > 0) {
+    if (direction === 'LONG') {
+      finalTp = entryPrice * (1 + Math.abs(rawTp) / 100);
+      finalSl = entryPrice * (1 - Math.abs(rawSl) / 100);
+    } else {
+      finalTp = entryPrice * (1 - Math.abs(rawTp) / 100);
+      finalSl = entryPrice * (1 + Math.abs(rawSl) / 100);
+    }
+  } else if (entryPrice > 0) {
+    // Sanity check for price mode: SHORT target must be < entry, SL > entry
+    if (direction === 'SHORT') {
+      if (rawTp > entryPrice && rawSl < entryPrice) {
+        // Raw values were inverted
+        finalTp = rawSl;
+        finalSl = rawTp;
+      }
+    } else if (direction === 'LONG') {
+      if (rawTp < entryPrice && rawSl > entryPrice) {
+        finalTp = rawSl;
+        finalSl = rawTp;
+      }
+    }
+  }
+
+  // Format numbers
+  finalTp = parseFloat(finalTp.toFixed(2));
+  finalSl = parseFloat(finalSl.toFixed(2));
+
+  // Pre-populate ALL Trade Book Logger Modal fields
+  const tbSymbol = document.getElementById('tbSymbol');
+  if (tbSymbol) tbSymbol.value = symbol;
+
+  const tbCurrency = document.getElementById('tbCurrency');
+  if (tbCurrency) tbCurrency.value = currency;
+
+  const tbDirection = document.getElementById('tbDirection');
+  if (tbDirection) tbDirection.value = direction;
+
+  const tbEntry = document.getElementById('tbEntryPrice') || document.getElementById('tbEntry');
+  if (tbEntry) tbEntry.value = entryPrice;
+
+  const tbSL = document.getElementById('tbSlPrice') || document.getElementById('tbSL');
+  if (tbSL) tbSL.value = finalSl;
+
+  const tbTarget = document.getElementById('tbTargetPrice') || document.getElementById('tbTarget');
+  if (tbTarget) tbTarget.value = finalTp;
+
+  const tbPositionSize = document.getElementById('tbPositionSize');
+  if (tbPositionSize) tbPositionSize.value = marginAmount;
+
+  const tbStatus = document.getElementById('tbStatus');
+  if (tbStatus) tbStatus.value = 'OPEN';
+
+  // Open Trade Logger Form Modal
+  if (typeof window.openTradeModal === 'function') {
+    window.openTradeModal();
+  }
+
+  showToast(`Trade setup auto-filled (${symbol} ${direction})! Review and click Save Entry.`, 'info');
+};
+
 const sharkLogToBookBtn = document.getElementById('sharkLogToBookBtn');
 if (sharkLogToBookBtn) {
   sharkLogToBookBtn.addEventListener('click', () => {
-    // Extract values from Shark Leverage Calculator
-    let entryPrice = parseFloat(document.getElementById('sharkEntryPrice')?.value || 170000);
-    let marginAmount = parseFloat(document.getElementById('sharkMarginAmount')?.value || 25000);
-    let rawTp = parseFloat(document.getElementById('sharkTargetProfitPrice')?.value || 185000);
-    let rawSl = parseFloat(document.getElementById('sharkStopLossPrice')?.value || 165000);
-    const currency = document.getElementById('survivalCurrencySelect')?.value || 'INR';
-
-    // Detect Long vs Short active state
-    const isShort = document.getElementById('sharkBtnShort')?.classList.contains('active');
-    const direction = isShort ? 'SHORT' : 'LONG';
-
-    // Check if TP/SL in Shark simulator is in % Move mode (or raw values are percentage < 100 while entry > 1000)
-    const isPctMode = document.getElementById('sharkTPSLModePct')?.classList.contains('active') || (rawSl < 100 && entryPrice > 1000);
-
-    let finalTp = rawTp;
-    let finalSl = rawSl;
-
-    if (isPctMode && entryPrice > 0) {
-      if (direction === 'LONG') {
-        finalTp = entryPrice * (1 + Math.abs(rawTp) / 100);
-        finalSl = entryPrice * (1 - Math.abs(rawSl) / 100);
-      } else {
-        finalTp = entryPrice * (1 - Math.abs(rawTp) / 100);
-        finalSl = entryPrice * (1 + Math.abs(rawSl) / 100);
-      }
-    }
-
-    // Format numbers
-    finalTp = parseFloat(finalTp.toFixed(2));
-    finalSl = parseFloat(finalSl.toFixed(2));
-
-    // Pre-populate Trade Book Logger Modal
-    const tbSymbol = document.getElementById('tbSymbol');
-    if (tbSymbol) tbSymbol.value = 'ETH';
-
-    const tbCurrency = document.getElementById('tbCurrency');
-    if (tbCurrency) tbCurrency.value = currency;
-
-    const tbDirection = document.getElementById('tbDirection');
-    if (tbDirection) tbDirection.value = direction;
-
-    const tbEntry = document.getElementById('tbEntry');
-    if (tbEntry) tbEntry.value = entryPrice;
-
-    const tbSL = document.getElementById('tbSL');
-    if (tbSL) tbSL.value = finalSl;
-
-    const tbTarget = document.getElementById('tbTarget');
-    if (tbTarget) tbTarget.value = finalTp;
-
-    const tbPositionSize = document.getElementById('tbPositionSize');
-    if (tbPositionSize) tbPositionSize.value = marginAmount;
-
-    const tbStatus = document.getElementById('tbStatus');
-    if (tbStatus) tbStatus.value = 'OPEN';
-
-    // Switch to Trade Book Master Tab
-    const masterTabTradeBook = document.getElementById('masterTabTradeBook');
-    const masterPanelTradeBook = document.getElementById('masterPanelTradeBook');
-    if (masterTabTradeBook && masterPanelTradeBook) {
-      const tabs = [
-        document.getElementById('masterTabTrader'),
-        document.getElementById('masterTabAI'),
-        document.getElementById('masterTabYoutube'),
-        masterTabTradeBook,
-        document.getElementById('masterTabDesign')
-      ];
-      const panels = [
-        document.getElementById('masterPanelTrader'),
-        document.getElementById('masterPanelAI'),
-        document.getElementById('masterPanelYoutube'),
-        masterPanelTradeBook,
-        document.getElementById('masterPanelDesign')
-      ];
-      tabs.forEach(t => { if (t) t.classList.remove('active'); });
-      panels.forEach(p => { if (p) p.style.display = 'none'; });
-
-      masterTabTradeBook.classList.add('active');
-      masterPanelTradeBook.style.display = 'block';
-
-      if (typeof window.initTradeBook === 'function') {
-        window.initTradeBook();
-      }
-    }
-
-    // Open Trade Logger Form Modal
-    if (typeof window.openTradeModal === 'function') {
-      window.openTradeModal();
-    }
-
-    showToast('Shark Trade setup loaded! Review and click Save Entry.', 'info');
+    window.loadSharkTradeIntoTradeBookModal();
   });
 }
