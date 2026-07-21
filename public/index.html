@@ -363,8 +363,11 @@
           <button class="trade-tab-btn" id="masterTabTradeBook" style="padding: 0.75rem 1.25rem; font-size: 0.9rem; display: flex; align-items: center; gap: 0.5rem;">
             <i data-lucide="book-open" style="width: 16px; height: 16px;"></i> Interactive Trade Book
           </button>
+          <button class="trade-tab-btn" id="masterTabCharts" style="padding: 0.75rem 1.25rem; font-size: 0.9rem; display: flex; align-items: center; gap: 0.5rem;">
+            <i data-lucide="line-chart" style="width: 16px; height: 16px; color: #34d399;"></i> TradingView Charts
+          </button>
           <button class="trade-tab-btn" id="masterTabDesign" style="padding: 0.75rem 1.25rem; font-size: 0.9rem; display: flex; align-items: center; gap: 0.5rem;">
-            <i data-lucide="layers" style="width: 16px; height: 16px;"></i> Design & Architecture
+            <i data-lucide="layers" style="width: 16px; height: 16px;"></i> Design &amp; Architecture
           </button>
         </div>
         <button id="masterTabAskAIBtn" onclick="openAIChatWithContext('Master Navigation')" class="btn" style="font-size: 0.78rem; font-weight: 700; padding: 0.5rem 0.9rem; background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.4); color: #60a5fa; border-radius: 8px; display: flex; align-items: center; gap: 0.4rem; cursor: pointer; transition: all 0.2s ease;" title="Ask AI Advisor about active tab or strategy">
@@ -1828,6 +1831,114 @@ Check out the design and architecture! Handcrafted with clean vanilla code, modu
       </div>
     </div>
 
+    <!-- Tab 6: TradingView Charts & Multi-Market Watchlist -->
+    <div id="masterPanelCharts" class="master-panel-content" style="display: none;">
+      <div style="display: flex; flex-direction: column; gap: 1rem;">
+        
+        <!-- Section Header -->
+        <div class="section-header" style="margin-top: 0; padding: 0.75rem 1rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
+          <h3 style="font-size: 1.05rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 0.5rem; margin: 0;">
+            <i data-lucide="line-chart" style="width: 18px; height: 18px; color: #34d399;"></i> TradingView Interactive Pro Charts &amp; Multi-Market Watchlist
+          </h3>
+          <div style="display: flex; align-items: center; gap: 0.65rem;">
+            <span id="tvActiveSymbolBadge" style="font-size: 0.75rem; font-weight: 700; padding: 0.25rem 0.65rem; border-radius: 20px; background: rgba(52, 211, 153, 0.15); color: #34d399; border: 1px solid rgba(52, 211, 153, 0.4); font-family: monospace;">
+              NASDAQ:NVDA
+            </span>
+            <button onclick="openAIChatWithContext('TradingView Charts')" class="btn" style="font-size: 0.74rem; font-weight: 700; padding: 0.35rem 0.65rem; background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.4); color: #60a5fa; border-radius: 6px; display: flex; align-items: center; gap: 0.3rem; cursor: pointer;">
+              <i data-lucide="sparkles" style="width: 13px; height: 13px; color: var(--accent-blue);"></i> 💡 Ask AI
+            </button>
+          </div>
+        </div>
+
+        <!-- Top Ticker Tape Bar -->
+        <div id="tvTickerTapeHolder" style="border-radius: 8px; overflow: hidden; background: rgba(15, 23, 42, 0.4); border: 1px solid var(--border-color); min-height: 46px;"></div>
+
+        <!-- 2-Column Main Layout (Watchlist Sidebar + Chart Container) -->
+        <div style="display: flex; gap: 1.25rem; flex-wrap: wrap; min-height: 650px;">
+          
+          <!-- Left Sidebar: Multi-Market Watchlist & Symbol Search -->
+          <div style="flex: 1; min-width: 300px; max-width: 360px; background: rgba(15, 23, 42, 0.4); border: 1px solid var(--border-color); border-radius: 12px; padding: 1rem; display: flex; flex-direction: column; gap: 0.85rem;">
+            
+            <!-- Watchlist Selector & Management Bar -->
+            <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.65rem; display: flex; flex-direction: column; gap: 0.4rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 0.72rem; font-weight: 700; color: var(--text-primary);">📁 Active Watchlist:</span>
+                <div style="display: flex; gap: 0.25rem;">
+                  <button id="tvCreateListBtn" class="btn" style="font-size: 0.68rem; padding: 0.15rem 0.45rem; background: rgba(52, 211, 153, 0.15); border-color: rgba(52, 211, 153, 0.4); color: #34d399;" title="Create New Custom Watchlist">+ New List</button>
+                  <button id="tvDeleteListBtn" class="btn" style="font-size: 0.68rem; padding: 0.15rem 0.45rem; background: rgba(248, 113, 113, 0.15); border-color: rgba(248, 113, 113, 0.4); color: #f87171;" title="Delete Selected Custom Watchlist">Delete</button>
+                </div>
+              </div>
+              <select id="tvWatchlistSelect" class="filter-input" style="width: 100%; height: 32px; font-size: 0.78rem; font-weight: 600; color: #60a5fa;">
+                <option value="default">⭐ Master Default Watchlist</option>
+              </select>
+            </div>
+
+            <!-- Market Filter Tabs -->
+            <div>
+              <span style="font-size: 0.75rem; font-weight: 700; color: var(--text-secondary); display: block; margin-bottom: 0.4rem;">Market Regions:</span>
+              <div style="display: flex; gap: 0.35rem; flex-wrap: wrap;">
+                <button class="btn tv-region-btn active" data-region="ALL" style="font-size: 0.7rem; padding: 0.25rem 0.5rem;">All</button>
+                <button class="btn tv-region-btn" data-region="SE" style="font-size: 0.7rem; padding: 0.25rem 0.5rem; color: #38bdf8;">🇸🇪 Sweden</button>
+                <button class="btn tv-region-btn" data-region="US" style="font-size: 0.7rem; padding: 0.25rem 0.5rem; color: #60a5fa;">🇺🇸 US</button>
+                <button class="btn tv-region-btn" data-region="CRYPTO" style="font-size: 0.7rem; padding: 0.25rem 0.5rem; color: #f59e0b;">🪙 Crypto</button>
+                <button class="btn tv-region-btn" data-region="IN" style="font-size: 0.7rem; padding: 0.25rem 0.5rem; color: #34d399;">🇮🇳 India</button>
+              </div>
+            </div>
+
+            <!-- Symbol Search Input -->
+            <div style="position: relative;">
+              <input type="text" id="tvSymbolSearchInput" class="filter-input" placeholder="Search AAPL, VOLV_B, BTCUSDT, NIFTY..." style="width: 100%; height: 36px; font-size: 0.78rem; padding-left: 2rem;">
+              <i data-lucide="search" style="position: absolute; left: 0.65rem; top: 0.65rem; width: 14px; height: 14px; color: var(--text-secondary);"></i>
+            </div>
+
+            <!-- Add Custom Ticker Section -->
+            <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.65rem; display: flex; flex-direction: column; gap: 0.4rem;">
+              <span style="font-size: 0.72rem; font-weight: 700; color: var(--text-primary);">+ Add Ticker to Active List:</span>
+              <div style="display: flex; gap: 0.35rem;">
+                <select id="tvAddMarketSelect" class="filter-input" style="width: 90px; height: 32px; font-size: 0.72rem;">
+                  <option value="OMXSTO:">OMXSTO (SE)</option>
+                  <option value="NASDAQ:" selected>NASDAQ (US)</option>
+                  <option value="NYSE:">NYSE (US)</option>
+                  <option value="BINANCE:">BINANCE (Crypto)</option>
+                  <option value="NSE:">NSE (IN)</option>
+                  <option value="BSE:">BSE (IN)</option>
+                </select>
+                <input type="text" id="tvAddSymbolInput" class="filter-input" placeholder="Ticker e.g. TSLA" style="flex: 1; height: 32px; font-size: 0.75rem; text-transform: uppercase;">
+                <button id="tvAddSymbolBtn" class="btn btn-primary" style="height: 32px; font-size: 0.72rem; padding: 0 0.6rem; font-weight: 700;">Add</button>
+              </div>
+            </div>
+
+            <!-- Watchlist Symbol Cards Container -->
+            <div style="flex: 1; max-height: 440px; overflow-y: auto; padding-right: 0.2rem;" id="tvWatchlistContainer">
+              <!-- Rendered dynamically -->
+            </div>
+
+          </div>
+
+          <!-- Right Area: TradingView Chart Container with Fullscreen Header -->
+          <div id="tvChartWrapper" style="flex: 2; min-width: 320px; background: rgba(15, 23, 42, 0.5); border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column;">
+            
+            <!-- Chart Controls Bar (Fullscreen & Quick Exchange Info) -->
+            <div style="padding: 0.6rem 0.85rem; background: rgba(30, 41, 59, 0.5); border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <i data-lucide="candlestick-chart" style="width: 16px; height: 16px; color: #34d399;"></i>
+                <span style="font-size: 0.8rem; font-weight: 700; color: var(--text-primary);" id="tvChartHeaderTitle">TradingView Pro Technical Analysis Chart</span>
+              </div>
+              <button id="tvFullscreenBtn" class="btn" style="font-size: 0.74rem; font-weight: 700; padding: 0.3rem 0.75rem; background: rgba(52, 211, 153, 0.15); border: 1px solid rgba(52, 211, 153, 0.4); color: #34d399; border-radius: 6px; display: flex; align-items: center; gap: 0.35rem; cursor: pointer;">
+                <i data-lucide="maximize-2" id="tvFullscreenIcon" style="width: 14px; height: 14px;"></i> <span id="tvFullscreenLabel">⤢ Fullscreen Chart</span>
+              </button>
+            </div>
+
+            <div id="tv_chart_container" style="width: 100%; height: 610px;">
+              <!-- TradingView Advanced Real-Time Chart widget embedded here -->
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
 
   </div>
 
@@ -2296,6 +2407,7 @@ Check out the design and architecture! Handcrafted with clean vanilla code, modu
   <script src="js/voiceAssistant.js"></script>
   <script src="js/ticker.js"></script>
   <script src="js/tradeBook.js"></script>
+  <script src="js/tradingViewChart.js"></script>
   <script src="js/aiAssistant.js"></script>
   <script src="js/main.js"></script>
   <script>

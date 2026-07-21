@@ -1041,9 +1041,9 @@ function initTradeBook() {
 window.initTradeBook = initTradeBook;
 window.renderTradeBookUI = renderTradeBookUI;
 window.renderTradeBookCharts = renderTradeBookCharts;
-window.openTradeResolutionModal = openTradeResolutionModal;
-window.closeResolutionModal = closeResolutionModal;
-window.confirmTradeResolution = confirmTradeResolution;
+window.showTradeResolutionModal = typeof showTradeResolutionModal === 'function' ? showTradeResolutionModal : function(){};
+window.closeResolutionModal = typeof closeResolutionModal === 'function' ? closeResolutionModal : function(){};
+window.confirmTradeResolution = typeof confirmTradeResolution === 'function' ? confirmTradeResolution : function(){};
 window.exportTradeJournalJSON = exportTradeJournalJSON;
 window.exportTradeJournalCSV = exportTradeJournalCSV;
 window.importTradeJournalJSON = importTradeJournalJSON; 

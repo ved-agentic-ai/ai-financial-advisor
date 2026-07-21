@@ -251,17 +251,19 @@ document.addEventListener('DOMContentLoaded', () => {
   const masterTabAI = document.getElementById('masterTabAI');
   const masterTabYoutube = document.getElementById('masterTabYoutube');
   const masterTabTradeBook = document.getElementById('masterTabTradeBook');
+  const masterTabCharts = document.getElementById('masterTabCharts');
   const masterTabDesign = document.getElementById('masterTabDesign');
 
   const masterPanelTrader = document.getElementById('masterPanelTrader');
   const masterPanelAI = document.getElementById('masterPanelAI');
   const masterPanelYoutube = document.getElementById('masterPanelYoutube');
   const masterPanelTradeBook = document.getElementById('masterPanelTradeBook');
+  const masterPanelCharts = document.getElementById('masterPanelCharts');
   const masterPanelDesign = document.getElementById('masterPanelDesign');
 
   function switchMasterTab(activeTab, activePanel) {
-    const tabs = [masterTabTrader, masterTabAI, masterTabYoutube, masterTabTradeBook, masterTabDesign];
-    const panels = [masterPanelTrader, masterPanelAI, masterPanelYoutube, masterPanelTradeBook, masterPanelDesign];
+    const tabs = [masterTabTrader, masterTabAI, masterTabYoutube, masterTabTradeBook, masterTabCharts, masterTabDesign];
+    const panels = [masterPanelTrader, masterPanelAI, masterPanelYoutube, masterPanelTradeBook, masterPanelCharts, masterPanelDesign];
 
     const isCurrentlyActive = activeTab && activeTab.classList.contains('active');
 
@@ -296,6 +298,14 @@ document.addEventListener('DOMContentLoaded', () => {
       switchMasterTab(masterTabTradeBook, masterPanelTradeBook);
       if (typeof window.initTradeBook === 'function') {
         window.initTradeBook();
+      }
+    });
+  }
+  if (masterTabCharts && masterPanelCharts) {
+    masterTabCharts.addEventListener('click', () => {
+      const opened = switchMasterTab(masterTabCharts, masterPanelCharts);
+      if (opened && typeof window.initTradingViewModule === 'function') {
+        window.initTradingViewModule();
       }
     });
   }
