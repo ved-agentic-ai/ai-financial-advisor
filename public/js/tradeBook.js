@@ -926,7 +926,8 @@ function renderTradeBookCharts() {
 }
 
 function exportTradeJournalJSON() {
-  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(tradeBookState, null, 2));
+  const exportData = (tradeBookState && tradeBookState.length > 0) ? tradeBookState : DEMO_TRADES;
+  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportData, null, 2));
   const downloadAnchor = document.createElement('a');
   downloadAnchor.setAttribute("href", dataStr);
   downloadAnchor.setAttribute("download", `Trade_Book_Backup_${new Date().toISOString().slice(0,10)}.json`);
@@ -937,7 +938,8 @@ function exportTradeJournalJSON() {
 }
 
 function exportTradeJournalCSV() {
-  if (tradeBookState.length === 0) {
+  const tradesToExport = (tradeBookState && tradeBookState.length > 0) ? tradeBookState : DEMO_TRADES;
+  if (!tradesToExport || tradesToExport.length === 0) {
     showToast('No trade records to export.', 'warning');
     return;
   }
@@ -947,7 +949,7 @@ function exportTradeJournalCSV() {
   const csvRows = [];
   csvRows.push(headers.join(','));
 
-  tradeBookState.forEach(trade => {
+  tradesToExport.forEach(trade => {
     const row = [
       `"${trade.id || ''}"`,
       `"${trade.date || ''}"`,
@@ -1008,6 +1010,7 @@ function importTradeJournalJSON(e) {
 
 function initTradeBook() {
   loadTradeBookState();
+  bindTradeBookEvents();
   renderTradeBookUI();
   renderTradeBookCharts();
 

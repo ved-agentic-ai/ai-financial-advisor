@@ -813,9 +813,6 @@ app.post('/api/ai-proxy', async (req, res) => {
   }
 
   try {
-    // Call Gemini REST API endpoint
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${keyToUse}`;
-    
     const systemInstruction = `You are the Antigravity AI Advisor & Trading Strategist. You provide concise, expert, friendly answers about:
     1. Active Trader & Shark Leverage Simulator (25x leverage, margin, risk/reward).
     2. Interactive Trade Book & 100-Trade Discipline Protocol.
@@ -833,8 +830,32 @@ app.post('/api/ai-proxy', async (req, res) => {
       ]
     };
 
-    const response = await axios.post(url, geminiPayload, { headers: { 'Content-Type': 'application/json' } });
-    
+    const candidateModels = [
+      'gemini-1.5-flash-latest',
+      'gemini-2.0-flash',
+      'gemini-2.5-flash',
+      'gemini-1.5-flash',
+      'gemini-1.5-pro'
+    ];
+
+    let lastError = null;
+    let response = null;
+
+    for (const model of candidateModels) {
+      try {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${keyToUse}`;
+        response = await axios.post(url, geminiPayload, { headers: { 'Content-Type': 'application/json' } });
+        if (response && response.data?.candidates) break;
+      } catch (mErr) {
+        lastError = mErr;
+        // Continue to try next candidate model
+      }
+    }
+
+    if (!response && lastError) {
+      throw lastError;
+    }
+
     const candidates = response.data?.candidates;
     if (candidates && candidates.length > 0) {
       const text = candidates[0].content?.parts[0]?.text || 'No response generated.';

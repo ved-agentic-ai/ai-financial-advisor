@@ -64,18 +64,107 @@ function bindAIControls() {
     guideClose.addEventListener('click', () => guideModal.classList.remove('active'));
   }
 
+  // Admin App Key Config Handlers
+  const toggleAdminBtn = document.getElementById('aiToggleAppKeyAdminBtn');
+  const adminDrawer = document.getElementById('aiAppKeyAdminDrawer');
+  const saveAppKeyBtn = document.getElementById('aiSaveAppKeyBtn');
+  const passcodeEl = document.getElementById('aiAppKeyPasscode');
+  const appKeyInputEl = document.getElementById('aiAppKeyInput');
+  const statusBadge = document.getElementById('aiAppKeyStatusBadge');
+
+  if (toggleAdminBtn && adminDrawer) {
+    toggleAdminBtn.addEventListener('click', () => {
+      const isHidden = adminDrawer.style.display === 'none' || !adminDrawer.style.display;
+      adminDrawer.style.display = isHidden ? 'block' : 'none';
+      if (isHidden) fetchAppKeyStatus(statusBadge);
+    });
+  }
+
+  if (saveAppKeyBtn) {
+    saveAppKeyBtn.addEventListener('click', async () => {
+      const passkey = passcodeEl ? passcodeEl.value.trim() : '';
+      const apiKey = appKeyInputEl ? appKeyInputEl.value.trim() : '';
+
+      if (!passkey) {
+        showToast('Please enter the passcode (Welcome@123).', 'warning');
+        return;
+      }
+      if (!apiKey) {
+        showToast('Please paste a valid Gemini API key.', 'warning');
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/app-llm-key', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ passkey, apiKey })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(data.message || 'App LLM Key saved successfully!', 'success');
+          if (appKeyInputEl) appKeyInputEl.value = '';
+          if (passcodeEl) passcodeEl.value = '';
+          fetchAppKeyStatus(statusBadge);
+        } else {
+          showToast(data.error || 'Failed to save App LLM key.', 'error');
+        }
+      } catch (err) {
+        showToast('Server error while saving App LLM key.', 'error');
+      }
+    });
+  }
+
+  // Collapsible Chat Window Toggle
+  const chatHeaderToggle = document.getElementById('aiChatHeaderToggle');
+  if (chatHeaderToggle) {
+    chatHeaderToggle.addEventListener('click', () => toggleAIChatWindow());
+  }
+
   // Bind Main Chat Inputs
   const sendBtn = document.getElementById('aiSendBtn');
   const chatInput = document.getElementById('aiChatInput');
 
   if (sendBtn && chatInput) {
-    sendBtn.addEventListener('click', handleUserSendMessage);
+    sendBtn.addEventListener('click', () => {
+      toggleAIChatWindow(true);
+      handleUserSendMessage();
+    });
     chatInput.addEventListener('keypress', (e) => {
       if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
+        toggleAIChatWindow(true);
         handleUserSendMessage();
       }
     });
+  }
+}
+
+function toggleAIChatWindow(forceExpand = false) {
+  const bodyContent = document.getElementById('aiChatBodyContent');
+  const chevron = document.getElementById('aiChatChevronIcon');
+  if (!bodyContent) return;
+
+  const isCollapsed = bodyContent.style.display === 'none';
+  if (forceExpand || isCollapsed) {
+    bodyContent.style.display = 'flex';
+    if (chevron) chevron.style.transform = 'rotate(0deg)';
+  } else {
+    bodyContent.style.display = 'none';
+    if (chevron) chevron.style.transform = 'rotate(180deg)';
+  }
+}
+
+async function fetchAppKeyStatus(statusBadge) {
+  try {
+    const res = await fetch('/api/app-llm-key');
+    const data = await res.json();
+    if (statusBadge) {
+      statusBadge.textContent = `Status: ${data.hasKey ? 'Active (' + data.maskedKey + ')' : 'Not Configured'}`;
+      statusBadge.style.color = data.hasKey ? '#34d399' : '#f87171';
+    }
+  } catch (err) {
+    if (statusBadge) statusBadge.textContent = 'Status: Server Offline';
   }
 }
 
@@ -113,6 +202,7 @@ function updateAIMetricsUI() {
 
 function openAIChatWithContext(sectionName) {
   aiState.activeContext = sectionName;
+  toggleAIChatWindow(true);
   
   // Update Context Badge in AI Drawer / Section
   const contextBadge = document.getElementById('aiActiveContextBadge');
